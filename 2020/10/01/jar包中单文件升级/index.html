@@ -267,13 +267,6 @@
 
       <time title="创建时间：2020-10-01 12:00:00" itemprop="dateCreated datePublished" datetime="2020-10-01T12:00:00+08:00">2020-10-01</time>
     </span>
-      <span class="post-meta-item">
-        <span class="post-meta-item-icon">
-          <i class="far fa-calendar-check"></i>
-        </span>
-        <span class="post-meta-item-text">更新于</span>
-        <time title="修改时间：2021-05-20 13:16:52" itemprop="dateModified" datetime="2021-05-20T13:16:52+08:00">2021-05-20</time>
-      </span>
     <span class="post-meta-item">
       <span class="post-meta-item-icon">
         <i class="far fa-folder"></i>
@@ -309,13 +302,13 @@
 <p>显然，第一种方案在网速较慢的时候，是影响工作效率的。</p>
 <span id="more"></span>
 <h1 id="解决问题"><a href="#解决问题" class="headerlink" title="解决问题"></a>解决问题</h1><h2 id="过程"><a href="#过程" class="headerlink" title="过程"></a>过程</h2><p>查看help：</p>
-<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line">[security@localhost jars]$ jar</span><br><span class="line">用法: jar &#123;ctxui&#125;[vfm0Me] [jar-file] [manifest-file] [entry-point] [-C dir] files ...</span><br><span class="line">选项包括: </span><br><span class="line">    -c  创建新的归档文件</span><br><span class="line">    -t  列出归档目录</span><br><span class="line">    -x  从档案中提取指定的 (或所有) 文件</span><br><span class="line">    -u  更新现有的归档文件</span><br><span class="line">    -v  在标准输出中生成详细输出</span><br><span class="line">    -f  指定归档文件名</span><br><span class="line">    -m  包含指定清单文件中的清单信息</span><br><span class="line">    -e  为捆绑到可执行 jar 文件的独立应用程序</span><br><span class="line">        指定应用程序入口点</span><br><span class="line">    -0  仅存储; 不使用情况任何 ZIP 压缩</span><br><span class="line">    -M  不创建条目的清单文件</span><br><span class="line">    -i  为指定的 jar 文件生成索引信息</span><br><span class="line">    -C  更改为指定的目录并包含其中的文件</span><br><span class="line">如果有任何目录文件, 则对其进行递归处理。</span><br><span class="line">清单文件名, 归档文件名和入口点名称的指定顺序</span><br><span class="line">与 &#x27;m&#x27;, &#x27;f&#x27; 和 &#x27;e&#x27; 标记的指定顺序相同。</span><br><span class="line"></span><br><span class="line">示例 1: 将两个类文件归档到一个名为 classes.jar 的归档文件中: </span><br><span class="line">       jar cvf classes.jar Foo.class Bar.class </span><br><span class="line">示例 2: 使用现有的清单文件 &#x27;mymanifest&#x27; 并</span><br><span class="line">           将 foo/ 目录中的所有文件归档到 &#x27;classes.jar&#x27; 中: </span><br><span class="line">       jar cvfm classes.jar mymanifest -C foo/ .</span><br></pre></td></tr></table></figure>
+<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">[security@localhost jars]$ jar</span><br><span class="line">用法: jar &#123;ctxui&#125;[vfm0Me] [jar-file] [manifest-file] [entry-point] [-C dir] files ...</span><br><span class="line">选项包括: </span><br><span class="line">    -c  创建新的归档文件</span><br><span class="line">    -t  列出归档目录</span><br><span class="line">    -x  从档案中提取指定的 (或所有) 文件</span><br><span class="line">    -u  更新现有的归档文件</span><br><span class="line">    -v  在标准输出中生成详细输出</span><br><span class="line">    -f  指定归档文件名</span><br><span class="line">    -m  包含指定清单文件中的清单信息</span><br><span class="line">    -e  为捆绑到可执行 jar 文件的独立应用程序</span><br><span class="line">        指定应用程序入口点</span><br><span class="line">    -0  仅存储; 不使用情况任何 ZIP 压缩</span><br><span class="line">    -M  不创建条目的清单文件</span><br><span class="line">    -i  为指定的 jar 文件生成索引信息</span><br><span class="line">    -C  更改为指定的目录并包含其中的文件</span><br><span class="line">如果有任何目录文件, 则对其进行递归处理。</span><br><span class="line">清单文件名, 归档文件名和入口点名称的指定顺序</span><br><span class="line">与 &#x27;m&#x27;, &#x27;f&#x27; 和 &#x27;e&#x27; 标记的指定顺序相同。</span><br><span class="line"></span><br><span class="line">示例 1: 将两个类文件归档到一个名为 classes.jar 的归档文件中: </span><br><span class="line">       jar cvf classes.jar Foo.class Bar.class </span><br><span class="line">示例 2: 使用现有的清单文件 &#x27;mymanifest&#x27; 并</span><br><span class="line">           将 foo/ 目录中的所有文件归档到 &#x27;classes.jar&#x27; 中: </span><br><span class="line">       jar cvfm classes.jar mymanifest -C foo/ .</span><br></pre></td></tr></table></figure>
 <h2 id="结论"><a href="#结论" class="headerlink" title="结论"></a>结论</h2><ul>
-<li>查看文件在jar包中的路径<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">[security@localhost jars]$ jar tvf service.jar |grep todo</span><br><span class="line">  304 Fri Aug 23 12:00:00 CST 2019 BOOT-INF/classes/templates/todo.ftl</span><br></pre></td></tr></table></figure></li>
-<li>解压出文件<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">[security@localhost jars]$ jar xvf service.jar BOOT-INF/classes/templates/todo.ftl</span><br><span class="line">  已解压: BOOT-INF/classes/templates/todo.ftl</span><br></pre></td></tr></table></figure></li>
-<li>覆盖解压出的文件<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">mv todo.ftl BOOT-INF/classes/templates/todo.ftl</span><br></pre></td></tr></table></figure></li>
-<li>合并文件到jar包中<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">[security@localhost jars]$ jar uvf service.jar BOOT-INF/classes/templates/todo.ftl</span><br><span class="line">  正在添加: BOOT-INF/classes/templates/todo.ftl(输入 = 304) (输出 = 195)(压缩了 35%)</span><br></pre></td></tr></table></figure></li>
-<li>删除解压出的文件<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">[security@localhost jars]$ rm -rf BOOT-INF</span><br></pre></td></tr></table></figure></li>
+<li>查看文件在jar包中的路径<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">[security@localhost jars]$ jar tvf service.jar |grep todo</span><br><span class="line">  304 Fri Aug 23 12:00:00 CST 2019 BOOT-INF/classes/templates/todo.ftl</span><br></pre></td></tr></table></figure></li>
+<li>解压出文件<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">[security@localhost jars]$ jar xvf service.jar BOOT-INF/classes/templates/todo.ftl</span><br><span class="line">  已解压: BOOT-INF/classes/templates/todo.ftl</span><br></pre></td></tr></table></figure></li>
+<li>覆盖解压出的文件<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">mv todo.ftl BOOT-INF/classes/templates/todo.ftl</span><br></pre></td></tr></table></figure></li>
+<li>合并文件到jar包中<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">[security@localhost jars]$ jar uvf service.jar BOOT-INF/classes/templates/todo.ftl</span><br><span class="line">  正在添加: BOOT-INF/classes/templates/todo.ftl(输入 = 304) (输出 = 195)(压缩了 35%)</span><br></pre></td></tr></table></figure></li>
+<li>删除解压出的文件<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">[security@localhost jars]$ rm -rf BOOT-INF</span><br></pre></td></tr></table></figure></li>
 <li>重启服务</li>
 </ul>
 
@@ -352,8 +345,8 @@
 
           <div class="post-nav">
             <div class="post-nav-item">
-                <a href="/2020/10/01/%E5%86%85%E7%BD%91%E7%A9%BF%E9%80%8F%E5%B7%A5%E5%85%B7%E7%AE%80%E4%BB%8B/" rel="prev" title="内网穿透工具简介">
-                  <i class="fa fa-chevron-left"></i> 内网穿透工具简介
+                <a href="/2020/10/01/%E8%87%AA%E5%AE%9A%E4%B9%89Proxifier%E9%85%8D%E7%BD%AE%E6%96%87%E4%BB%B6%E5%AD%98%E5%82%A8%E8%B7%AF%E5%BE%84/" rel="prev" title="自定义Proxifier配置文件存储路径">
+                  <i class="fa fa-chevron-left"></i> 自定义Proxifier配置文件存储路径
                 </a>
             </div>
             <div class="post-nav-item">
