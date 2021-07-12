@@ -1,30 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <search>
   <entry>
-    <title>自定义Proxifier配置文件存储路径</title>
-    <url>/2020/10/01/%E8%87%AA%E5%AE%9A%E4%B9%89Proxifier%E9%85%8D%E7%BD%AE%E6%96%87%E4%BB%B6%E5%AD%98%E5%82%A8%E8%B7%AF%E5%BE%84/</url>
-    <content><![CDATA[<h1 id="发现问题"><a href="#发现问题" class="headerlink" title="发现问题"></a>发现问题</h1><p>今天使用Proxifier的时候，发现配置文件存储路径为：C:\Users\***\AppData\Roaming\Proxifier\Profiles。<br>这样就会存在一些风险，例如：重装系统的时候（格式化系统盘），如果没想起来备份，可能就再也找不到了。<br>风险既然发现，就要想办法规避。</p>
-<span id="more"></span>
-<h1 id="解决问题"><a href="#解决问题" class="headerlink" title="解决问题"></a>解决问题</h1><h2 id="过程"><a href="#过程" class="headerlink" title="过程"></a>过程</h2><ul>
-<li>首先，查看Proxifier帮助文档（路径：D:\Program Files (x86)\Proxifier\Proxifier.chm），无果。</li>
-<li>然后，Google各种查资料，无果。</li>
-<li>再然后，试了试在C:\Users\***\AppData\Roaming\Proxifier下面创建Profiles快捷方式，删除Profiles文件夹，结果启动Proxifier之后，竟然又自动生成了Profiles文件夹，失败。</li>
-<li>最后，我想起来Linux有个ln命令，效果是我想要的，开始Google查询“windows 软连接”，找到了mklink命令。</li>
-</ul>
-<p>查看help：</p>
-<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">λ mklink</span><br><span class="line">创建符号链接。</span><br><span class="line"></span><br><span class="line">MKLINK [[/D] | [/H] | [/J]] Link Target</span><br><span class="line"></span><br><span class="line">        /D      创建目录符号链接。默认为文件</span><br><span class="line">                符号链接。</span><br><span class="line">        /H      创建硬链接而非符号链接。</span><br><span class="line">        /J      创建目录联接。</span><br><span class="line">        Link    指定新的符号链接名称。</span><br><span class="line">        Target  指定新链接引用的路径</span><br><span class="line">                (相对或绝对)。</span><br></pre></td></tr></table></figure>
-<h2 id="结论"><a href="#结论" class="headerlink" title="结论"></a>结论</h2><p>注：需要管理员权限</p>
-<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">λ mklink /D C:\Users\***\AppData\Roaming\Proxifier\Profiles E:\Config\Proxifier\Profiles</span><br></pre></td></tr></table></figure>
-]]></content>
-      <categories>
-        <category>软件配置</category>
-      </categories>
-      <tags>
-        <tag>软件配置</tag>
-        <tag>windows</tag>
-      </tags>
-  </entry>
-  <entry>
     <title>jar包中单文件升级</title>
     <url>/2020/10/01/jar%E5%8C%85%E4%B8%AD%E5%8D%95%E6%96%87%E4%BB%B6%E5%8D%87%E7%BA%A7/</url>
     <content><![CDATA[<h1 id="发现问题"><a href="#发现问题" class="headerlink" title="发现问题"></a>发现问题</h1><p>开发springboot项目的时候，我们经常会以jar包的形式进行部署。这个时候，如果需要修改某一个文件，那么该怎么升级呢？</p>
@@ -47,11 +23,35 @@
 </ul>
 ]]></content>
       <categories>
-        <category>java</category>
+        <category>springboot</category>
       </categories>
       <tags>
-        <tag>java</tag>
+        <tag>linux</tag>
         <tag>springboot</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>自定义Proxifier配置文件存储路径</title>
+    <url>/2020/10/01/%E8%87%AA%E5%AE%9A%E4%B9%89Proxifier%E9%85%8D%E7%BD%AE%E6%96%87%E4%BB%B6%E5%AD%98%E5%82%A8%E8%B7%AF%E5%BE%84/</url>
+    <content><![CDATA[<h1 id="发现问题"><a href="#发现问题" class="headerlink" title="发现问题"></a>发现问题</h1><p>今天使用Proxifier的时候，发现配置文件存储路径为：C:\Users\***\AppData\Roaming\Proxifier\Profiles。<br>这样就会存在一些风险，例如：重装系统的时候（格式化系统盘），如果没想起来备份，可能就再也找不到了。<br>风险既然发现，就要想办法规避。</p>
+<span id="more"></span>
+<h1 id="解决问题"><a href="#解决问题" class="headerlink" title="解决问题"></a>解决问题</h1><h2 id="过程"><a href="#过程" class="headerlink" title="过程"></a>过程</h2><ul>
+<li>首先，查看Proxifier帮助文档（路径：D:\Program Files (x86)\Proxifier\Proxifier.chm），无果。</li>
+<li>然后，Google各种查资料，无果。</li>
+<li>再然后，试了试在C:\Users\***\AppData\Roaming\Proxifier下面创建Profiles快捷方式，删除Profiles文件夹，结果启动Proxifier之后，竟然又自动生成了Profiles文件夹，失败。</li>
+<li>最后，我想起来Linux有个ln命令，效果是我想要的，开始Google查询“windows 软连接”，找到了mklink命令。</li>
+</ul>
+<p>查看help：</p>
+<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">λ mklink</span><br><span class="line">创建符号链接。</span><br><span class="line"></span><br><span class="line">MKLINK [[/D] | [/H] | [/J]] Link Target</span><br><span class="line"></span><br><span class="line">        /D      创建目录符号链接。默认为文件</span><br><span class="line">                符号链接。</span><br><span class="line">        /H      创建硬链接而非符号链接。</span><br><span class="line">        /J      创建目录联接。</span><br><span class="line">        Link    指定新的符号链接名称。</span><br><span class="line">        Target  指定新链接引用的路径</span><br><span class="line">                (相对或绝对)。</span><br></pre></td></tr></table></figure>
+<h2 id="结论"><a href="#结论" class="headerlink" title="结论"></a>结论</h2><p>注：需要管理员权限</p>
+<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">λ mklink /D C:\Users\***\AppData\Roaming\Proxifier\Profiles E:\Config\Proxifier\Profiles</span><br></pre></td></tr></table></figure>
+]]></content>
+      <categories>
+        <category>软件配置</category>
+      </categories>
+      <tags>
+        <tag>windows</tag>
+        <tag>软件配置</tag>
       </tags>
   </entry>
 </search>
