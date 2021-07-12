@@ -14,7 +14,7 @@
 
 <link rel="stylesheet" href="/css/main.css">
 
-
+<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=YaHei+Consolas+Hybrid:300,300italic,400,400italic,700,700italic&display=swap&subset=latin,latin-ext">
 
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@5.15.3/css/all.min.css">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/animate.css@3.1.1/animate.min.css">
@@ -86,9 +86,9 @@
   <ul class="main-menu menu">
         <li class="menu-item menu-item-home"><a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a></li>
         <li class="menu-item menu-item-about"><a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>关于</a></li>
-        <li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签<span class="badge">5</span></a></li>
-        <li class="menu-item menu-item-categories"><a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类<span class="badge">3</span></a></li>
-        <li class="menu-item menu-item-archives"><a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档<span class="badge">3</span></a></li>
+        <li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签<span class="badge">4</span></a></li>
+        <li class="menu-item menu-item-categories"><a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类<span class="badge">2</span></a></li>
+        <li class="menu-item menu-item-archives"><a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档<span class="badge">2</span></a></li>
       <li class="menu-item menu-item-search">
         <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
         </a>
@@ -160,20 +160,20 @@
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">3</span>
+          <span class="site-state-item-count">2</span>
           <span class="site-state-item-name">日志</span>
         </a>
       </div>
       <div class="site-state-item site-state-categories">
             <a href="/categories/">
           
-        <span class="site-state-item-count">3</span>
+        <span class="site-state-item-count">2</span>
         <span class="site-state-item-name">分类</span></a>
       </div>
       <div class="site-state-item site-state-tags">
             <a href="/tags/">
           
-        <span class="site-state-item-count">5</span>
+        <span class="site-state-item-count">4</span>
         <span class="site-state-item-name">标签</span></a>
       </div>
   </nav>
@@ -226,6 +226,86 @@
 
 
     <div class="main-inner index posts-expand">
+
+    
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="">
+    <link itemprop="mainEntityOfPage" href="https://hero821.github.io/2020/10/01/%E8%87%AA%E5%AE%9A%E4%B9%89Proxifier%E9%85%8D%E7%BD%AE%E6%96%87%E4%BB%B6%E5%AD%98%E5%82%A8%E8%B7%AF%E5%BE%84/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.png">
+      <meta itemprop="name" content="hero821">
+      <meta itemprop="description" content="Hero821的博客">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Hero821's Blog">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          <a href="/2020/10/01/%E8%87%AA%E5%AE%9A%E4%B9%89Proxifier%E9%85%8D%E7%BD%AE%E6%96%87%E4%BB%B6%E5%AD%98%E5%82%A8%E8%B7%AF%E5%BE%84/" class="post-title-link" itemprop="url">自定义Proxifier配置文件存储路径</a>
+        </h2>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+
+      <time title="创建时间：2020-10-01 12:00:00" itemprop="dateCreated datePublished" datetime="2020-10-01T12:00:00+08:00">2020-10-01</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-folder"></i>
+      </span>
+      <span class="post-meta-item-text">分类于</span>
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/%E8%BD%AF%E4%BB%B6%E9%85%8D%E7%BD%AE/" itemprop="url" rel="index"><span itemprop="name">软件配置</span></a>
+        </span>
+    </span>
+
+  
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+          <h1 id="发现问题"><a href="#发现问题" class="headerlink" title="发现问题"></a>发现问题</h1><p>今天使用Proxifier的时候，发现配置文件存储路径为：C:\Users\***\AppData\Roaming\Proxifier\Profiles。<br>这样就会存在一些风险，例如：重装系统的时候（格式化系统盘），如果没想起来备份，可能就再也找不到了。<br>风险既然发现，就要想办法规避。</p>
+          <!--noindex-->
+            <div class="post-button">
+              <a class="btn" href="/2020/10/01/%E8%87%AA%E5%AE%9A%E4%B9%89Proxifier%E9%85%8D%E7%BD%AE%E6%96%87%E4%BB%B6%E5%AD%98%E5%82%A8%E8%B7%AF%E5%BE%84/#more" rel="contents">
+                阅读全文 &raquo;
+              </a>
+            </div>
+          <!--/noindex-->
+        
+      
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+</div>
+
+
+
 
     
 
@@ -290,171 +370,6 @@
           <!--noindex-->
             <div class="post-button">
               <a class="btn" href="/2020/10/01/jar%E5%8C%85%E4%B8%AD%E5%8D%95%E6%96%87%E4%BB%B6%E5%8D%87%E7%BA%A7/#more" rel="contents">
-                阅读全文 &raquo;
-              </a>
-            </div>
-          <!--/noindex-->
-        
-      
-    </div>
-
-    
-    
-    
-
-    <footer class="post-footer">
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-</div>
-
-
-
-
-    
-
-
-<div class="post-block">
-  
-  
-
-  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="">
-    <link itemprop="mainEntityOfPage" href="https://hero821.github.io/2020/10/01/%E5%86%85%E7%BD%91%E7%A9%BF%E9%80%8F%E5%B7%A5%E5%85%B7%E7%AE%80%E4%BB%8B/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.png">
-      <meta itemprop="name" content="hero821">
-      <meta itemprop="description" content="Hero821的博客">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Hero821's Blog">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          <a href="/2020/10/01/%E5%86%85%E7%BD%91%E7%A9%BF%E9%80%8F%E5%B7%A5%E5%85%B7%E7%AE%80%E4%BB%8B/" class="post-title-link" itemprop="url">内网穿透工具简介</a>
-        </h2>
-
-        <div class="post-meta-container">
-          <div class="post-meta">
-    <span class="post-meta-item">
-      <span class="post-meta-item-icon">
-        <i class="far fa-calendar"></i>
-      </span>
-      <span class="post-meta-item-text">发表于</span>
-
-      <time title="创建时间：2020-10-01 12:00:00" itemprop="dateCreated datePublished" datetime="2020-10-01T12:00:00+08:00">2020-10-01</time>
-    </span>
-    <span class="post-meta-item">
-      <span class="post-meta-item-icon">
-        <i class="far fa-folder"></i>
-      </span>
-      <span class="post-meta-item-text">分类于</span>
-        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-          <a href="/categories/%E5%86%85%E7%BD%91%E7%A9%BF%E9%80%8F/" itemprop="url" rel="index"><span itemprop="name">内网穿透</span></a>
-        </span>
-    </span>
-
-  
-</div>
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-          <h1 id="常用工具"><a href="#常用工具" class="headerlink" title="常用工具"></a>常用工具</h1><ul>
-<li>ssh</li>
-<li>autossh（支持重连）</li>
-<li>SecureCRT、PuTTY等（一般SSH客户端都支持）</li>
-<li>Bitvise SSH Client（带UI，支持重连，仅支持WIN）</li>
-<li>s_h_a_d_o_w_s_o_c_k_s（请勿乱用）</li>
-<li>v_2_r_a_y（请勿乱用，功能强大，配置复杂）</li>
-<li>proxifier（让不支持代理的应用走代理，仅支持WIN）</li>
-<li>proxychains（让不支持代理的应用走代理，仅支持LINUX）</li>
-<li>redsocks（配合iptables使用，让不支持代理的应用走代理，仅支持LINUX）</li>
-<li>sshuttle（配合iptables使用，让不支持代理的应用走代理，仅支持LINUX）</li>
-<li>其他：frp、ngrok、anydesk、teamviewer</li>
-</ul>
-
-      
-    </div>
-
-    
-    
-    
-
-    <footer class="post-footer">
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-</div>
-
-
-
-
-    
-
-
-<div class="post-block">
-  
-  
-
-  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="">
-    <link itemprop="mainEntityOfPage" href="https://hero821.github.io/2020/10/01/%E8%87%AA%E5%AE%9A%E4%B9%89Proxifier%E9%85%8D%E7%BD%AE%E6%96%87%E4%BB%B6%E5%AD%98%E5%82%A8%E8%B7%AF%E5%BE%84/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.png">
-      <meta itemprop="name" content="hero821">
-      <meta itemprop="description" content="Hero821的博客">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Hero821's Blog">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          <a href="/2020/10/01/%E8%87%AA%E5%AE%9A%E4%B9%89Proxifier%E9%85%8D%E7%BD%AE%E6%96%87%E4%BB%B6%E5%AD%98%E5%82%A8%E8%B7%AF%E5%BE%84/" class="post-title-link" itemprop="url">自定义Proxifier配置文件存储路径</a>
-        </h2>
-
-        <div class="post-meta-container">
-          <div class="post-meta">
-    <span class="post-meta-item">
-      <span class="post-meta-item-icon">
-        <i class="far fa-calendar"></i>
-      </span>
-      <span class="post-meta-item-text">发表于</span>
-
-      <time title="创建时间：2020-10-01 12:00:00" itemprop="dateCreated datePublished" datetime="2020-10-01T12:00:00+08:00">2020-10-01</time>
-    </span>
-    <span class="post-meta-item">
-      <span class="post-meta-item-icon">
-        <i class="far fa-folder"></i>
-      </span>
-      <span class="post-meta-item-text">分类于</span>
-        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-          <a href="/categories/%E8%BD%AF%E4%BB%B6%E9%85%8D%E7%BD%AE/" itemprop="url" rel="index"><span itemprop="name">软件配置</span></a>
-        </span>
-    </span>
-
-  
-</div>
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-          <h1 id="发现问题"><a href="#发现问题" class="headerlink" title="发现问题"></a>发现问题</h1><p>今天使用Proxifier的时候，发现配置文件存储路径为：C:\Users\***\AppData\Roaming\Proxifier\Profiles。<br>这样就会存在一些风险，例如：重装系统的时候（格式化系统盘），如果没想起来备份，可能就再也找不到了。<br>风险既然发现，就要想办法规避。</p>
-          <!--noindex-->
-            <div class="post-button">
-              <a class="btn" href="/2020/10/01/%E8%87%AA%E5%AE%9A%E4%B9%89Proxifier%E9%85%8D%E7%BD%AE%E6%96%87%E4%BB%B6%E5%AD%98%E5%82%A8%E8%B7%AF%E5%BE%84/#more" rel="contents">
                 阅读全文 &raquo;
               </a>
             </div>
