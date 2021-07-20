@@ -1,30 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <search>
   <entry>
-    <title>自定义Proxifier配置文件存储路径</title>
-    <url>/2020/10/01/%E8%87%AA%E5%AE%9A%E4%B9%89Proxifier%E9%85%8D%E7%BD%AE%E6%96%87%E4%BB%B6%E5%AD%98%E5%82%A8%E8%B7%AF%E5%BE%84/</url>
-    <content><![CDATA[<h1 id="发现问题"><a href="#发现问题" class="headerlink" title="发现问题"></a>发现问题</h1><p>今天使用Proxifier的时候，发现配置文件存储路径为：C:\Users\***\AppData\Roaming\Proxifier\Profiles。<br>这样就会存在一些风险，例如：重装系统的时候（格式化系统盘），如果没想起来备份，可能就再也找不到了。<br>风险既然发现，就要想办法规避。</p>
-<span id="more"></span>
-<h1 id="解决问题"><a href="#解决问题" class="headerlink" title="解决问题"></a>解决问题</h1><h2 id="过程"><a href="#过程" class="headerlink" title="过程"></a>过程</h2><ul>
-<li>首先，查看Proxifier帮助文档（路径：D:\Program Files (x86)\Proxifier\Proxifier.chm），无果。</li>
-<li>然后，Google各种查资料，无果。</li>
-<li>再然后，试了试在C:\Users\***\AppData\Roaming\Proxifier下面创建Profiles快捷方式，删除Profiles文件夹，结果启动Proxifier之后，竟然又自动生成了Profiles文件夹，失败。</li>
-<li>最后，我想起来Linux有个ln命令，效果是我想要的，开始Google查询“windows 软连接”，找到了mklink命令。</li>
-</ul>
-<p>查看help：</p>
-<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">λ mklink</span><br><span class="line">创建符号链接。</span><br><span class="line"></span><br><span class="line">MKLINK [[/D] | [/H] | [/J]] Link Target</span><br><span class="line"></span><br><span class="line">        /D      创建目录符号链接。默认为文件</span><br><span class="line">                符号链接。</span><br><span class="line">        /H      创建硬链接而非符号链接。</span><br><span class="line">        /J      创建目录联接。</span><br><span class="line">        Link    指定新的符号链接名称。</span><br><span class="line">        Target  指定新链接引用的路径</span><br><span class="line">                (相对或绝对)。</span><br></pre></td></tr></table></figure>
-<h2 id="结论"><a href="#结论" class="headerlink" title="结论"></a>结论</h2><p>注：需要管理员权限</p>
-<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">λ mklink /D C:\Users\***\AppData\Roaming\Proxifier\Profiles E:\Config\Proxifier\Profiles</span><br></pre></td></tr></table></figure>
-]]></content>
-      <categories>
-        <category>软件配置</category>
-      </categories>
-      <tags>
-        <tag>windows</tag>
-        <tag>软件配置</tag>
-      </tags>
-  </entry>
-  <entry>
     <title>jar包中单文件升级</title>
     <url>/2020/10/01/jar%E5%8C%85%E4%B8%AD%E5%8D%95%E6%96%87%E4%BB%B6%E5%8D%87%E7%BA%A7/</url>
     <content><![CDATA[<h1 id="发现问题"><a href="#发现问题" class="headerlink" title="发现问题"></a>发现问题</h1><p>开发springboot项目的时候，我们经常会以jar包的形式进行部署。这个时候，如果需要修改某一个文件，那么该怎么升级呢？</p>
@@ -52,6 +28,64 @@
       <tags>
         <tag>linux</tag>
         <tag>springboot</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>安装WireGuard</title>
+    <url>/2021/07/20/%E5%AE%89%E8%A3%85WireGuard/</url>
+    <content><![CDATA[<ol>
+<li><h1 id="安装windows端"><a href="#安装windows端" class="headerlink" title="安装windows端"></a>安装windows端</h1><p>安装wireguard-amd64-0.3.16.msi：可以正常安装，无法正常使用<br>安装TunSafe-1.4.exe：可以正常安装，可以正常使用，可以支持ListenPortTCP</p>
+</li>
+<li><h1 id="安装centos端（需要升级内核）"><a href="#安装centos端（需要升级内核）" class="headerlink" title="安装centos端（需要升级内核）"></a>安装centos端（需要升级内核）</h1><figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">yum install epel-release elrepo-release</span><br><span class="line">yum install yum-plugin-elrepo</span><br><span class="line">yum install kmod-wireguard wireguard-tools</span><br><span class="line"><span class="meta">#</span><span class="bash"> 重启</span></span><br><span class="line">reboot</span><br><span class="line"><span class="meta">#</span><span class="bash"> 加载内核模块</span></span><br><span class="line">modprobe wireguard</span><br><span class="line"><span class="meta">#</span><span class="bash"> 检查WG模块加载是否正常</span></span><br><span class="line">lsmod | grep wireguard</span><br></pre></td></tr></table></figure>
+<span id="more"></span></li>
+<li><h1 id="安装wireguard-go端（无需升级内核，多平台）"><a href="#安装wireguard-go端（无需升级内核，多平台）" class="headerlink" title="安装wireguard-go端（无需升级内核，多平台）"></a>安装wireguard-go端（无需升级内核，多平台）</h1><figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">mkdir -p ~/go/src/github.com</span><br><span class="line">cd ~/go/src/github.com</span><br><span class="line">git clone https://github.com/WireGuard/wireguard-go.git</span><br><span class="line">cd wireguard-go</span><br><span class="line">make</span><br><span class="line">make install</span><br><span class="line">yum install wireguard-tools</span><br><span class="line"><span class="meta">#</span><span class="bash"> <span class="built_in">export</span> WG_QUICK_USERSPACE_IMPLEMENTATION=wireguard-go</span></span><br><span class="line">wg-quick up wg0</span><br></pre></td></tr></table></figure></li>
+<li><h1 id="配置服务端"><a href="#配置服务端" class="headerlink" title="配置服务端"></a>配置服务端</h1><figure class="highlight shell"><table><tr><td class="code"><pre><span class="line"><span class="meta">#</span><span class="bash"> wg genkey &gt; privatekey</span></span><br><span class="line"><span class="meta">#</span><span class="bash"> wg pubkey &lt; privatekey &gt; publickey</span></span><br><span class="line">wg genkey | tee privatekey | wg pubkey &gt; publickey</span><br><span class="line">vi /etc/wireguard/wg0.conf</span><br><span class="line"><span class="meta">#</span><span class="bash"><span class="comment">##</span></span></span><br><span class="line">[Interface]</span><br><span class="line">Address = 10.0.0.1/24</span><br><span class="line">ListenPort = 51820</span><br><span class="line">PrivateKey = &lt;Server Private Key&gt;</span><br><span class="line">PostUp = iptables -A FORWARD -i %i -j ACCEPT; iptables -t nat -A POSTROUTING -o eth0 -j MASQUERADE</span><br><span class="line">PostDown = iptables -D FORWARD -i %i -j ACCEPT; iptables -t nat -D POSTROUTING -o eth0 -j MASQUERADE</span><br><span class="line"><span class="meta">#</span><span class="bash"><span class="comment">##</span></span></span><br><span class="line">systemctl enable wg-quick@wg0</span><br><span class="line"><span class="meta">#</span><span class="bash"> 启动服务端</span></span><br><span class="line">wg-quick up wg0</span><br><span class="line"><span class="meta">#</span><span class="bash"> 停止服务端</span></span><br><span class="line">wg-quick down wg0</span><br><span class="line"><span class="meta">#</span><span class="bash"> 查看节点列表</span></span><br><span class="line">wg show</span><br><span class="line"><span class="meta">#</span><span class="bash"> 重载配置文件，不影响已有连接</span></span><br><span class="line">wg syncconf wg0 &lt;(wg-quick strip wg0)</span><br></pre></td></tr></table></figure></li>
+<li><h1 id="配置客户端"><a href="#配置客户端" class="headerlink" title="配置客户端"></a>配置客户端</h1><figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">wg genkey | tee privatekey | wg pubkey &gt; publickey</span><br><span class="line">vi /etc/wireguard/wg0.conf</span><br><span class="line"><span class="meta">#</span><span class="bash"><span class="comment">##</span></span></span><br><span class="line">[Interface]</span><br><span class="line">Address = 10.0.0.2/24</span><br><span class="line">ListenPort = 51820</span><br><span class="line">PrivateKey = &lt;Client Private Key&gt;</span><br><span class="line"><span class="meta">#</span><span class="bash"><span class="comment">##</span></span></span><br></pre></td></tr></table></figure></li>
+<li><h1 id="连接-Client-和-Server"><a href="#连接-Client-和-Server" class="headerlink" title="连接 Client 和 Server"></a>连接 Client 和 Server</h1><h2 id="方法1"><a href="#方法1" class="headerlink" title="方法1"></a>方法1</h2><p>服务端wg0.conf添加到客户端Peer</p>
+<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line"><span class="meta">#</span><span class="bash"><span class="comment">##</span></span></span><br><span class="line">[Peer]</span><br><span class="line">PublicKey = &lt;Client Public key&gt;</span><br><span class="line">AllowedIPs = 10.0.0.2/32</span><br><span class="line">PersistentKeepalive = 30</span><br><span class="line"><span class="meta">#</span><span class="bash"><span class="comment">##</span></span></span><br></pre></td></tr></table></figure>
+
+<p>客户端wg0.conf添加到服务端Peer</p>
+<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line"><span class="meta">#</span><span class="bash"><span class="comment">##</span></span></span><br><span class="line">[Peer]</span><br><span class="line">PublicKey = &lt;Server Public Key&gt;</span><br><span class="line">AllowedIPs = 10.0.0.0/24</span><br><span class="line">Endpoint = &lt;Server Public IP&gt;:51820</span><br><span class="line">PersistentKeepalive = 30</span><br><span class="line"><span class="meta">#</span><span class="bash"><span class="comment">##</span></span></span><br></pre></td></tr></table></figure>
+
+<h2 id="方法2"><a href="#方法2" class="headerlink" title="方法2"></a>方法2</h2><p>服务端执行命令</p>
+<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">wg set wg0 peer &lt;Client Public key&gt; allowed-ips 10.0.0.2/32 persistent-keepalive 30</span><br><span class="line">wg-quick save wg0</span><br></pre></td></tr></table></figure>
+
+<p>客户端执行命令</p>
+<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">wg set wg0 peer &lt;Server Public Key&gt; allowed-ips 10.0.0.0/24 persistent-keepalive 30 \</span><br><span class="line">endpoint &lt;Server Public IP&gt;:51820 </span><br><span class="line">wg-quick save wg0</span><br></pre></td></tr></table></figure></li>
+<li><h1 id="配置生成"><a href="#配置生成" class="headerlink" title="配置生成"></a>配置生成</h1><p><a href="https://www.wireguardconfig.com/">https://www.wireguardconfig.com</a></p>
+</li>
+</ol>
+]]></content>
+      <categories>
+        <category>软件安装</category>
+      </categories>
+      <tags>
+        <tag>VPN</tag>
+        <tag>WireGuard</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>自定义Proxifier配置文件存储路径</title>
+    <url>/2020/10/01/%E8%87%AA%E5%AE%9A%E4%B9%89Proxifier%E9%85%8D%E7%BD%AE%E6%96%87%E4%BB%B6%E5%AD%98%E5%82%A8%E8%B7%AF%E5%BE%84/</url>
+    <content><![CDATA[<h1 id="发现问题"><a href="#发现问题" class="headerlink" title="发现问题"></a>发现问题</h1><p>今天使用Proxifier的时候，发现配置文件存储路径为：C:\Users\***\AppData\Roaming\Proxifier\Profiles。<br>这样就会存在一些风险，例如：重装系统的时候（格式化系统盘），如果没想起来备份，可能就再也找不到了。<br>风险既然发现，就要想办法规避。</p>
+<span id="more"></span>
+<h1 id="解决问题"><a href="#解决问题" class="headerlink" title="解决问题"></a>解决问题</h1><h2 id="过程"><a href="#过程" class="headerlink" title="过程"></a>过程</h2><ul>
+<li>首先，查看Proxifier帮助文档（路径：D:\Program Files (x86)\Proxifier\Proxifier.chm），无果。</li>
+<li>然后，Google各种查资料，无果。</li>
+<li>再然后，试了试在C:\Users\***\AppData\Roaming\Proxifier下面创建Profiles快捷方式，删除Profiles文件夹，结果启动Proxifier之后，竟然又自动生成了Profiles文件夹，失败。</li>
+<li>最后，我想起来Linux有个ln命令，效果是我想要的，开始Google查询“windows 软连接”，找到了mklink命令。</li>
+</ul>
+<p>查看help：</p>
+<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">λ mklink</span><br><span class="line">创建符号链接。</span><br><span class="line"></span><br><span class="line">MKLINK [[/D] | [/H] | [/J]] Link Target</span><br><span class="line"></span><br><span class="line">        /D      创建目录符号链接。默认为文件</span><br><span class="line">                符号链接。</span><br><span class="line">        /H      创建硬链接而非符号链接。</span><br><span class="line">        /J      创建目录联接。</span><br><span class="line">        Link    指定新的符号链接名称。</span><br><span class="line">        Target  指定新链接引用的路径</span><br><span class="line">                (相对或绝对)。</span><br></pre></td></tr></table></figure>
+<h2 id="结论"><a href="#结论" class="headerlink" title="结论"></a>结论</h2><p>注：需要管理员权限</p>
+<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">λ mklink /D C:\Users\***\AppData\Roaming\Proxifier\Profiles E:\Config\Proxifier\Profiles</span><br></pre></td></tr></table></figure>
+]]></content>
+      <categories>
+        <category>软件配置</category>
+      </categories>
+      <tags>
+        <tag>windows</tag>
+        <tag>软件配置</tag>
       </tags>
   </entry>
 </search>
