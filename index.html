@@ -281,10 +281,11 @@
     
     
     <div class="post-body" itemprop="articleBody">
-          <ol>
-<li><h1 id="安装windows端"><a href="#安装windows端" class="headerlink" title="安装windows端"></a>安装windows端</h1><p>安装wireguard-amd64-0.3.16.msi：可以正常安装，无法正常使用<br>安装TunSafe-1.4.exe：可以正常安装，可以正常使用，可以支持ListenPortTCP</p>
-</li>
-<li><h1 id="安装centos端（需要升级内核）"><a href="#安装centos端（需要升级内核）" class="headerlink" title="安装centos端（需要升级内核）"></a>安装centos端（需要升级内核）</h1><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">yum install epel-release elrepo-release</span><br><span class="line">yum install yum-plugin-elrepo</span><br><span class="line">yum install kmod-wireguard wireguard-tools</span><br><span class="line"><span class="meta">#</span><span class="bash"> 重启</span></span><br><span class="line">reboot</span><br><span class="line"><span class="meta">#</span><span class="bash"> 加载内核模块</span></span><br><span class="line">modprobe wireguard</span><br><span class="line"><span class="meta">#</span><span class="bash"> 检查WG模块加载是否正常</span></span><br><span class="line">lsmod | grep wireguard</span><br></pre></td></tr></table></figure>
+          <h1 id="安装windows端"><a href="#安装windows端" class="headerlink" title="安装windows端"></a>安装windows端</h1><p>安装wireguard-amd64-0.3.16.msi：可以正常安装，无法正常使用<br>安装TunSafe-1.4.exe：可以正常安装，可以正常使用，可以支持ListenPortTCP</p>
+<h1 id="安装centos端"><a href="#安装centos端" class="headerlink" title="安装centos端"></a>安装centos端</h1><blockquote>
+<p>需要升级内核</p>
+</blockquote>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">yum install epel-release elrepo-release</span><br><span class="line">yum install yum-plugin-elrepo</span><br><span class="line">yum install kmod-wireguard wireguard-tools</span><br><span class="line"><span class="meta">#</span><span class="bash"> 重启</span></span><br><span class="line">reboot</span><br><span class="line"><span class="meta">#</span><span class="bash"> 加载内核模块</span></span><br><span class="line">modprobe wireguard</span><br><span class="line"><span class="meta">#</span><span class="bash"> 检查WG模块加载是否正常</span></span><br><span class="line">lsmod | grep wireguard</span><br></pre></td></tr></table></figure>
           <!--noindex-->
             <div class="post-button">
               <a class="btn" href="/2021/07/20/%E5%AE%89%E8%A3%85WireGuard/#more" rel="contents">
