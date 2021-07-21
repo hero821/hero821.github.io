@@ -284,11 +284,7 @@
           <h1 id="需求"><a href="#需求" class="headerlink" title="需求"></a>需求</h1><p>需要对容器暴露的主机端口进行白名单访问控制，仅允许某些IP访问主机端口。</p>
 <figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">docker run -d --name nginx \</span><br><span class="line">-p 60080:80 \</span><br><span class="line">-v ~/nginx/nginx.conf:/etc/nginx/nginx.conf \</span><br><span class="line">-v ~/nginx/conf.d:/etc/nginx/conf.d \</span><br><span class="line">nginx:1.20-alpine</span><br></pre></td></tr></table></figure>
 
-<h1 id="方案"><a href="#方案" class="headerlink" title="方案"></a>方案</h1><p>Docker通过操作iptables规则来提供网络隔离。</p>
-<p>Docker安装了两个名为DOCKER-USER和DOCKER的自定义iptables链，并确保传入的数据包始终首先由这两个链检查。</p>
-<p>Docker的所有iptables规则都添加到DOCKER链中，不要手动修改此链。</p>
-<p>如果需要添加自定义规则，请使用DOCKER-USER链，DOCKER-USER链在Docker链之前应用，也就是说用户自定义规则优先于Docker规则。</p>
-<p>DOCKER-USER链默认只有一条规则，意思是 允许所有流量通过</p>
+<h1 id="方案"><a href="#方案" class="headerlink" title="方案"></a>方案</h1><p>Docker通过操作iptables规则来提供网络隔离。<br>Docker安装了两个名为DOCKER-USER和DOCKER的自定义iptables链，并确保传入的数据包始终首先由这两个链检查。<br>Docker的所有iptables规则都添加到DOCKER链中，不要手动修改此链。<br>如果需要添加自定义规则，请使用DOCKER-USER链，DOCKER-USER链在Docker链之前应用，也就是说用户自定义规则优先于Docker规则。<br>DOCKER-USER链默认只有一条规则，意思是 允许所有流量通过</p>
 <figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">Chain DOCKER-USER (1 references)</span><br><span class="line"> pkts bytes target     prot opt in     out     source               destination         </span><br><span class="line">    0     0 RETURN     all  --  *      *       0.0.0.0/0            0.0.0.0/0  </span><br></pre></td></tr></table></figure>
           <!--noindex-->
             <div class="post-button">
