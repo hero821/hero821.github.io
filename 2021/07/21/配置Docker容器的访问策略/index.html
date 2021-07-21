@@ -20,29 +20,30 @@
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/animate.css@3.1.1/animate.min.css">
 
 <script class="next-config" data-name="main" type="application/json">{&quot;hostname&quot;:&quot;hero821.github.io&quot;,&quot;root&quot;:&quot;&#x2F;&quot;,&quot;images&quot;:&quot;&#x2F;images&quot;,&quot;scheme&quot;:&quot;Gemini&quot;,&quot;version&quot;:&quot;8.4.0&quot;,&quot;exturl&quot;:false,&quot;sidebar&quot;:{&quot;position&quot;:&quot;left&quot;,&quot;display&quot;:&quot;post&quot;,&quot;padding&quot;:18,&quot;offset&quot;:12},&quot;copycode&quot;:true,&quot;bookmark&quot;:{&quot;enable&quot;:false,&quot;color&quot;:&quot;#222&quot;,&quot;save&quot;:&quot;auto&quot;},&quot;fancybox&quot;:false,&quot;mediumzoom&quot;:false,&quot;lazyload&quot;:false,&quot;pangu&quot;:false,&quot;comments&quot;:{&quot;style&quot;:&quot;tabs&quot;,&quot;active&quot;:null,&quot;storage&quot;:true,&quot;lazyload&quot;:false,&quot;nav&quot;:null},&quot;motion&quot;:{&quot;enable&quot;:true,&quot;async&quot;:false,&quot;transition&quot;:{&quot;post_block&quot;:&quot;fadeIn&quot;,&quot;post_header&quot;:&quot;fadeInDown&quot;,&quot;post_body&quot;:&quot;fadeInDown&quot;,&quot;coll_header&quot;:&quot;fadeInLeft&quot;,&quot;sidebar&quot;:&quot;fadeInUp&quot;}},&quot;prism&quot;:false,&quot;i18n&quot;:{&quot;placeholder&quot;:&quot;搜索...&quot;,&quot;empty&quot;:&quot;没有找到任何搜索结果：${query}&quot;,&quot;hits_time&quot;:&quot;找到 ${hits} 个搜索结果（用时 ${time} 毫秒）&quot;,&quot;hits&quot;:&quot;找到 ${hits} 个搜索结果&quot;},&quot;path&quot;:&quot;&#x2F;search.xml&quot;,&quot;localsearch&quot;:{&quot;enable&quot;:true,&quot;trigger&quot;:&quot;auto&quot;,&quot;top_n_per_article&quot;:1,&quot;unescape&quot;:false,&quot;preload&quot;:false}}</script>
-<meta name="description" content="发现问题开发springboot项目的时候，我们经常会以jar包的形式进行部署。这个时候，如果需要修改某一个文件，那么该怎么升级呢？  本地重新打包，全包上传到服务器 只上传单文件到服务器，在服务器上把单文件合并到原来的jar包中显然，第一种方案在网速较慢的时候，是影响工作效率的。">
+<meta name="description" content="需求需要对容器暴露的主机端口进行白名单访问控制，仅允许某些IP访问主机端口。 12345docker run -d --name nginx \-p 60080:80 \-v ~&#x2F;nginx&#x2F;nginx.conf:&#x2F;etc&#x2F;nginx&#x2F;nginx.conf \-v ~&#x2F;nginx&#x2F;conf.d:&#x2F;etc&#x2F;nginx&#x2F;conf.d \nginx:1.20-alpine  介绍Docker通过操作ip">
 <meta property="og:type" content="article">
-<meta property="og:title" content="jar包中单文件升级">
-<meta property="og:url" content="https://hero821.github.io/2020/10/01/jar%E5%8C%85%E4%B8%AD%E5%8D%95%E6%96%87%E4%BB%B6%E5%8D%87%E7%BA%A7/index.html">
+<meta property="og:title" content="配置Docker容器的访问策略">
+<meta property="og:url" content="https://hero821.github.io/2021/07/21/%E9%85%8D%E7%BD%AEDocker%E5%AE%B9%E5%99%A8%E7%9A%84%E8%AE%BF%E9%97%AE%E7%AD%96%E7%95%A5/index.html">
 <meta property="og:site_name" content="Hero821&#39;s Blog">
-<meta property="og:description" content="发现问题开发springboot项目的时候，我们经常会以jar包的形式进行部署。这个时候，如果需要修改某一个文件，那么该怎么升级呢？  本地重新打包，全包上传到服务器 只上传单文件到服务器，在服务器上把单文件合并到原来的jar包中显然，第一种方案在网速较慢的时候，是影响工作效率的。">
+<meta property="og:description" content="需求需要对容器暴露的主机端口进行白名单访问控制，仅允许某些IP访问主机端口。 12345docker run -d --name nginx \-p 60080:80 \-v ~&#x2F;nginx&#x2F;nginx.conf:&#x2F;etc&#x2F;nginx&#x2F;nginx.conf \-v ~&#x2F;nginx&#x2F;conf.d:&#x2F;etc&#x2F;nginx&#x2F;conf.d \nginx:1.20-alpine  介绍Docker通过操作ip">
 <meta property="og:locale" content="zh_CN">
-<meta property="article:published_time" content="2020-10-01T04:00:00.000Z">
-<meta property="article:modified_time" content="2021-07-20T14:54:56.795Z">
+<meta property="article:published_time" content="2021-07-21T04:00:00.000Z">
+<meta property="article:modified_time" content="2021-07-21T12:50:21.286Z">
 <meta property="article:author" content="hero821">
 <meta property="article:tag" content="Linux">
-<meta property="article:tag" content="springboot">
+<meta property="article:tag" content="Docker">
+<meta property="article:tag" content="iptables">
 <meta name="twitter:card" content="summary">
 
 
-<link rel="canonical" href="https://hero821.github.io/2020/10/01/jar%E5%8C%85%E4%B8%AD%E5%8D%95%E6%96%87%E4%BB%B6%E5%8D%87%E7%BA%A7/">
+<link rel="canonical" href="https://hero821.github.io/2021/07/21/%E9%85%8D%E7%BD%AEDocker%E5%AE%B9%E5%99%A8%E7%9A%84%E8%AE%BF%E9%97%AE%E7%AD%96%E7%95%A5/">
 
 
 
-<script class="next-config" data-name="page" type="application/json">{&quot;sidebar&quot;:&quot;&quot;,&quot;isHome&quot;:false,&quot;isPost&quot;:true,&quot;lang&quot;:&quot;zh-CN&quot;,&quot;comments&quot;:true,&quot;permalink&quot;:&quot;https:&#x2F;&#x2F;hero821.github.io&#x2F;2020&#x2F;10&#x2F;01&#x2F;jar%E5%8C%85%E4%B8%AD%E5%8D%95%E6%96%87%E4%BB%B6%E5%8D%87%E7%BA%A7&#x2F;&quot;,&quot;path&quot;:&quot;2020&#x2F;10&#x2F;01&#x2F;jar包中单文件升级&#x2F;&quot;,&quot;title&quot;:&quot;jar包中单文件升级&quot;}</script>
+<script class="next-config" data-name="page" type="application/json">{&quot;sidebar&quot;:&quot;&quot;,&quot;isHome&quot;:false,&quot;isPost&quot;:true,&quot;lang&quot;:&quot;zh-CN&quot;,&quot;comments&quot;:true,&quot;permalink&quot;:&quot;https:&#x2F;&#x2F;hero821.github.io&#x2F;2021&#x2F;07&#x2F;21&#x2F;%E9%85%8D%E7%BD%AEDocker%E5%AE%B9%E5%99%A8%E7%9A%84%E8%AE%BF%E9%97%AE%E7%AD%96%E7%95%A5&#x2F;&quot;,&quot;path&quot;:&quot;2021&#x2F;07&#x2F;21&#x2F;配置Docker容器的访问策略&#x2F;&quot;,&quot;title&quot;:&quot;配置Docker容器的访问策略&quot;}</script>
 
 <script class="next-config" data-name="calendar" type="application/json">&quot;&quot;</script>
-<title>jar包中单文件升级 | Hero821's Blog</title><script src="/js/config.js"></script>
+<title>配置Docker容器的访问策略 | Hero821's Blog</title><script src="/js/config.js"></script>
   
 
 
@@ -90,9 +91,9 @@
   <ul class="main-menu menu">
         <li class="menu-item menu-item-home"><a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a></li>
         <li class="menu-item menu-item-about"><a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>关于</a></li>
-        <li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签<span class="badge">6</span></a></li>
-        <li class="menu-item menu-item-categories"><a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类<span class="badge">2</span></a></li>
-        <li class="menu-item menu-item-archives"><a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档<span class="badge">3</span></a></li>
+        <li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签<span class="badge">8</span></a></li>
+        <li class="menu-item menu-item-categories"><a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类<span class="badge">4</span></a></li>
+        <li class="menu-item menu-item-archives"><a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档<span class="badge">4</span></a></li>
       <li class="menu-item menu-item-search">
         <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
         </a>
@@ -149,7 +150,7 @@
       <div class="sidebar-panel-container">
         <!--noindex-->
         <div class="post-toc-wrap sidebar-panel">
-            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%8F%91%E7%8E%B0%E9%97%AE%E9%A2%98"><span class="nav-number">1.</span> <span class="nav-text">发现问题</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E8%A7%A3%E5%86%B3%E9%97%AE%E9%A2%98"><span class="nav-number">2.</span> <span class="nav-text">解决问题</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E8%BF%87%E7%A8%8B"><span class="nav-number">2.1.</span> <span class="nav-text">过程</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%BB%93%E8%AE%BA"><span class="nav-number">2.2.</span> <span class="nav-text">结论</span></a></li></ol></li></ol></div>
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E9%9C%80%E6%B1%82"><span class="nav-number">1.</span> <span class="nav-text">需求</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E4%BB%8B%E7%BB%8D"><span class="nav-number">2.</span> <span class="nav-text">介绍</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E9%85%8D%E7%BD%AE"><span class="nav-number">3.</span> <span class="nav-text">配置</span></a></li></ol></div>
         </div>
         <!--/noindex-->
 
@@ -165,20 +166,20 @@
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">3</span>
+          <span class="site-state-item-count">4</span>
           <span class="site-state-item-name">日志</span>
         </a>
       </div>
       <div class="site-state-item site-state-categories">
             <a href="/categories/">
           
-        <span class="site-state-item-count">2</span>
+        <span class="site-state-item-count">4</span>
         <span class="site-state-item-name">分类</span></a>
       </div>
       <div class="site-state-item site-state-tags">
             <a href="/tags/">
           
-        <span class="site-state-item-count">6</span>
+        <span class="site-state-item-count">8</span>
         <span class="site-state-item-name">标签</span></a>
       </div>
   </nav>
@@ -241,7 +242,7 @@
   
 
   <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="https://hero821.github.io/2020/10/01/jar%E5%8C%85%E4%B8%AD%E5%8D%95%E6%96%87%E4%BB%B6%E5%8D%87%E7%BA%A7/">
+    <link itemprop="mainEntityOfPage" href="https://hero821.github.io/2021/07/21/%E9%85%8D%E7%BD%AEDocker%E5%AE%B9%E5%99%A8%E7%9A%84%E8%AE%BF%E9%97%AE%E7%AD%96%E7%95%A5/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="image" content="/images/avatar.png">
@@ -254,7 +255,7 @@
     </span>
       <header class="post-header">
         <h1 class="post-title" itemprop="name headline">
-          jar包中单文件升级
+          配置Docker容器的访问策略
         </h1>
 
         <div class="post-meta-container">
@@ -265,7 +266,7 @@
       </span>
       <span class="post-meta-item-text">发表于</span>
 
-      <time title="创建时间：2020-10-01 12:00:00" itemprop="dateCreated datePublished" datetime="2020-10-01T12:00:00+08:00">2020-10-01</time>
+      <time title="创建时间：2021-07-21 12:00:00" itemprop="dateCreated datePublished" datetime="2021-07-21T12:00:00+08:00">2021-07-21</time>
     </span>
     <span class="post-meta-item">
       <span class="post-meta-item-icon">
@@ -273,7 +274,7 @@
       </span>
       <span class="post-meta-item-text">分类于</span>
         <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-          <a href="/categories/springboot/" itemprop="url" rel="index"><span itemprop="name">springboot</span></a>
+          <a href="/categories/Docker/" itemprop="url" rel="index"><span itemprop="name">Docker</span></a>
         </span>
     </span>
 
@@ -294,44 +295,38 @@
     
     
     <div class="post-body" itemprop="articleBody">
-        <h1 id="发现问题"><a href="#发现问题" class="headerlink" title="发现问题"></a>发现问题</h1><p>开发springboot项目的时候，我们经常会以jar包的形式进行部署。这个时候，如果需要修改某一个文件，那么该怎么升级呢？</p>
-<ul>
-<li>本地重新打包，全包上传到服务器</li>
-<li>只上传单文件到服务器，在服务器上把单文件合并到原来的jar包中<br>显然，第一种方案在网速较慢的时候，是影响工作效率的。</li>
-</ul>
-<span id="more"></span>
+        <h1 id="需求"><a href="#需求" class="headerlink" title="需求"></a>需求</h1><p>需要对容器暴露的主机端口进行白名单访问控制，仅允许某些IP访问主机端口。</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">docker run -d --name nginx \</span><br><span class="line">-p 60080:80 \</span><br><span class="line">-v ~/nginx/nginx.conf:/etc/nginx/nginx.conf \</span><br><span class="line">-v ~/nginx/conf.d:/etc/nginx/conf.d \</span><br><span class="line">nginx:1.20-alpine</span><br></pre></td></tr></table></figure>
 
-<h1 id="解决问题"><a href="#解决问题" class="headerlink" title="解决问题"></a>解决问题</h1><h2 id="过程"><a href="#过程" class="headerlink" title="过程"></a>过程</h2><p>查看help：</p>
-<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line">[security@localhost jars]$ jar</span><br><span class="line">用法: jar &#123;ctxui&#125;[vfm0Me] [jar-file] [manifest-file] [entry-point] [-C dir] files ...</span><br><span class="line">选项包括: </span><br><span class="line">    -c  创建新的归档文件</span><br><span class="line">    -t  列出归档目录</span><br><span class="line">    -x  从档案中提取指定的 (或所有) 文件</span><br><span class="line">    -u  更新现有的归档文件</span><br><span class="line">    -v  在标准输出中生成详细输出</span><br><span class="line">    -f  指定归档文件名</span><br><span class="line">    -m  包含指定清单文件中的清单信息</span><br><span class="line">    -e  为捆绑到可执行 jar 文件的独立应用程序</span><br><span class="line">        指定应用程序入口点</span><br><span class="line">    -0  仅存储; 不使用情况任何 ZIP 压缩</span><br><span class="line">    -M  不创建条目的清单文件</span><br><span class="line">    -i  为指定的 jar 文件生成索引信息</span><br><span class="line">    -C  更改为指定的目录并包含其中的文件</span><br><span class="line">如果有任何目录文件, 则对其进行递归处理。</span><br><span class="line">清单文件名, 归档文件名和入口点名称的指定顺序</span><br><span class="line">与 &#x27;m&#x27;, &#x27;f&#x27; 和 &#x27;e&#x27; 标记的指定顺序相同。</span><br><span class="line"></span><br><span class="line">示例 1: 将两个类文件归档到一个名为 classes.jar 的归档文件中: </span><br><span class="line">       jar cvf classes.jar Foo.class Bar.class </span><br><span class="line">示例 2: 使用现有的清单文件 &#x27;mymanifest&#x27; 并</span><br><span class="line">           将 foo/ 目录中的所有文件归档到 &#x27;classes.jar&#x27; 中: </span><br><span class="line">       jar cvfm classes.jar mymanifest -C foo/ .</span><br></pre></td></tr></table></figure>
+<h1 id="介绍"><a href="#介绍" class="headerlink" title="介绍"></a>介绍</h1><p>Docker通过操作iptables规则来提供网络隔离。</p>
+<p>Docker安装了两个名为DOCKER-USER和DOCKER的自定义iptables链，并确保传入的数据包始终首先由这两个链检查。</p>
+<p>Docker的所有iptables规则都添加到DOCKER链中，不要手动修改此链。</p>
+<p>如果需要添加自定义规则，请使用DOCKER-USER链，DOCKER-USER链在Docker链之前应用，也就是说用户自定义规则优先于Docker规则。</p>
+<p>DOCKER-USER链默认只有一条规则，意思是 允许所有流量通过</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">Chain DOCKER-USER (1 references)</span><br><span class="line"> pkts bytes target     prot opt in     out     source               destination         </span><br><span class="line">    0     0 RETURN     all  --  *      *       0.0.0.0/0            0.0.0.0/0  </span><br></pre></td></tr></table></figure>
 
-<h2 id="结论"><a href="#结论" class="headerlink" title="结论"></a>结论</h2><ul>
-<li>查看文件在jar包中的路径</li>
-</ul>
-<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">[security@localhost jars]$ jar tvf service.jar |grep todo</span><br><span class="line">  304 Fri Aug 23 12:00:00 CST 2019 BOOT-INF/classes/templates/todo.ftl</span><br></pre></td></tr></table></figure>
+<p>不推荐直接在FORWARD链中添加规则，具体原因，分两种情况说明</p>
+<ol>
+<li><p>在FORWARD链底部添加规则</p>
+<p>由于Docker自动添加的ACCEPT规则在前面，所以自定义规则无法起作用。</p>
+</li>
+<li><p>在FORWARD链顶部添加规则</p>
+<p>刚添加完规则的时候是起作用的。</p>
+<p>执行systemctl restart docker等操作之后，Docker会把自己的规则添加到FORWARD链顶部，导致自定义规则无法起作用。</p>
+</li>
+</ol>
+<h1 id="配置"><a href="#配置" class="headerlink" title="配置"></a>配置</h1><p>允许IP访问</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">iptables -I DOCKER-USER -i eth0 ! -s 192.168.1.1 -j DROP</span><br></pre></td></tr></table></figure>
 
-<ul>
-<li>解压出文件</li>
-</ul>
-<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">[security@localhost jars]$ jar xvf service.jar BOOT-INF/classes/templates/todo.ftl</span><br><span class="line">  已解压: BOOT-INF/classes/templates/todo.ftl</span><br></pre></td></tr></table></figure>
+<p>允许网段访问</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">iptables -I DOCKER-USER -i eth0 ! -s 192.168.1.0/24 -j DROP</span><br></pre></td></tr></table></figure>
 
-<ul>
-<li>覆盖解压出的文件</li>
-</ul>
-<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">mv todo.ftl BOOT-INF/classes/templates/todo.ftl</span><br></pre></td></tr></table></figure>
+<p>允许连续IP访问</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">iptables -I DOCKER-USER -m iprange -i eth0 ! --src-range 192.168.1.1-192.168.1.3 -j DROP</span><br></pre></td></tr></table></figure>
 
-<ul>
-<li>合并文件到jar包中</li>
-</ul>
-<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">[security@localhost jars]$ jar uvf service.jar BOOT-INF/classes/templates/todo.ftl</span><br><span class="line">  正在添加: BOOT-INF/classes/templates/todo.ftl(输入 = 304) (输出 = 195)(压缩了 35%)</span><br></pre></td></tr></table></figure>
+<p>允许多IP访问</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">iptables -I DOCKER-USER -i eth0 -j DROP</span><br><span class="line">iptables -I DOCKER-USER -i eth0 -p tcp -m tcp -s 192.168.1.0/24 --dport 60080 -j RETURN</span><br><span class="line">iptables -I DOCKER-USER -i eth0 -p tcp -m tcp -s 192.168.2.0/24 --dport 60080 -j RETURN</span><br><span class="line">iptables -nvL</span><br><span class="line">Chain DOCKER-USER (1 references)</span><br><span class="line"> pkts bytes target     prot opt in     out     source               destination         </span><br><span class="line">    0     0 RETURN     tcp  --  eth0   *       192.168.2.0/24       0.0.0.0/0            tcp dpt:60080</span><br><span class="line">    0     0 RETURN     tcp  --  eth0   *       192.168.1.0/24       0.0.0.0/0            tcp dpt:60080</span><br><span class="line">    0     0 DROP       all  --  eth0   *       0.0.0.0/0            0.0.0.0/0           </span><br><span class="line">    0     0 RETURN     all  --  *      *       0.0.0.0/0            0.0.0.0/0  </span><br></pre></td></tr></table></figure>
 
-<ul>
-<li>删除解压出的文件</li>
-</ul>
-<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">[security@localhost jars]$ rm -rf BOOT-INF</span><br></pre></td></tr></table></figure>
-
-<ul>
-<li>重启服务</li>
-</ul>
 
     </div>
 
@@ -349,7 +344,7 @@
   </li>
   <li class="post-copyright-link">
       <strong>本文链接：</strong>
-      <a href="https://hero821.github.io/2020/10/01/jar%E5%8C%85%E4%B8%AD%E5%8D%95%E6%96%87%E4%BB%B6%E5%8D%87%E7%BA%A7/" title="jar包中单文件升级">https://hero821.github.io/2020/10/01/jar包中单文件升级/</a>
+      <a href="https://hero821.github.io/2021/07/21/%E9%85%8D%E7%BD%AEDocker%E5%AE%B9%E5%99%A8%E7%9A%84%E8%AE%BF%E9%97%AE%E7%AD%96%E7%95%A5/" title="配置Docker容器的访问策略">https://hero821.github.io/2021/07/21/配置Docker容器的访问策略/</a>
   </li>
   <li class="post-copyright-license">
     <strong>版权声明： </strong>本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" rel="noopener" target="_blank"><i class="fab fa-fw fa-creative-commons"></i>BY-NC-SA</a> 许可协议。转载请注明出处！
@@ -359,21 +354,19 @@
 
           <div class="post-tags">
               <a href="/tags/Linux/" rel="tag"># Linux</a>
-              <a href="/tags/springboot/" rel="tag"># springboot</a>
+              <a href="/tags/Docker/" rel="tag"># Docker</a>
+              <a href="/tags/iptables/" rel="tag"># iptables</a>
           </div>
 
         
 
           <div class="post-nav">
             <div class="post-nav-item">
-                <a href="/2020/10/01/%E8%87%AA%E5%AE%9A%E4%B9%89Proxifier%E9%85%8D%E7%BD%AE%E6%96%87%E4%BB%B6%E5%AD%98%E5%82%A8%E8%B7%AF%E5%BE%84/" rel="prev" title="自定义Proxifier配置文件存储路径">
-                  <i class="fa fa-chevron-left"></i> 自定义Proxifier配置文件存储路径
+                <a href="/2021/07/20/%E5%AE%89%E8%A3%85WireGuard/" rel="prev" title="安装WireGuard">
+                  <i class="fa fa-chevron-left"></i> 安装WireGuard
                 </a>
             </div>
             <div class="post-nav-item">
-                <a href="/2021/07/20/%E5%AE%89%E8%A3%85WireGuard/" rel="next" title="安装WireGuard">
-                  安装WireGuard <i class="fa fa-chevron-right"></i>
-                </a>
             </div>
           </div>
     </footer>
