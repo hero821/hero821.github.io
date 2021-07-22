@@ -120,6 +120,32 @@
       </tags>
   </entry>
   <entry>
+    <title>安装badvpn</title>
+    <url>/2021/07/22/%E5%AE%89%E8%A3%85badvpn/</url>
+    <content><![CDATA[<h1 id="安装"><a href="#安装" class="headerlink" title="安装"></a>安装</h1><figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">yum install cmake openssl openssl-devel nspr nspr-devel nss nss-devel</span><br><span class="line">ln -s /usr/include/nss3 /usr/include/nss</span><br><span class="line">git clone https://github.com/ambrop72/badvpn.git</span><br><span class="line">cd badvpn</span><br><span class="line">mkdir build</span><br><span class="line">cd build</span><br><span class="line">cmake .. -DCMAKE_INSTALL_PREFIX=/usr</span><br><span class="line">make install</span><br></pre></td></tr></table></figure>
+
+<span id="more"></span>
+
+<h1 id="配置"><a href="#配置" class="headerlink" title="配置"></a>配置</h1><h2 id="服务端"><a href="#服务端" class="headerlink" title="服务端"></a>服务端</h2><p>一般情况，服务端只需启动socks5服务即可；如果需要转发UDP，服务端还需要启动udpgw服务。</p>
+<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">badvpn-udpgw --listen-addr 127.0.0.1:7300</span><br></pre></td></tr></table></figure>
+
+<h2 id="客户端"><a href="#客户端" class="headerlink" title="客户端"></a>客户端</h2><figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">ip tuntap del dev tun0 mode tun</span><br><span class="line">ip tuntap add dev tun0 mode tun</span><br><span class="line">ip addr add 10.0.0.1/24 dev tun0</span><br><span class="line">ip link set tun0 up</span><br><span class="line">badvpn-tun2socks --tundev tun0 --netif-ipaddr 10.0.0.2 --netif-netmask 255.255.255.0 \</span><br><span class="line">--socks-server-addr 12.34.56.78:1080 --username &lt;username&gt; --password &lt;password&gt; \</span><br><span class="line">--udpgw-remote-server-addr 127.0.0.1:7300</span><br></pre></td></tr></table></figure>
+
+<h1 id="测试"><a href="#测试" class="headerlink" title="测试"></a>测试</h1><h2 id="测试TCP"><a href="#测试TCP" class="headerlink" title="测试TCP"></a>测试TCP</h2><figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">ip route add 192.168.1.0/24 via 10.0.0.1</span><br><span class="line">curl http://192.168.1.1</span><br></pre></td></tr></table></figure>
+
+<h2 id="测试UDP"><a href="#测试UDP" class="headerlink" title="测试UDP"></a>测试UDP</h2><figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">ip route add 8.8.8.8/32 via 10.0.0.1</span><br><span class="line">nslookup baidu.com 8.8.8.8</span><br></pre></td></tr></table></figure>
+
+<h1 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h1><p><a href="https://github.com/yangchuansheng/love-gfw/blob/master/docs/badvpn-linux.md">https://github.com/yangchuansheng/love-gfw/blob/master/docs/badvpn-linux.md</a></p>
+]]></content>
+      <categories>
+        <category>Proxy</category>
+      </categories>
+      <tags>
+        <tag>Proxy</tag>
+        <tag>badvpn</tag>
+      </tags>
+  </entry>
+  <entry>
     <title>安装redsocks</title>
     <url>/2021/07/21/%E5%AE%89%E8%A3%85redsocks/</url>
     <content><![CDATA[<h1 id="安装"><a href="#安装" class="headerlink" title="安装"></a>安装</h1><figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">yum install libevent-devel git gcc</span><br><span class="line">git clone https://github.com/darkk/redsocks</span><br><span class="line">cd redsocks</span><br><span class="line">make</span><br><span class="line">cp redsocks /usr/bin</span><br></pre></td></tr></table></figure>
