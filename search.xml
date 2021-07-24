@@ -163,6 +163,45 @@
       </tags>
   </entry>
   <entry>
+    <title>安装mitmproxy</title>
+    <url>/2021/07/24/%E5%AE%89%E8%A3%85mitmproxy/</url>
+    <content><![CDATA[<h1 id="说明"><a href="#说明" class="headerlink" title="说明"></a>说明</h1><h2 id="三个工具的用途"><a href="#三个工具的用途" class="headerlink" title="三个工具的用途"></a>三个工具的用途</h2><p>mitmproxy：为您提供交互式命令行界面<br>mitmweb：为您提供基于浏览器的 GUI<br>mitmdump：为您提供非交互式终端输出</p>
+<span id="more"></span>
+
+<h1 id="安装"><a href="#安装" class="headerlink" title="安装"></a>安装</h1><h2 id="Windows-安装"><a href="#Windows-安装" class="headerlink" title="Windows 安装"></a>Windows 安装</h2><p><strong>使用zip文件</strong></p>
+<p>下载：<a href="https://snapshots.mitmproxy.org/7.0.0/mitmproxy-7.0.0-windows.zip">https://snapshots.mitmproxy.org/7.0.0/mitmproxy-7.0.0-windows.zip</a><br>解压：mitmproxy-7.0.0-windows.zip</p>
+<p><strong>使用installer文件</strong></p>
+<p>下载：<a href="https://snapshots.mitmproxy.org/7.0.0/mitmproxy-7.0.0-windows-installer.exe">https://snapshots.mitmproxy.org/7.0.0/mitmproxy-7.0.0-windows-installer.exe</a><br>安装：mitmproxy-7.0.0-windows-installer.exe</p>
+<h2 id="Linux-安装"><a href="#Linux-安装" class="headerlink" title="Linux 安装"></a>Linux 安装</h2><figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">wget https://snapshots.mitmproxy.org/7.0.0/mitmproxy-7.0.0-linux.tar.gz</span><br><span class="line">mkdir mitmproxy-7.0.0-linux</span><br><span class="line">tar -zxvf mitmproxy-7.0.0-linux.tar.gz -C mitmproxy-7.0.0-linux</span><br><span class="line">cd mitmproxy-7.0.0-linux</span><br><span class="line">./mitmproxy --version</span><br></pre></td></tr></table></figure>
+
+<h1 id="配置证书"><a href="#配置证书" class="headerlink" title="配置证书"></a>配置证书</h1><h2 id="下载证书"><a href="#下载证书" class="headerlink" title="下载证书"></a>下载证书</h2><p>方法一：可以通过浏览器打开 <a href="http://mitm.it/">http://mitm.it</a> 下载证书，要求浏览器已经配置proxy<br>方法二：首次启动 mitmproxy 之后，证书会自动生成到 ~/.mitmproxy 目录，可以到 ~/.mitmproxy 目录中下载</p>
+<h2 id="安装证书到-Windows"><a href="#安装证书到-Windows" class="headerlink" title="安装证书到 Windows"></a>安装证书到 Windows</h2><p>选择【受信任的根证书颁发机构】</p>
+<h2 id="安装证书到-Linux"><a href="#安装证书到-Linux" class="headerlink" title="安装证书到 Linux"></a>安装证书到 Linux</h2><figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">cp mitmproxy-ca-cert.pem /etc/pki/ca-trust/source/anchors</span><br><span class="line">update-ca-trust</span><br><span class="line">curl --proxy 192.168.128.1:8080 https://www.baidu.com</span><br></pre></td></tr></table></figure>
+
+<h2 id="不安装证书，需要手动指定证书"><a href="#不安装证书，需要手动指定证书" class="headerlink" title="不安装证书，需要手动指定证书"></a>不安装证书，需要手动指定证书</h2><figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">curl --proxy 192.168.128.1:8080 --cacert mitmproxy-ca-cert.pem https://www.baidu.com</span><br></pre></td></tr></table></figure>
+
+<h1 id="测试"><a href="#测试" class="headerlink" title="测试"></a>测试</h1><h2 id="使用-mitmproxy"><a href="#使用-mitmproxy" class="headerlink" title="使用 mitmproxy"></a>使用 mitmproxy</h2><p>参考：<a href="https://docs.mitmproxy.org/stable/mitmproxytutorial-userinterface">https://docs.mitmproxy.org/stable/mitmproxytutorial-userinterface</a></p>
+<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line"><span class="meta">#</span><span class="bash"> 第一个窗口，启动mitmproxy</span></span><br><span class="line">./mitmproxy</span><br><span class="line"><span class="meta">#</span><span class="bash"> 第一个窗口，指定监听端口，启动mitmproxy</span></span><br><span class="line">./mitmproxy -p 8888</span><br><span class="line"><span class="meta"></span></span><br><span class="line"><span class="meta">#</span><span class="bash"> 第二个窗口，请求url之后，第一个窗口可以看到数据</span></span><br><span class="line">curl --proxy http://127.0.0.1:8080 http://wttr.in/Dunedin?0</span><br><span class="line">curl --proxy http://127.0.0.1:8080 http://wttr.in/Innsbruck?0</span><br><span class="line"><span class="meta"></span></span><br><span class="line"><span class="meta">#</span><span class="bash"> 第一个窗口，支持快捷键和命令行操作</span></span><br><span class="line"><span class="meta">#</span><span class="bash"><span class="comment"># 使用箭头键 ↑ 和 ↓ 更改焦点 (&gt;&gt;)</span></span></span><br><span class="line"><span class="meta">#</span><span class="bash"><span class="comment"># 按 ENTER 查看详细信息</span></span></span><br><span class="line"><span class="meta">#</span><span class="bash"><span class="comment"># 按 q 退出当前视图</span></span></span><br><span class="line"><span class="meta">#</span><span class="bash"><span class="comment"># 按 ？获取所有可用键盘快捷键的列表</span></span></span><br><span class="line"><span class="meta">#</span><span class="bash"><span class="comment"># 按 : 打开底部的命令提示符</span></span></span><br><span class="line"><span class="meta">#</span><span class="bash"><span class="comment"># 输入 :console.view.flow @focus 等同于按 ENTER 键</span></span></span><br></pre></td></tr></table></figure>
+
+<h2 id="使用-mitmweb"><a href="#使用-mitmweb" class="headerlink" title="使用 mitmweb"></a>使用 mitmweb</h2><figure class="highlight shell"><table><tr><td class="code"><pre><span class="line"><span class="meta">#</span><span class="bash"> 启动之后，自动打开浏览器 http://127.0.0.1:8081</span> </span><br><span class="line">./mitmweb</span><br></pre></td></tr></table></figure>
+
+<h2 id="使用-mitmdump"><a href="#使用-mitmdump" class="headerlink" title="使用 mitmdump"></a>使用 mitmdump</h2><figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">./mitmdump -s script.py</span><br></pre></td></tr></table></figure>
+
+<h2 id="使用-addons：AddHeader"><a href="#使用-addons：AddHeader" class="headerlink" title="使用 addons：AddHeader"></a>使用 addons：AddHeader</h2><figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">vi AddHeader.py</span><br><span class="line"><span class="meta">#</span><span class="bash"><span class="comment">##</span></span></span><br><span class="line">class AddHeader:</span><br><span class="line">    def response(self, flow):</span><br><span class="line">        flow.response.headers[&quot;name&quot;] = str(&#x27;mitmproxy&#x27;)</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">addons = [</span><br><span class="line">    AddHeader()</span><br><span class="line">]</span><br><span class="line"><span class="meta">#</span><span class="bash"><span class="comment">##</span></span></span><br><span class="line">./mitmdump -s AddHeader.py</span><br></pre></td></tr></table></figure>
+
+<h2 id="使用-addons：ModifyResponse"><a href="#使用-addons：ModifyResponse" class="headerlink" title="使用 addons：ModifyResponse"></a>使用 addons：ModifyResponse</h2><figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">vi ModifyResponse.py</span><br><span class="line"><span class="meta">#</span><span class="bash"><span class="comment">##</span></span></span><br><span class="line">from mitmproxy import ctx</span><br><span class="line">from mitmproxy import http</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">class ModifyResponse:</span><br><span class="line">    def response(self, flow: http.HTTPFlow) -&gt; None:</span><br><span class="line">        if flow.request.url == &#x27;https://www.baidu.com/&#x27;:</span><br><span class="line">            flow.response.content = flow.response.content.decode(&#x27;utf8&#x27;).replace(</span><br><span class="line">                &#x27;&lt;title&gt;百度一下，你就知道&lt;/title&gt;&#x27;, &#x27;&lt;title&gt;mitmproxy&lt;/title&gt;&#x27;</span><br><span class="line">            ).encode(&#x27;utf8&#x27;)</span><br><span class="line">            ctx.log.info(&quot;修改title为mitmproxy&quot;)</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">addons = [</span><br><span class="line">    ModifyResponse()</span><br><span class="line">]</span><br><span class="line"><span class="meta">#</span><span class="bash"><span class="comment">##</span></span></span><br><span class="line">./mitmdump -s ModifyResponse.py</span><br></pre></td></tr></table></figure>
+
+]]></content>
+      <categories>
+        <category>mitmproxy</category>
+      </categories>
+      <tags>
+        <tag>Proxy</tag>
+        <tag>mitmproxy</tag>
+        <tag>Python</tag>
+      </tags>
+  </entry>
+  <entry>
     <title>安装badvpn</title>
     <url>/2021/07/22/%E5%AE%89%E8%A3%85badvpn/</url>
     <content><![CDATA[<h1 id="安装"><a href="#安装" class="headerlink" title="安装"></a>安装</h1><figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">yum install cmake openssl openssl-devel nspr nspr-devel nss nss-devel</span><br><span class="line">ln -s /usr/include/nss3 /usr/include/nss</span><br><span class="line">git clone https://github.com/ambrop72/badvpn.git</span><br><span class="line">cd badvpn</span><br><span class="line">mkdir build</span><br><span class="line">cd build</span><br><span class="line">cmake .. -DCMAKE_INSTALL_PREFIX=/usr</span><br><span class="line">make install</span><br></pre></td></tr></table></figure>
