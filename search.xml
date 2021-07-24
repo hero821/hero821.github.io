@@ -1,6 +1,101 @@
 <?xml version="1.0" encoding="utf-8"?>
 <search>
   <entry>
+    <title>DNS基本概念</title>
+    <url>/2021/07/24/DNS%E5%9F%BA%E6%9C%AC%E6%A6%82%E5%BF%B5/</url>
+    <content><![CDATA[<h1 id="概念"><a href="#概念" class="headerlink" title="概念"></a>概念</h1><p>DNS是 Domain Name System 的缩写，作用是根据域名查询IP地址</p>
+<h1 id="查询方式"><a href="#查询方式" class="headerlink" title="查询方式"></a>查询方式</h1><h2 id="递归查询"><a href="#递归查询" class="headerlink" title="递归查询"></a>递归查询</h2><p>DNS服务器接收到客户机请求，必须使用一个准确的查询结果回复客户机。<br>如果DNS服务器本地没有存储查询DNS信息，那么该服务器会询问其他服务器，并将返回的查询结果提交给客户机。</p>
+<h2 id="迭代查询"><a href="#迭代查询" class="headerlink" title="迭代查询"></a>迭代查询</h2><p>DNS服务器会向客户机提供其他能够解析查询请求的DNS服务器地址。<br>当客户机发送查询请求时，DNS服务器并不直接回复查询结果，而是告诉客户机另一台DNS服务器地址。<br>客户机再向这台DNS服务器提交请求，依次循环直到返回查询的结果为止。</p>
+<span id="more"></span>
+
+<h1 id="DNS记录类型"><a href="#DNS记录类型" class="headerlink" title="DNS记录类型"></a>DNS记录类型</h1><p>A：地址记录（Address），返回域名指向的IP地址。<br>NS：域名服务器记录（Name Server），返回保存下一级域名信息的服务器地址。该记录只能设置为域名，不能设置为IP地址。<br>MX：邮件记录（Mail eXchange），返回接收电子邮件的服务器地址。<br>CNAME：规范名称记录（Canonical Name），返回另一个域名，即当前查询的域名是另一个域名的跳转。<br>PTR：逆向查询记录（Pointer Record），只用于从IP地址查询域名。</p>
+<h1 id="私有DNS解决方案"><a href="#私有DNS解决方案" class="headerlink" title="私有DNS解决方案"></a>私有DNS解决方案</h1><p>BIND<br>PowerDNS<br>Dnsmasq<br>CoreDNS</p>
+<p>参考：<a href="https://en.wikipedia.org/wiki/Comparison_of_DNS_server_software">https://en.wikipedia.org/wiki/Comparison_of_DNS_server_software</a></p>
+]]></content>
+      <categories>
+        <category>DNS</category>
+      </categories>
+      <tags>
+        <tag>DNS</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>修改Proxifier配置文件存储路径</title>
+    <url>/2020/10/01/%E4%BF%AE%E6%94%B9Proxifier%E9%85%8D%E7%BD%AE%E6%96%87%E4%BB%B6%E5%AD%98%E5%82%A8%E8%B7%AF%E5%BE%84/</url>
+    <content><![CDATA[<h1 id="发现问题"><a href="#发现问题" class="headerlink" title="发现问题"></a>发现问题</h1><p>今天使用Proxifier的时候，发现配置文件存储路径为：C:\Users\<User>\AppData\Roaming\Proxifier\Profiles。<br>这样就会存在一些风险，例如：重装系统的时候（格式化系统盘），如果没想起来备份，可能就再也找不到了。<br>风险既然发现，就要想办法规避。</p>
+<span id="more"></span>
+
+<h1 id="解决问题"><a href="#解决问题" class="headerlink" title="解决问题"></a>解决问题</h1><h2 id="过程"><a href="#过程" class="headerlink" title="过程"></a>过程</h2><ul>
+<li>首先，查看Proxifier帮助文档（路径：D:\Program Files (x86)\Proxifier\Proxifier.chm），无果。</li>
+<li>然后，Google查资料，无果。</li>
+<li>然后，试了试在C:\Users\<User>\AppData\Roaming\Proxifier下面创建Profiles快捷方式，删除Profiles文件夹，结果启动Proxifier之后，竟然又自动生成了Profiles文件夹，失败。</li>
+<li>最后，我想起来Linux有个ln命令，效果是我想要的，开始Google查询“windows 软连接”，找到了mklink命令。</li>
+</ul>
+<p>查看help：</p>
+<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">λ mklink</span><br><span class="line">创建符号链接。</span><br><span class="line"></span><br><span class="line">MKLINK [[/D] | [/H] | [/J]] Link Target</span><br><span class="line"></span><br><span class="line">        /D      创建目录符号链接。默认为文件</span><br><span class="line">                符号链接。</span><br><span class="line">        /H      创建硬链接而非符号链接。</span><br><span class="line">        /J      创建目录联接。</span><br><span class="line">        Link    指定新的符号链接名称。</span><br><span class="line">        Target  指定新链接引用的路径</span><br><span class="line">                (相对或绝对)。</span><br></pre></td></tr></table></figure>
+
+<h2 id="结论"><a href="#结论" class="headerlink" title="结论"></a>结论</h2><p>注：需要管理员权限</p>
+<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">λ mklink /D C:\Users\&lt;User&gt;\AppData\Roaming\Proxifier\Profiles E:\Config\Proxifier\Profiles</span><br></pre></td></tr></table></figure>
+]]></content>
+      <categories>
+        <category>Proxy</category>
+      </categories>
+      <tags>
+        <tag>Proxy</tag>
+        <tag>Proxifier</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>升级jar包中单文件</title>
+    <url>/2020/10/01/%E5%8D%87%E7%BA%A7jar%E5%8C%85%E4%B8%AD%E5%8D%95%E6%96%87%E4%BB%B6/</url>
+    <content><![CDATA[<h1 id="发现问题"><a href="#发现问题" class="headerlink" title="发现问题"></a>发现问题</h1><p>开发springboot项目的时候，我们经常会以jar包的形式进行部署。这个时候，如果需要修改某一个文件，那么该怎么升级呢？</p>
+<ul>
+<li>本地重新打包，全包上传到服务器</li>
+<li>只上传单文件到服务器，在服务器上把单文件合并到原来的jar包中</li>
+</ul>
+<p>显然，第一种方案在网速较慢的时候，是影响工作效率的。</p>
+<span id="more"></span>
+
+<h1 id="解决问题"><a href="#解决问题" class="headerlink" title="解决问题"></a>解决问题</h1><h2 id="过程"><a href="#过程" class="headerlink" title="过程"></a>过程</h2><p>查看help：</p>
+<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">[security@localhost jars]$ jar</span><br><span class="line">用法: jar &#123;ctxui&#125;[vfm0Me] [jar-file] [manifest-file] [entry-point] [-C dir] files ...</span><br><span class="line">选项包括: </span><br><span class="line">    -c  创建新的归档文件</span><br><span class="line">    -t  列出归档目录</span><br><span class="line">    -x  从档案中提取指定的 (或所有) 文件</span><br><span class="line">    -u  更新现有的归档文件</span><br><span class="line">    -v  在标准输出中生成详细输出</span><br><span class="line">    -f  指定归档文件名</span><br><span class="line">    -m  包含指定清单文件中的清单信息</span><br><span class="line">    -e  为捆绑到可执行 jar 文件的独立应用程序</span><br><span class="line">        指定应用程序入口点</span><br><span class="line">    -0  仅存储; 不使用情况任何 ZIP 压缩</span><br><span class="line">    -M  不创建条目的清单文件</span><br><span class="line">    -i  为指定的 jar 文件生成索引信息</span><br><span class="line">    -C  更改为指定的目录并包含其中的文件</span><br><span class="line">如果有任何目录文件, 则对其进行递归处理。</span><br><span class="line">清单文件名, 归档文件名和入口点名称的指定顺序</span><br><span class="line">与 &#x27;m&#x27;, &#x27;f&#x27; 和 &#x27;e&#x27; 标记的指定顺序相同。</span><br><span class="line"></span><br><span class="line">示例 1: 将两个类文件归档到一个名为 classes.jar 的归档文件中: </span><br><span class="line">       jar cvf classes.jar Foo.class Bar.class </span><br><span class="line">示例 2: 使用现有的清单文件 &#x27;mymanifest&#x27; 并</span><br><span class="line">           将 foo/ 目录中的所有文件归档到 &#x27;classes.jar&#x27; 中: </span><br><span class="line">       jar cvfm classes.jar mymanifest -C foo/ .</span><br></pre></td></tr></table></figure>
+
+<h2 id="结论"><a href="#结论" class="headerlink" title="结论"></a>结论</h2><ul>
+<li>查看文件在jar包中的路径</li>
+</ul>
+<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">[security@localhost jars]$ jar tvf service.jar |grep todo</span><br><span class="line">  304 Fri Aug 23 12:00:00 CST 2019 BOOT-INF/classes/templates/todo.ftl</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>解压出文件</li>
+</ul>
+<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">[security@localhost jars]$ jar xvf service.jar BOOT-INF/classes/templates/todo.ftl</span><br><span class="line">  已解压: BOOT-INF/classes/templates/todo.ftl</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>覆盖解压出的文件</li>
+</ul>
+<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">mv todo.ftl BOOT-INF/classes/templates/todo.ftl</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>合并文件到jar包中</li>
+</ul>
+<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">[security@localhost jars]$ jar uvf service.jar BOOT-INF/classes/templates/todo.ftl</span><br><span class="line">  正在添加: BOOT-INF/classes/templates/todo.ftl(输入 = 304) (输出 = 195)(压缩了 35%)</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>删除解压出的文件</li>
+</ul>
+<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">[security@localhost jars]$ rm -rf BOOT-INF</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>重启服务</li>
+</ul>
+]]></content>
+      <categories>
+        <category>Java</category>
+      </categories>
+      <tags>
+        <tag>Java</tag>
+      </tags>
+  </entry>
+  <entry>
     <title>安装CoreDNS</title>
     <url>/2021/07/24/%E5%AE%89%E8%A3%85CoreDNS/</url>
     <content><![CDATA[<h1 id="安装"><a href="#安装" class="headerlink" title="安装"></a>安装</h1><h2 id="二进制"><a href="#二进制" class="headerlink" title="二进制"></a>二进制</h2><figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">wget https://github.com/coredns/coredns/releases/download/v1.8.4/coredns_1.8.4_linux_amd64.tgz</span><br><span class="line">mkdir coredns_1.8.4_linux_amd64</span><br><span class="line">tar zxvf coredns_1.8.4_linux_amd64.tgz -C coredns_1.8.4_linux_amd64</span><br></pre></td></tr></table></figure>
@@ -128,56 +223,6 @@
       </tags>
   </entry>
   <entry>
-    <title>升级jar包中单文件</title>
-    <url>/2020/10/01/%E5%8D%87%E7%BA%A7jar%E5%8C%85%E4%B8%AD%E5%8D%95%E6%96%87%E4%BB%B6/</url>
-    <content><![CDATA[<h1 id="发现问题"><a href="#发现问题" class="headerlink" title="发现问题"></a>发现问题</h1><p>开发springboot项目的时候，我们经常会以jar包的形式进行部署。这个时候，如果需要修改某一个文件，那么该怎么升级呢？</p>
-<ul>
-<li>本地重新打包，全包上传到服务器</li>
-<li>只上传单文件到服务器，在服务器上把单文件合并到原来的jar包中</li>
-</ul>
-<p>显然，第一种方案在网速较慢的时候，是影响工作效率的。</p>
-<span id="more"></span>
-
-<h1 id="解决问题"><a href="#解决问题" class="headerlink" title="解决问题"></a>解决问题</h1><h2 id="过程"><a href="#过程" class="headerlink" title="过程"></a>过程</h2><p>查看help：</p>
-<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">[security@localhost jars]$ jar</span><br><span class="line">用法: jar &#123;ctxui&#125;[vfm0Me] [jar-file] [manifest-file] [entry-point] [-C dir] files ...</span><br><span class="line">选项包括: </span><br><span class="line">    -c  创建新的归档文件</span><br><span class="line">    -t  列出归档目录</span><br><span class="line">    -x  从档案中提取指定的 (或所有) 文件</span><br><span class="line">    -u  更新现有的归档文件</span><br><span class="line">    -v  在标准输出中生成详细输出</span><br><span class="line">    -f  指定归档文件名</span><br><span class="line">    -m  包含指定清单文件中的清单信息</span><br><span class="line">    -e  为捆绑到可执行 jar 文件的独立应用程序</span><br><span class="line">        指定应用程序入口点</span><br><span class="line">    -0  仅存储; 不使用情况任何 ZIP 压缩</span><br><span class="line">    -M  不创建条目的清单文件</span><br><span class="line">    -i  为指定的 jar 文件生成索引信息</span><br><span class="line">    -C  更改为指定的目录并包含其中的文件</span><br><span class="line">如果有任何目录文件, 则对其进行递归处理。</span><br><span class="line">清单文件名, 归档文件名和入口点名称的指定顺序</span><br><span class="line">与 &#x27;m&#x27;, &#x27;f&#x27; 和 &#x27;e&#x27; 标记的指定顺序相同。</span><br><span class="line"></span><br><span class="line">示例 1: 将两个类文件归档到一个名为 classes.jar 的归档文件中: </span><br><span class="line">       jar cvf classes.jar Foo.class Bar.class </span><br><span class="line">示例 2: 使用现有的清单文件 &#x27;mymanifest&#x27; 并</span><br><span class="line">           将 foo/ 目录中的所有文件归档到 &#x27;classes.jar&#x27; 中: </span><br><span class="line">       jar cvfm classes.jar mymanifest -C foo/ .</span><br></pre></td></tr></table></figure>
-
-<h2 id="结论"><a href="#结论" class="headerlink" title="结论"></a>结论</h2><ul>
-<li>查看文件在jar包中的路径</li>
-</ul>
-<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">[security@localhost jars]$ jar tvf service.jar |grep todo</span><br><span class="line">  304 Fri Aug 23 12:00:00 CST 2019 BOOT-INF/classes/templates/todo.ftl</span><br></pre></td></tr></table></figure>
-
-<ul>
-<li>解压出文件</li>
-</ul>
-<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">[security@localhost jars]$ jar xvf service.jar BOOT-INF/classes/templates/todo.ftl</span><br><span class="line">  已解压: BOOT-INF/classes/templates/todo.ftl</span><br></pre></td></tr></table></figure>
-
-<ul>
-<li>覆盖解压出的文件</li>
-</ul>
-<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">mv todo.ftl BOOT-INF/classes/templates/todo.ftl</span><br></pre></td></tr></table></figure>
-
-<ul>
-<li>合并文件到jar包中</li>
-</ul>
-<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">[security@localhost jars]$ jar uvf service.jar BOOT-INF/classes/templates/todo.ftl</span><br><span class="line">  正在添加: BOOT-INF/classes/templates/todo.ftl(输入 = 304) (输出 = 195)(压缩了 35%)</span><br></pre></td></tr></table></figure>
-
-<ul>
-<li>删除解压出的文件</li>
-</ul>
-<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">[security@localhost jars]$ rm -rf BOOT-INF</span><br></pre></td></tr></table></figure>
-
-<ul>
-<li>重启服务</li>
-</ul>
-]]></content>
-      <categories>
-        <category>Java</category>
-      </categories>
-      <tags>
-        <tag>Java</tag>
-      </tags>
-  </entry>
-  <entry>
     <title>安装sshuttle</title>
     <url>/2021/07/21/%E5%AE%89%E8%A3%85sshuttle/</url>
     <content><![CDATA[<h1 id="说明"><a href="#说明" class="headerlink" title="说明"></a>说明</h1><p>支持TCP、UDP，不支持ICMP</p>
@@ -208,9 +253,11 @@
     <url>/2021/07/24/%E9%85%8D%E7%BD%AECoreDNS%E6%9C%8D%E5%8A%A1%E5%8F%91%E7%8E%B0/</url>
     <content><![CDATA[<h1 id="配置ETCD"><a href="#配置ETCD" class="headerlink" title="配置ETCD"></a>配置ETCD</h1><figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">docker run -d --name etcd \</span><br><span class="line">-p 2379:2379 \</span><br><span class="line">-p 2380:2380 \</span><br><span class="line">--env ALLOW_NONE_AUTHENTICATION=yes \</span><br><span class="line">bitnami/etcd:3.4.16-debian-10-r28</span><br><span class="line"></span><br><span class="line">docker run -it --rm \</span><br><span class="line">--env ALLOW_NONE_AUTHENTICATION=yes \</span><br><span class="line">bitnami/etcd:3.4.16-debian-10-r28 \</span><br><span class="line">etcdctl --endpoints http://172.17.0.1:2379 put /key1 value1</span><br><span class="line"></span><br><span class="line">docker run -it --rm \</span><br><span class="line">--env ALLOW_NONE_AUTHENTICATION=yes \</span><br><span class="line">bitnami/etcd:3.4.16-debian-10-r28 \</span><br><span class="line">etcdctl --endpoints http://172.17.0.1:2379 get / --prefix</span><br></pre></td></tr></table></figure>
 
+<span id="more"></span>
+
 <h1 id="配置CoreDNS"><a href="#配置CoreDNS" class="headerlink" title="配置CoreDNS"></a>配置CoreDNS</h1><figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">vi Corefile</span><br><span class="line"><span class="meta">#</span><span class="bash"><span class="comment">##</span></span></span><br><span class="line">. &#123;</span><br><span class="line">  etcd &#123;</span><br><span class="line">    path /skydns</span><br><span class="line">    endpoint http://172.17.0.1:2379</span><br><span class="line">    fallthrough</span><br><span class="line">  &#125;</span><br><span class="line">  forward . /etc/resolv.conf</span><br><span class="line">  log</span><br><span class="line">  errors</span><br><span class="line">&#125;</span><br><span class="line"><span class="meta">#</span><span class="bash"><span class="comment">##</span></span></span><br><span class="line">docker run -d --name coredns \</span><br><span class="line">-p 53:53/udp \</span><br><span class="line">-v ~/Corefile:/Corefile \</span><br><span class="line">coredns/coredns:1.8.4</span><br></pre></td></tr></table></figure>
 
-<h1 id="测试"><a href="#测试" class="headerlink" title="测试"></a>测试</h1><figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">yum install -y bind-utils</span><br><span class="line"></span><br><span class="line">dig example.org @172.17.0.1 # 查询到：example.org. 3600 IN A 93.184.216.34</span><br><span class="line"><span class="meta"></span></span><br><span class="line"><span class="meta">#</span><span class="bash"> 添加A记录</span></span><br><span class="line">docker run -it --rm \</span><br><span class="line">--env ALLOW_NONE_AUTHENTICATION=yes \</span><br><span class="line">bitnami/etcd:3.4.16-debian-10-r28 \</span><br><span class="line">etcdctl --endpoints http://172.17.0.1:2379 put /skydns/org/example/ &#x27;&#123;&quot;host&quot;:&quot;10.0.0.1&quot;,&quot;ttl&quot;:60&#125;&#x27;</span><br><span class="line"><span class="meta"></span></span><br><span class="line"><span class="meta">#</span><span class="bash"> 查询example.org</span></span><br><span class="line">dig example.org @172.17.0.1 # 查询到：example.org. 3600 IN A 10.0.0.1</span><br></pre></td></tr></table></figure>
+<h1 id="测试"><a href="#测试" class="headerlink" title="测试"></a>测试</h1><figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">yum install -y bind-utils</span><br><span class="line"></span><br><span class="line">dig example.org @172.17.0.1 # 查询到：example.org. 3600 IN A 93.184.216.34</span><br><span class="line"><span class="meta"></span></span><br><span class="line"><span class="meta">#</span><span class="bash"> 添加A记录</span></span><br><span class="line">docker run -it --rm \</span><br><span class="line">--env ALLOW_NONE_AUTHENTICATION=yes \</span><br><span class="line">bitnami/etcd:3.4.16-debian-10-r28 \</span><br><span class="line">etcdctl --endpoints http://172.17.0.1:2379 put /skydns/org/example/ &#x27;&#123;&quot;host&quot;:&quot;10.0.0.1&quot;,&quot;ttl&quot;:60&#125;&#x27;</span><br><span class="line"></span><br><span class="line">dig example.org @172.17.0.1 # 查询到：example.org. 3600 IN A 10.0.0.1</span><br></pre></td></tr></table></figure>
 
 <h1 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h1><p><a href="https://github.com/bitnami/bitnami-docker-etcd#how-to-use-this-image">https://github.com/bitnami/bitnami-docker-etcd#how-to-use-this-image</a></p>
 <p><a href="https://github.com/coredns/coredns/tree/master/plugin/etcd">https://github.com/coredns/coredns/tree/master/plugin/etcd</a></p>
@@ -258,51 +305,6 @@
       <tags>
         <tag>iptables</tag>
         <tag>Docker</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>修改Proxifier配置文件存储路径</title>
-    <url>/2020/10/01/%E4%BF%AE%E6%94%B9Proxifier%E9%85%8D%E7%BD%AE%E6%96%87%E4%BB%B6%E5%AD%98%E5%82%A8%E8%B7%AF%E5%BE%84/</url>
-    <content><![CDATA[<h1 id="发现问题"><a href="#发现问题" class="headerlink" title="发现问题"></a>发现问题</h1><p>今天使用Proxifier的时候，发现配置文件存储路径为：C:\Users\<User>\AppData\Roaming\Proxifier\Profiles。<br>这样就会存在一些风险，例如：重装系统的时候（格式化系统盘），如果没想起来备份，可能就再也找不到了。<br>风险既然发现，就要想办法规避。</p>
-<span id="more"></span>
-
-<h1 id="解决问题"><a href="#解决问题" class="headerlink" title="解决问题"></a>解决问题</h1><h2 id="过程"><a href="#过程" class="headerlink" title="过程"></a>过程</h2><ul>
-<li>首先，查看Proxifier帮助文档（路径：D:\Program Files (x86)\Proxifier\Proxifier.chm），无果。</li>
-<li>然后，Google查资料，无果。</li>
-<li>然后，试了试在C:\Users\<User>\AppData\Roaming\Proxifier下面创建Profiles快捷方式，删除Profiles文件夹，结果启动Proxifier之后，竟然又自动生成了Profiles文件夹，失败。</li>
-<li>最后，我想起来Linux有个ln命令，效果是我想要的，开始Google查询“windows 软连接”，找到了mklink命令。</li>
-</ul>
-<p>查看help：</p>
-<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">λ mklink</span><br><span class="line">创建符号链接。</span><br><span class="line"></span><br><span class="line">MKLINK [[/D] | [/H] | [/J]] Link Target</span><br><span class="line"></span><br><span class="line">        /D      创建目录符号链接。默认为文件</span><br><span class="line">                符号链接。</span><br><span class="line">        /H      创建硬链接而非符号链接。</span><br><span class="line">        /J      创建目录联接。</span><br><span class="line">        Link    指定新的符号链接名称。</span><br><span class="line">        Target  指定新链接引用的路径</span><br><span class="line">                (相对或绝对)。</span><br></pre></td></tr></table></figure>
-
-<h2 id="结论"><a href="#结论" class="headerlink" title="结论"></a>结论</h2><p>注：需要管理员权限</p>
-<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">λ mklink /D C:\Users\&lt;User&gt;\AppData\Roaming\Proxifier\Profiles E:\Config\Proxifier\Profiles</span><br></pre></td></tr></table></figure>
-]]></content>
-      <categories>
-        <category>Proxy</category>
-      </categories>
-      <tags>
-        <tag>Proxy</tag>
-        <tag>Proxifier</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>DNS基本概念</title>
-    <url>/2021/07/24/DNS%E5%9F%BA%E6%9C%AC%E6%A6%82%E5%BF%B5/</url>
-    <content><![CDATA[<h1 id="概念"><a href="#概念" class="headerlink" title="概念"></a>概念</h1><p>DNS是 Domain Name System 的缩写，作用是根据域名查询IP地址</p>
-<h1 id="查询方式"><a href="#查询方式" class="headerlink" title="查询方式"></a>查询方式</h1><h2 id="递归查询"><a href="#递归查询" class="headerlink" title="递归查询"></a>递归查询</h2><p>DNS服务器接收到客户机请求，必须使用一个准确的查询结果回复客户机。<br>如果DNS服务器本地没有存储查询DNS信息，那么该服务器会询问其他服务器，并将返回的查询结果提交给客户机。</p>
-<h2 id="迭代查询"><a href="#迭代查询" class="headerlink" title="迭代查询"></a>迭代查询</h2><p>DNS服务器会向客户机提供其他能够解析查询请求的DNS服务器地址。<br>当客户机发送查询请求时，DNS服务器并不直接回复查询结果，而是告诉客户机另一台DNS服务器地址。<br>客户机再向这台DNS服务器提交请求，依次循环直到返回查询的结果为止。</p>
-<span id="more"></span>
-
-<h1 id="DNS记录类型"><a href="#DNS记录类型" class="headerlink" title="DNS记录类型"></a>DNS记录类型</h1><p>A：地址记录（Address），返回域名指向的IP地址。<br>NS：域名服务器记录（Name Server），返回保存下一级域名信息的服务器地址。该记录只能设置为域名，不能设置为IP地址。<br>MX：邮件记录（Mail eXchange），返回接收电子邮件的服务器地址。<br>CNAME：规范名称记录（Canonical Name），返回另一个域名，即当前查询的域名是另一个域名的跳转。<br>PTR：逆向查询记录（Pointer Record），只用于从IP地址查询域名。</p>
-<h1 id="私有DNS解决方案"><a href="#私有DNS解决方案" class="headerlink" title="私有DNS解决方案"></a>私有DNS解决方案</h1><p>BIND<br>PowerDNS<br>Dnsmasq<br>CoreDNS</p>
-<p>参考：<a href="https://en.wikipedia.org/wiki/Comparison_of_DNS_server_software">https://en.wikipedia.org/wiki/Comparison_of_DNS_server_software</a></p>
-]]></content>
-      <categories>
-        <category>DNS</category>
-      </categories>
-      <tags>
-        <tag>DNS</tag>
       </tags>
   </entry>
 </search>
