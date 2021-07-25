@@ -1,6 +1,25 @@
 <?xml version="1.0" encoding="utf-8"?>
 <search>
   <entry>
+    <title>DNS相关概念</title>
+    <url>/2021/07/24/DNS%E7%9B%B8%E5%85%B3%E6%A6%82%E5%BF%B5/</url>
+    <content><![CDATA[<h1 id="概念"><a href="#概念" class="headerlink" title="概念"></a>概念</h1><p>DNS是 Domain Name System 的缩写，作用是根据域名查询IP地址</p>
+<h1 id="查询方式"><a href="#查询方式" class="headerlink" title="查询方式"></a>查询方式</h1><h2 id="递归查询"><a href="#递归查询" class="headerlink" title="递归查询"></a>递归查询</h2><p>DNS服务器接收到客户机请求，必须使用一个准确的查询结果回复客户机。<br>如果DNS服务器本地没有存储查询DNS信息，那么该服务器会询问其他服务器，并将返回的查询结果提交给客户机。</p>
+<h2 id="迭代查询"><a href="#迭代查询" class="headerlink" title="迭代查询"></a>迭代查询</h2><p>DNS服务器会向客户机提供其他能够解析查询请求的DNS服务器地址。<br>当客户机发送查询请求时，DNS服务器并不直接回复查询结果，而是告诉客户机另一台DNS服务器地址。<br>客户机再向这台DNS服务器提交请求，依次循环直到返回查询的结果为止。</p>
+<span id="more"></span>
+
+<h1 id="DNS记录类型"><a href="#DNS记录类型" class="headerlink" title="DNS记录类型"></a>DNS记录类型</h1><p>A：地址记录（Address），返回域名指向的IP地址。<br>NS：域名服务器记录（Name Server），返回保存下一级域名信息的服务器地址。该记录只能设置为域名，不能设置为IP地址。<br>MX：邮件记录（Mail eXchange），返回接收电子邮件的服务器地址。<br>CNAME：规范名称记录（Canonical Name），返回另一个域名，即当前查询的域名是另一个域名的跳转。<br>PTR：逆向查询记录（Pointer Record），只用于从IP地址查询域名。</p>
+<h1 id="私有DNS选型"><a href="#私有DNS选型" class="headerlink" title="私有DNS选型"></a>私有DNS选型</h1><p>BIND<br>PowerDNS<br>Dnsmasq<br>CoreDNS</p>
+<p>参考：<a href="https://en.wikipedia.org/wiki/Comparison_of_DNS_server_software">https://en.wikipedia.org/wiki/Comparison_of_DNS_server_software</a></p>
+]]></content>
+      <categories>
+        <category>DNS</category>
+      </categories>
+      <tags>
+        <tag>DNS</tag>
+      </tags>
+  </entry>
+  <entry>
     <title>Linux路由相关概念</title>
     <url>/2021/07/25/Linux%E8%B7%AF%E7%94%B1%E7%9B%B8%E5%85%B3%E6%A6%82%E5%BF%B5/</url>
     <content><![CDATA[<h1 id="路由规则-ip-rule"><a href="#路由规则-ip-rule" class="headerlink" title="路由规则 ip rule"></a>路由规则 ip rule</h1><p><strong>操作系统默认规则</strong></p>
@@ -84,25 +103,6 @@
       <tags>
         <tag>网络</tag>
         <tag>路由</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>DNS相关概念</title>
-    <url>/2021/07/24/DNS%E7%9B%B8%E5%85%B3%E6%A6%82%E5%BF%B5/</url>
-    <content><![CDATA[<h1 id="概念"><a href="#概念" class="headerlink" title="概念"></a>概念</h1><p>DNS是 Domain Name System 的缩写，作用是根据域名查询IP地址</p>
-<h1 id="查询方式"><a href="#查询方式" class="headerlink" title="查询方式"></a>查询方式</h1><h2 id="递归查询"><a href="#递归查询" class="headerlink" title="递归查询"></a>递归查询</h2><p>DNS服务器接收到客户机请求，必须使用一个准确的查询结果回复客户机。<br>如果DNS服务器本地没有存储查询DNS信息，那么该服务器会询问其他服务器，并将返回的查询结果提交给客户机。</p>
-<h2 id="迭代查询"><a href="#迭代查询" class="headerlink" title="迭代查询"></a>迭代查询</h2><p>DNS服务器会向客户机提供其他能够解析查询请求的DNS服务器地址。<br>当客户机发送查询请求时，DNS服务器并不直接回复查询结果，而是告诉客户机另一台DNS服务器地址。<br>客户机再向这台DNS服务器提交请求，依次循环直到返回查询的结果为止。</p>
-<span id="more"></span>
-
-<h1 id="DNS记录类型"><a href="#DNS记录类型" class="headerlink" title="DNS记录类型"></a>DNS记录类型</h1><p>A：地址记录（Address），返回域名指向的IP地址。<br>NS：域名服务器记录（Name Server），返回保存下一级域名信息的服务器地址。该记录只能设置为域名，不能设置为IP地址。<br>MX：邮件记录（Mail eXchange），返回接收电子邮件的服务器地址。<br>CNAME：规范名称记录（Canonical Name），返回另一个域名，即当前查询的域名是另一个域名的跳转。<br>PTR：逆向查询记录（Pointer Record），只用于从IP地址查询域名。</p>
-<h1 id="私有DNS选型"><a href="#私有DNS选型" class="headerlink" title="私有DNS选型"></a>私有DNS选型</h1><p>BIND<br>PowerDNS<br>Dnsmasq<br>CoreDNS</p>
-<p>参考：<a href="https://en.wikipedia.org/wiki/Comparison_of_DNS_server_software">https://en.wikipedia.org/wiki/Comparison_of_DNS_server_software</a></p>
-]]></content>
-      <categories>
-        <category>DNS</category>
-      </categories>
-      <tags>
-        <tag>DNS</tag>
       </tags>
   </entry>
   <entry>
