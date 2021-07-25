@@ -1,15 +1,101 @@
 <?xml version="1.0" encoding="utf-8"?>
 <search>
   <entry>
-    <title>DNS基本概念</title>
-    <url>/2021/07/24/DNS%E5%9F%BA%E6%9C%AC%E6%A6%82%E5%BF%B5/</url>
+    <title>Linux路由相关概念</title>
+    <url>/2021/07/25/Linux%E8%B7%AF%E7%94%B1%E7%9B%B8%E5%85%B3%E6%A6%82%E5%BF%B5/</url>
+    <content><![CDATA[<h1 id="路由规则-ip-rule"><a href="#路由规则-ip-rule" class="headerlink" title="路由规则 ip rule"></a>路由规则 ip rule</h1><p><strong>操作系统默认规则</strong></p>
+<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">ip rule list</span><br><span class="line">0:      from all lookup local </span><br><span class="line">32766:  from all lookup main </span><br><span class="line">32767:  from all lookup default </span><br></pre></td></tr></table></figure>
+
+<p><strong>每列的含义</strong></p>
+<ul>
+<li>Priority: 路由规则优先级，根据数字从小到大依次进行匹配，从0到32767</li>
+<li>Selector: 对IP数据包进行匹配的条件，如 from all 表示所有IP数据包</li>
+<li>Action: 对IP数据包执行的动作，如 lookup local 表示需要查找local路由表进行处理</li>
+</ul>
+<span id="more"></span>
+
+<p><strong>命令格式</strong></p>
+<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">ip rule help</span><br><span class="line">Usage: ip rule &#123; add | del &#125; SELECTOR ACTION</span><br><span class="line">       ip rule &#123; flush | save | restore &#125;</span><br><span class="line">       ip rule [ list [ SELECTOR ]]</span><br><span class="line">SELECTOR := [ not ] [ from PREFIX ] [ to PREFIX ] [ tos TOS ] [ fwmark FWMARK[/MASK] ]</span><br><span class="line">            [ iif STRING ] [ oif STRING ] [ pref NUMBER ] [ l3mdev ]</span><br><span class="line">            [ uidrange NUMBER-NUMBER ]</span><br><span class="line">ACTION := [ table TABLE_ID ]</span><br><span class="line">          [ nat ADDRESS ]</span><br><span class="line">          [ realms [SRCREALM/]DSTREALM ]</span><br><span class="line">          [ goto NUMBER ]</span><br><span class="line">          SUPPRESSOR</span><br><span class="line">SUPPRESSOR := [ suppress_prefixlength NUMBER ]</span><br><span class="line">              [ suppress_ifgroup DEVGROUP ]</span><br><span class="line">TABLE_ID := [ local | main | default | NUMBER ]</span><br></pre></td></tr></table></figure>
+
+<p><strong>SELECTOR</strong></p>
+<ul>
+<li><p>from PREFIX：选择要匹配的源前缀</p>
+</li>
+<li><p>to PREFIX：选择要匹配的目的前缀</p>
+</li>
+<li><p>tos TOS：选择要匹配的TOS值</p>
+</li>
+<li><p>fwmark MARK：选择要匹配的标记值</p>
+</li>
+<li><p>iif NAME：选择要匹配的传入接口设备，例如：可以为转发的数据包和本地数据包创建单独的路由表</p>
+</li>
+<li><p>oif NAME：选择要匹配的传出接口设备，仅适用于来自绑定到设备的本地套接字的数据包</p>
+</li>
+<li></li>
+</ul>
+<p><strong>ACTION</strong></p>
+<ul>
+<li>table TABLEID：要查找的路由表标识符</li>
+<li>nat ADDRESS：要转换的IP地址（用于源地址）</li>
+</ul>
+<h1 id="路由表-ip-route"><a href="#路由表-ip-route" class="headerlink" title="路由表 ip route"></a>路由表 ip route</h1><p><strong>操作系统中有256个路由表</strong></p>
+<ul>
+<li><p>编号255：是 local 路由表，处理本地IP和广播地址路由，local路由表只由kernel维护，不能更改和删除</p>
+</li>
+<li><p>编号254：是 main 路由表，处理所有非策略常规路由，不指定路由表名时默认使用的路由表，ip route 命令默认操作的就是这个路由表</p>
+</li>
+<li><p>编号253：是 default 路由表，所有其他路由表都没有匹配到的情况下，根据该表中的条目进行处理</p>
+</li>
+<li><p>编号1-252：是 用户可以自定义的 路由表</p>
+</li>
+<li><p>编号0：是 系统保留 路由表</p>
+</li>
+</ul>
+<p><strong>操作系统内部使用数字编号来标识路由表，为了方便记忆，有时需要使用符号标识路由表，对应关系在 /etc/iproute2/rt_tables 中</strong></p>
+<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">cat /etc/iproute2/rt_tables </span><br><span class="line">255   local</span><br><span class="line">254   main</span><br><span class="line">253   default</span><br><span class="line">0     unspec</span><br></pre></td></tr></table></figure>
+
+<p><strong>查询路由表</strong></p>
+<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">ip route list</span><br><span class="line">default via 192.168.128.2 dev ens33 proto static metric 100 </span><br><span class="line">192.168.128.0/24 dev ens33 proto kernel scope link src 192.168.128.200 metric 100  </span><br></pre></td></tr></table></figure>
+
+<p><strong>每列的含义</strong></p>
+<ul>
+<li>PREFIX：目标地址前缀，可以是 default 代表所有地址 0.0.0.0/0，可以是 cidr</li>
+<li>proto RTPROTO：路由协议标识符，可以是数字编号或符号标识，对应关系在 /etc/iproute2/rt_protos 中<ul>
+<li>redirect：路由是由于ICMP重定向而安装的</li>
+<li>kernel：路由是在自动配置期间由内核安装的</li>
+<li>boot：路由是在启动过程中安装的</li>
+<li>static：路由是管理员安装的，以覆盖动态路由</li>
+<li>ra：路由是通过路由器发现协议安装的</li>
+</ul>
+</li>
+<li>scope SCOPE：路由前缀所覆盖的目标地址范围，可以是数字编号或符号标识，对应关系在 /etc/iproute2/rt_scopes 中</li>
+<li>metric METRIC：路由跳数，指该条路由记录的质量，一般情况下，如果有多条到达相同目的地的路由记录，路由器会采用metric值小的那条路由</li>
+<li>via ADDRESS：下一跳路由器的地址</li>
+<li>dev NAME：输出设备名称</li>
+<li>src ADDRESS：发送数据包时首选的源地址</li>
+</ul>
+<h1 id="样例"><a href="#样例" class="headerlink" title="样例"></a>样例</h1><p>双网卡：10.0.0.2/24 和 172.16.0.2/24<br>使来自 192.168.1.0/24 的数据包走 10.0.0.1 网关<br>是来自 192.168.2.0/24 的数据包走 172.16.0.1 网关</p>
+<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line"><span class="meta">#</span><span class="bash"> 定义路由表名称</span></span><br><span class="line">echo 100 t100 &gt;&gt; /etc/iproute2/rt_tables</span><br><span class="line">echo 200 t200 &gt;&gt; /etc/iproute2/rt_tables</span><br><span class="line"><span class="meta">#</span><span class="bash"> 新增规则</span></span><br><span class="line">ip rule add from 192.168.1.0/24 table t100</span><br><span class="line">ip rule add from 192.168.2.0/24 table t200</span><br><span class="line"><span class="meta">#</span><span class="bash"> 添加路由</span></span><br><span class="line">ip route add default via 10.0.0.1 table t100</span><br><span class="line">ip route add default via 172.16.0.1 table t200</span><br><span class="line"><span class="meta">#</span><span class="bash"> 刷新路由表</span></span><br><span class="line">ip route flush cache</span><br></pre></td></tr></table></figure>
+
+]]></content>
+      <categories>
+        <category>网络</category>
+      </categories>
+      <tags>
+        <tag>网络</tag>
+        <tag>路由</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>DNS相关概念</title>
+    <url>/2021/07/24/DNS%E7%9B%B8%E5%85%B3%E6%A6%82%E5%BF%B5/</url>
     <content><![CDATA[<h1 id="概念"><a href="#概念" class="headerlink" title="概念"></a>概念</h1><p>DNS是 Domain Name System 的缩写，作用是根据域名查询IP地址</p>
 <h1 id="查询方式"><a href="#查询方式" class="headerlink" title="查询方式"></a>查询方式</h1><h2 id="递归查询"><a href="#递归查询" class="headerlink" title="递归查询"></a>递归查询</h2><p>DNS服务器接收到客户机请求，必须使用一个准确的查询结果回复客户机。<br>如果DNS服务器本地没有存储查询DNS信息，那么该服务器会询问其他服务器，并将返回的查询结果提交给客户机。</p>
 <h2 id="迭代查询"><a href="#迭代查询" class="headerlink" title="迭代查询"></a>迭代查询</h2><p>DNS服务器会向客户机提供其他能够解析查询请求的DNS服务器地址。<br>当客户机发送查询请求时，DNS服务器并不直接回复查询结果，而是告诉客户机另一台DNS服务器地址。<br>客户机再向这台DNS服务器提交请求，依次循环直到返回查询的结果为止。</p>
 <span id="more"></span>
 
 <h1 id="DNS记录类型"><a href="#DNS记录类型" class="headerlink" title="DNS记录类型"></a>DNS记录类型</h1><p>A：地址记录（Address），返回域名指向的IP地址。<br>NS：域名服务器记录（Name Server），返回保存下一级域名信息的服务器地址。该记录只能设置为域名，不能设置为IP地址。<br>MX：邮件记录（Mail eXchange），返回接收电子邮件的服务器地址。<br>CNAME：规范名称记录（Canonical Name），返回另一个域名，即当前查询的域名是另一个域名的跳转。<br>PTR：逆向查询记录（Pointer Record），只用于从IP地址查询域名。</p>
-<h1 id="私有DNS解决方案"><a href="#私有DNS解决方案" class="headerlink" title="私有DNS解决方案"></a>私有DNS解决方案</h1><p>BIND<br>PowerDNS<br>Dnsmasq<br>CoreDNS</p>
+<h1 id="私有DNS选型"><a href="#私有DNS选型" class="headerlink" title="私有DNS选型"></a>私有DNS选型</h1><p>BIND<br>PowerDNS<br>Dnsmasq<br>CoreDNS</p>
 <p>参考：<a href="https://en.wikipedia.org/wiki/Comparison_of_DNS_server_software">https://en.wikipedia.org/wiki/Comparison_of_DNS_server_software</a></p>
 ]]></content>
       <categories>
@@ -120,38 +206,84 @@
       </tags>
   </entry>
   <entry>
+    <title>安装Termux</title>
+    <url>/2021/07/25/%E5%AE%89%E8%A3%85Termux/</url>
+    <content><![CDATA[<h1 id="安装"><a href="#安装" class="headerlink" title="安装"></a>安装</h1><p>方法1：打开 <a href="https://f-droid.org/packages/com.termux">https://f-droid.org/packages/com.termux</a> ，下载 APK 安装，推荐</p>
+<p>方法2：打开 google play store 搜索 termux ，直接安装</p>
+<span id="more"></span>
+
+<h1 id="配置"><a href="#配置" class="headerlink" title="配置"></a>配置</h1><h2 id="修改-apt-软件源"><a href="#修改-apt-软件源" class="headerlink" title="修改 apt 软件源"></a>修改 apt 软件源</h2><figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">sed -i &#x27;s@^\(deb.*stable main\)$@#\1\ndeb https://mirrors.tuna.tsinghua.edu.cn/termux/termux-packages-24 stable main@&#x27; \</span><br><span class="line"><span class="meta">$</span><span class="bash">PREFIX/etc/apt/sources.list</span></span><br><span class="line">sed -i &#x27;s@^\(deb.*games stable\)$@#\1\ndeb https://mirrors.tuna.tsinghua.edu.cn/termux/game-packages-24 games stable@&#x27; \</span><br><span class="line"><span class="meta">$</span><span class="bash">PREFIX/etc/apt/sources.list.d/game.list</span></span><br><span class="line">sed -i &#x27;s@^\(deb.*science stable\)$@#\1\ndeb https://mirrors.tuna.tsinghua.edu.cn/termux/science-packages-24 science stable@&#x27; \</span><br><span class="line"><span class="meta">$</span><span class="bash">PREFIX/etc/apt/sources.list.d/science.list</span></span><br><span class="line">pkg update</span><br></pre></td></tr></table></figure>
+
+<h2 id="访问手机存储"><a href="#访问手机存储" class="headerlink" title="访问手机存储"></a>访问手机存储</h2><figure class="highlight shell"><table><tr><td class="code"><pre><span class="line"><span class="meta">#</span><span class="bash"> 获取权限，会在 home 下生成 storage 目录</span></span><br><span class="line">termux-setup-storage</span><br><span class="line"><span class="meta">#</span><span class="bash"> 查看 storage 目录结构</span></span><br><span class="line">tree storage</span><br><span class="line">storage</span><br><span class="line">├── dcim -&gt; /storage/emulated/0/DCIM</span><br><span class="line">├── downloads -&gt; /storage/emulated/0/Download</span><br><span class="line">├── movies -&gt; /storage/emulated/0/Movies</span><br><span class="line">├── music -&gt; /storage/emulated/0/Music</span><br><span class="line">├── pictures -&gt; /storage/emulated/0/Pictures</span><br><span class="line">└── shared -&gt; /storage/emulated/0</span><br><span class="line"></span><br><span class="line">6 directories, 0 files</span><br></pre></td></tr></table></figure>
+
+<h1 id="使用"><a href="#使用" class="headerlink" title="使用"></a>使用</h1><h2 id="安装-SSH-服务"><a href="#安装-SSH-服务" class="headerlink" title="安装 SSH 服务"></a>安装 SSH 服务</h2><p><strong>安装 OPENSSH</strong></p>
+<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">pkg install openssh</span><br><span class="line"><span class="meta">#</span><span class="bash"> 启动sshd</span></span><br><span class="line">sshd</span><br><span class="line"><span class="meta">#</span><span class="bash"> 停止sshd</span></span><br><span class="line">pkill sshd</span><br><span class="line"><span class="meta">#</span><span class="bash"> 修改密码</span></span><br><span class="line">passwd</span><br><span class="line"><span class="meta">#</span><span class="bash"> 获取用户</span></span><br><span class="line">id</span><br><span class="line">uid=10300(u0_a300) gid=10300(u0_a300) groups=10300(u0_a300),3003(inet),9997(everybody),20300(u0_a300_cache),50300(all_a300)</span><br></pre></td></tr></table></figure>
+
+<p><strong>配置远程登录</strong></p>
+<p>方法1：通过密码登录</p>
+<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line"><span class="meta">#</span><span class="bash"> 查看 termux 配置，默认 PasswordAuthentication yes</span></span><br><span class="line">cat $PREFIX/etc/ssh/sshd_config</span><br></pre></td></tr></table></figure>
+
+<p>方法2：在客户端生成秘钥对</p>
+<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line"><span class="meta">#</span><span class="bash"> 生成密钥对，复制 id_rsa.pub 内容到 termux：data\data\com.termux\files\home\.ssh\authorized_keys</span></span><br><span class="line">ssh-keygen</span><br></pre></td></tr></table></figure>
+
+<p>方法3：在 termux 生成秘钥对</p>
+<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line"><span class="meta">#</span><span class="bash"> 生成密钥对，复制 id_rsa 到客户端</span></span><br><span class="line">ssh-keygen</span><br><span class="line">cd .ssh</span><br><span class="line">cat id_rsa.pub &gt; authorized_keys</span><br></pre></td></tr></table></figure>
+
+<p>方法4：直接使用 openssh 安装的时候生成的密钥对</p>
+<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line"><span class="meta">#</span><span class="bash"> 复制 ssh_host_rsa_key.pub 到 authorized_keys</span></span><br><span class="line">cat ../usr/etc/ssh/ssh_host_rsa_key.pub &gt; .ssh/authorized_keys</span><br><span class="line"><span class="meta">#</span><span class="bash"> 复制 ssh_host_rsa_key 到 客户端</span></span><br><span class="line">cat ../usr/etc/ssh/ssh_host_rsa_key</span><br></pre></td></tr></table></figure>
+
+<p><strong>客户端登录</strong></p>
+<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line"><span class="meta">#</span><span class="bash"> 密码登录</span></span><br><span class="line">ssh u0_a300@192.168.137.2 -p 8022</span><br><span class="line"><span class="meta">#</span><span class="bash"> 密钥登录</span></span><br><span class="line">ssh -i ~/.ssh/id_rsa 192.168.137.2 -p 8022</span><br></pre></td></tr></table></figure>
+
+<h2 id="查看监听端口"><a href="#查看监听端口" class="headerlink" title="查看监听端口"></a>查看监听端口</h2><p>Andorid 10 版本以后的 Termux 无法正常使用 netstat -an 命令，可以通过 nmap 命令查看</p>
+<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line"><span class="meta">#</span><span class="bash"> 安装nmap</span></span><br><span class="line">pkg install nmap</span><br><span class="line"><span class="meta">#</span><span class="bash"> 扫描端口</span></span><br><span class="line">nmap 127.0.0.1</span><br></pre></td></tr></table></figure>
+
+<h1 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h1><p><a href="https://www.sqlsec.com/2018/05/termux.html">https://www.sqlsec.com/2018/05/termux.html</a></p>
+<p><a href="https://github.com/termux/termux-app">https://github.com/termux/termux-app</a></p>
+]]></content>
+      <categories>
+        <category>Termux</category>
+      </categories>
+      <tags>
+        <tag>Termux</tag>
+        <tag>手机</tag>
+      </tags>
+  </entry>
+  <entry>
     <title>安装WireGuard</title>
     <url>/2021/07/20/%E5%AE%89%E8%A3%85WireGuard/</url>
-    <content><![CDATA[<h1 id="安装windows端"><a href="#安装windows端" class="headerlink" title="安装windows端"></a>安装windows端</h1><p>安装wireguard-amd64-0.3.16.msi：可以正常安装，无法正常使用<br>安装TunSafe-1.4.exe：可以正常安装，可以正常使用，可以支持ListenPortTCP</p>
-<h1 id="安装centos端"><a href="#安装centos端" class="headerlink" title="安装centos端"></a>安装centos端</h1><blockquote>
+    <content><![CDATA[<h1 id="安装"><a href="#安装" class="headerlink" title="安装"></a>安装</h1><h2 id="安装windows端"><a href="#安装windows端" class="headerlink" title="安装windows端"></a>安装windows端</h2><p>安装wireguard-amd64-0.3.16.msi：可以正常安装，无法正常使用<br>安装TunSafe-1.4.exe：可以正常安装，可以正常使用，可以支持ListenPortTCP</p>
+<h2 id="安装centos端"><a href="#安装centos端" class="headerlink" title="安装centos端"></a>安装centos端</h2><blockquote>
 <p>需要升级内核</p>
 </blockquote>
 <figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">yum install epel-release elrepo-release</span><br><span class="line">yum install yum-plugin-elrepo</span><br><span class="line">yum install kmod-wireguard wireguard-tools</span><br><span class="line"><span class="meta">#</span><span class="bash"> 重启</span></span><br><span class="line">reboot</span><br><span class="line"><span class="meta">#</span><span class="bash"> 加载内核模块</span></span><br><span class="line">modprobe wireguard</span><br><span class="line"><span class="meta">#</span><span class="bash"> 检查WG模块加载是否正常</span></span><br><span class="line">lsmod | grep wireguard</span><br></pre></td></tr></table></figure>
 
 <span id="more"></span>
 
-<h1 id="安装wireguard-go端"><a href="#安装wireguard-go端" class="headerlink" title="安装wireguard-go端"></a>安装wireguard-go端</h1><blockquote>
+<h2 id="安装wireguard-go端"><a href="#安装wireguard-go端" class="headerlink" title="安装wireguard-go端"></a>安装wireguard-go端</h2><blockquote>
 <p>无需升级内核，多平台，性能差</p>
 </blockquote>
 <figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">mkdir -p ~/go/src/github.com</span><br><span class="line">cd ~/go/src/github.com</span><br><span class="line">git clone https://github.com/WireGuard/wireguard-go.git</span><br><span class="line">cd wireguard-go</span><br><span class="line">make</span><br><span class="line">make install</span><br><span class="line">yum install wireguard-tools</span><br><span class="line"><span class="meta">#</span><span class="bash"> <span class="built_in">export</span> WG_QUICK_USERSPACE_IMPLEMENTATION=wireguard-go</span></span><br><span class="line">wg-quick up wg0</span><br></pre></td></tr></table></figure>
 
-<h1 id="配置服务端"><a href="#配置服务端" class="headerlink" title="配置服务端"></a>配置服务端</h1><figure class="highlight shell"><table><tr><td class="code"><pre><span class="line"><span class="meta">#</span><span class="bash"> wg genkey &gt; privatekey</span></span><br><span class="line"><span class="meta">#</span><span class="bash"> wg pubkey &lt; privatekey &gt; publickey</span></span><br><span class="line">wg genkey | tee privatekey | wg pubkey &gt; publickey</span><br><span class="line">vi /etc/wireguard/wg0.conf</span><br><span class="line"><span class="meta">#</span><span class="bash"><span class="comment">##</span></span></span><br><span class="line">[Interface]</span><br><span class="line">Address = 10.0.0.1/24</span><br><span class="line">ListenPort = 51820</span><br><span class="line">PrivateKey = &lt;Server Private Key&gt;</span><br><span class="line">PostUp = iptables -A FORWARD -i %i -j ACCEPT; iptables -t nat -A POSTROUTING -o eth0 -j MASQUERADE</span><br><span class="line">PostDown = iptables -D FORWARD -i %i -j ACCEPT; iptables -t nat -D POSTROUTING -o eth0 -j MASQUERADE</span><br><span class="line"><span class="meta">#</span><span class="bash"><span class="comment">##</span></span></span><br><span class="line">systemctl enable wg-quick@wg0</span><br><span class="line"><span class="meta">#</span><span class="bash"> 启动服务端</span></span><br><span class="line">wg-quick up wg0</span><br><span class="line"><span class="meta">#</span><span class="bash"> 停止服务端</span></span><br><span class="line">wg-quick down wg0</span><br><span class="line"><span class="meta">#</span><span class="bash"> 查看节点列表</span></span><br><span class="line">wg show</span><br><span class="line"><span class="meta">#</span><span class="bash"> 重载配置文件，不影响已有连接</span></span><br><span class="line">wg syncconf wg0 &lt;(wg-quick strip wg0)</span><br></pre></td></tr></table></figure>
+<h1 id="配置"><a href="#配置" class="headerlink" title="配置"></a>配置</h1><h2 id="配置服务端"><a href="#配置服务端" class="headerlink" title="配置服务端"></a>配置服务端</h2><figure class="highlight shell"><table><tr><td class="code"><pre><span class="line"><span class="meta">#</span><span class="bash"> wg genkey &gt; privatekey</span></span><br><span class="line"><span class="meta">#</span><span class="bash"> wg pubkey &lt; privatekey &gt; publickey</span></span><br><span class="line">wg genkey | tee privatekey | wg pubkey &gt; publickey</span><br><span class="line">vi /etc/wireguard/wg0.conf</span><br><span class="line"><span class="meta">#</span><span class="bash"><span class="comment">##</span></span></span><br><span class="line">[Interface]</span><br><span class="line">Address = 10.0.0.1/24</span><br><span class="line">ListenPort = 51820</span><br><span class="line">PrivateKey = &lt;Server Private Key&gt;</span><br><span class="line">PostUp = iptables -A FORWARD -i %i -j ACCEPT; iptables -t nat -A POSTROUTING -o eth0 -j MASQUERADE</span><br><span class="line">PostDown = iptables -D FORWARD -i %i -j ACCEPT; iptables -t nat -D POSTROUTING -o eth0 -j MASQUERADE</span><br><span class="line"><span class="meta">#</span><span class="bash"><span class="comment">##</span></span></span><br><span class="line">systemctl enable wg-quick@wg0</span><br><span class="line"><span class="meta">#</span><span class="bash"> 启动服务端</span></span><br><span class="line">wg-quick up wg0</span><br><span class="line"><span class="meta">#</span><span class="bash"> 停止服务端</span></span><br><span class="line">wg-quick down wg0</span><br><span class="line"><span class="meta">#</span><span class="bash"> 查看节点列表</span></span><br><span class="line">wg show</span><br><span class="line"><span class="meta">#</span><span class="bash"> 重载配置文件，不影响已有连接</span></span><br><span class="line">wg syncconf wg0 &lt;(wg-quick strip wg0)</span><br></pre></td></tr></table></figure>
 
-<h1 id="配置客户端"><a href="#配置客户端" class="headerlink" title="配置客户端"></a>配置客户端</h1><figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">wg genkey | tee privatekey | wg pubkey &gt; publickey</span><br><span class="line">vi /etc/wireguard/wg0.conf</span><br><span class="line"><span class="meta">#</span><span class="bash"><span class="comment">##</span></span></span><br><span class="line">[Interface]</span><br><span class="line">Address = 10.0.0.2/24</span><br><span class="line">ListenPort = 51820</span><br><span class="line">PrivateKey = &lt;Client Private Key&gt;</span><br><span class="line"><span class="meta">#</span><span class="bash"><span class="comment">##</span></span></span><br></pre></td></tr></table></figure>
+<h2 id="配置客户端"><a href="#配置客户端" class="headerlink" title="配置客户端"></a>配置客户端</h2><figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">wg genkey | tee privatekey | wg pubkey &gt; publickey</span><br><span class="line">vi /etc/wireguard/wg0.conf</span><br><span class="line"><span class="meta">#</span><span class="bash"><span class="comment">##</span></span></span><br><span class="line">[Interface]</span><br><span class="line">Address = 10.0.0.2/24</span><br><span class="line">ListenPort = 51820</span><br><span class="line">PrivateKey = &lt;Client Private Key&gt;</span><br><span class="line"><span class="meta">#</span><span class="bash"><span class="comment">##</span></span></span><br></pre></td></tr></table></figure>
 
-<h1 id="连接-Client-和-Server"><a href="#连接-Client-和-Server" class="headerlink" title="连接 Client 和 Server"></a>连接 Client 和 Server</h1><h2 id="方法1"><a href="#方法1" class="headerlink" title="方法1"></a>方法1</h2><p>服务端wg0.conf添加到客户端Peer</p>
+<h2 id="连接-Client-和-Server"><a href="#连接-Client-和-Server" class="headerlink" title="连接 Client 和 Server"></a>连接 Client 和 Server</h2><h3 id="使用配置文件"><a href="#使用配置文件" class="headerlink" title="使用配置文件"></a>使用配置文件</h3><p>服务端wg0.conf添加到客户端Peer</p>
 <figure class="highlight shell"><table><tr><td class="code"><pre><span class="line"><span class="meta">#</span><span class="bash"><span class="comment">##</span></span></span><br><span class="line">[Peer]</span><br><span class="line">PublicKey = &lt;Client Public key&gt;</span><br><span class="line">AllowedIPs = 10.0.0.2/32</span><br><span class="line">PersistentKeepalive = 30</span><br><span class="line"><span class="meta">#</span><span class="bash"><span class="comment">##</span></span></span><br></pre></td></tr></table></figure>
 
 <p>客户端wg0.conf添加到服务端Peer</p>
 <figure class="highlight shell"><table><tr><td class="code"><pre><span class="line"><span class="meta">#</span><span class="bash"><span class="comment">##</span></span></span><br><span class="line">[Peer]</span><br><span class="line">PublicKey = &lt;Server Public Key&gt;</span><br><span class="line">AllowedIPs = 10.0.0.0/24</span><br><span class="line">Endpoint = &lt;Server Public IP&gt;:51820</span><br><span class="line">PersistentKeepalive = 30</span><br><span class="line"><span class="meta">#</span><span class="bash"><span class="comment">##</span></span></span><br></pre></td></tr></table></figure>
 
-<h2 id="方法2"><a href="#方法2" class="headerlink" title="方法2"></a>方法2</h2><p>服务端执行命令</p>
+<h3 id="使用命令行"><a href="#使用命令行" class="headerlink" title="使用命令行"></a>使用命令行</h3><p>服务端执行命令</p>
 <figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">wg set wg0 peer &lt;Client Public key&gt; allowed-ips 10.0.0.2/32 persistent-keepalive 30</span><br><span class="line">wg-quick save wg0</span><br></pre></td></tr></table></figure>
 
 <p>客户端执行命令</p>
 <figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">wg set wg0 peer &lt;Server Public Key&gt; allowed-ips 10.0.0.0/24 persistent-keepalive 30 endpoint &lt;Server Public IP&gt;:51820 </span><br><span class="line">wg-quick save wg0</span><br></pre></td></tr></table></figure>
 
-<h1 id="配置生成"><a href="#配置生成" class="headerlink" title="配置生成"></a>配置生成</h1><p><a href="https://www.wireguardconfig.com/">https://www.wireguardconfig.com</a></p>
+<h2 id="配置生成"><a href="#配置生成" class="headerlink" title="配置生成"></a>配置生成</h2><p><a href="https://www.wireguardconfig.com/">https://www.wireguardconfig.com</a></p>
+<h1 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h1><p><a href="https://www.wireguard.com/">https://www.wireguard.com</a></p>
+<p><a href="https://fuckcloudnative.io/posts/wireguard-docs-practice">https://fuckcloudnative.io/posts/wireguard-docs-practice</a></p>
 ]]></content>
       <categories>
         <category>Proxy</category>
@@ -285,6 +417,51 @@
       <tags>
         <tag>Proxy</tag>
         <tag>sshuttle</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>手机上安装Linux操作系统</title>
+    <url>/2021/07/25/%E6%89%8B%E6%9C%BA%E4%B8%8A%E5%AE%89%E8%A3%85Linux%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F/</url>
+    <content><![CDATA[<h1 id="涉及软件"><a href="#涉及软件" class="headerlink" title="涉及软件"></a>涉及软件</h1><ul>
+<li>termux</li>
+<li>anlinux 或者 andronix</li>
+</ul>
+<span id="more"></span>
+
+<h1 id="安装"><a href="#安装" class="headerlink" title="安装"></a>安装</h1><ol>
+<li>google play store 中安装 termux 和 anlinux</li>
+<li>打开 anlinux，选择 仪表盘 菜单</li>
+<li>点击 选择 按钮，选中 CentOS，点击 确定 按钮</li>
+<li>点击 复制 按钮，复制指令</li>
+<li>点击 启动 按钮，打开 termux，粘贴指令，点击输入法键盘 回车 按钮</li>
+<li>等待安装完成</li>
+</ol>
+<p>安装完成之后，当前目录会生产4个文件</p>
+<ul>
+<li>centos-binds</li>
+<li>centos-fs</li>
+<li>centos.sh</li>
+<li>start-centos.sh</li>
+</ul>
+<h1 id="启动"><a href="#启动" class="headerlink" title="启动"></a>启动</h1><figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">./start-centos.sh</span><br></pre></td></tr></table></figure>
+
+<h1 id="使用"><a href="#使用" class="headerlink" title="使用"></a>使用</h1><h2 id="安装-openresty"><a href="#安装-openresty" class="headerlink" title="安装 openresty"></a>安装 openresty</h2><figure class="highlight shell"><table><tr><td class="code"><pre><span class="line"><span class="meta">#</span><span class="bash"> 安装 wget</span></span><br><span class="line">yum install wget</span><br><span class="line"><span class="meta">#</span><span class="bash"> 配置 yum 源</span></span><br><span class="line">cd /etc/yum.repos.d</span><br><span class="line">wget https://openresty.org/package/centos/openresty.repo</span><br><span class="line"><span class="meta">#</span><span class="bash"> 安装 openresty</span></span><br><span class="line">yum install openresty</span><br><span class="line"><span class="meta">#</span><span class="bash"> 修改端口为8080（手机权限问题，默认端口80无法启动）</span></span><br><span class="line">vi /usr/local/openresty/nginx/conf/nginx.conf</span><br><span class="line"><span class="meta">#</span><span class="bash"> 启动 openresty</span></span><br><span class="line">openresty</span><br><span class="line"><span class="meta">#</span><span class="bash"> 配置 lua</span></span><br><span class="line"><span class="meta">#</span><span class="bash"><span class="comment">##</span></span></span><br><span class="line">server &#123;</span><br><span class="line">	listen       8082;</span><br><span class="line">	server_name  localhost;</span><br><span class="line">	location / &#123;</span><br><span class="line">		default_type text/html;</span><br><span class="line">		content_by_lua_block &#123;</span><br><span class="line">			ngx.say(&quot;&lt;p&gt;hello, world&lt;/p&gt;&quot;)</span><br><span class="line">		&#125;</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br><span class="line"><span class="meta">#</span><span class="bash"><span class="comment">##</span></span></span><br><span class="line">openresty -s reload</span><br><span class="line"><span class="meta">#</span><span class="bash"> 测试</span></span><br><span class="line">curl http://127.0.0.1:8082</span><br></pre></td></tr></table></figure>
+
+<h1 id="卸载"><a href="#卸载" class="headerlink" title="卸载"></a>卸载</h1><ol>
+<li>打开 anlinux，选择 删除系统 菜单</li>
+<li>点击 选择 按钮，选中 CentOS，点击 确定 按钮</li>
+<li>点击 复制 按钮，复制指令</li>
+<li>点击 启动 按钮，打开 termux，粘贴指令，点击输入法键盘 回车 按钮</li>
+<li>等待卸载完成</li>
+</ol>
+<h1 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h1><p><a href="https://github.com/EXALAB/AnLinux-App">https://github.com/EXALAB/AnLinux-App</a></p>
+]]></content>
+      <categories>
+        <category>Termux</category>
+      </categories>
+      <tags>
+        <tag>Termux</tag>
+        <tag>手机</tag>
       </tags>
   </entry>
   <entry>
