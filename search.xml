@@ -1,25 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <search>
   <entry>
-    <title>DNS相关概念</title>
-    <url>/2021/07/24/DNS%E7%9B%B8%E5%85%B3%E6%A6%82%E5%BF%B5/</url>
-    <content><![CDATA[<h1 id="概念"><a href="#概念" class="headerlink" title="概念"></a>概念</h1><p>DNS是 Domain Name System 的缩写，作用是根据域名查询IP地址</p>
-<h1 id="查询方式"><a href="#查询方式" class="headerlink" title="查询方式"></a>查询方式</h1><h2 id="递归查询"><a href="#递归查询" class="headerlink" title="递归查询"></a>递归查询</h2><p>DNS服务器接收到客户机请求，必须使用一个准确的查询结果回复客户机。<br>如果DNS服务器本地没有存储查询DNS信息，那么该服务器会询问其他服务器，并将返回的查询结果提交给客户机。</p>
-<h2 id="迭代查询"><a href="#迭代查询" class="headerlink" title="迭代查询"></a>迭代查询</h2><p>DNS服务器会向客户机提供其他能够解析查询请求的DNS服务器地址。<br>当客户机发送查询请求时，DNS服务器并不直接回复查询结果，而是告诉客户机另一台DNS服务器地址。<br>客户机再向这台DNS服务器提交请求，依次循环直到返回查询的结果为止。</p>
-<span id="more"></span>
-
-<h1 id="DNS记录类型"><a href="#DNS记录类型" class="headerlink" title="DNS记录类型"></a>DNS记录类型</h1><p>A：地址记录（Address），返回域名指向的IP地址。<br>NS：域名服务器记录（Name Server），返回保存下一级域名信息的服务器地址。该记录只能设置为域名，不能设置为IP地址。<br>MX：邮件记录（Mail eXchange），返回接收电子邮件的服务器地址。<br>CNAME：规范名称记录（Canonical Name），返回另一个域名，即当前查询的域名是另一个域名的跳转。<br>PTR：逆向查询记录（Pointer Record），只用于从IP地址查询域名。</p>
-<h1 id="私有DNS选型"><a href="#私有DNS选型" class="headerlink" title="私有DNS选型"></a>私有DNS选型</h1><p>BIND<br>PowerDNS<br>Dnsmasq<br>CoreDNS</p>
-<p>参考：<a href="https://en.wikipedia.org/wiki/Comparison_of_DNS_server_software">https://en.wikipedia.org/wiki/Comparison_of_DNS_server_software</a></p>
-]]></content>
-      <categories>
-        <category>DNS</category>
-      </categories>
-      <tags>
-        <tag>DNS</tag>
-      </tags>
-  </entry>
-  <entry>
     <title>CoreDNS使用etcd插件</title>
     <url>/2021/07/24/CoreDNS%E4%BD%BF%E7%94%A8etcd%E6%8F%92%E4%BB%B6/</url>
     <content><![CDATA[<h1 id="配置etcd"><a href="#配置etcd" class="headerlink" title="配置etcd"></a>配置etcd</h1><figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">docker run -d --name etcd \</span><br><span class="line">-p 2379:2379 \</span><br><span class="line">-p 2380:2380 \</span><br><span class="line">--env ALLOW_NONE_AUTHENTICATION=yes \</span><br><span class="line">bitnami/etcd:3.4.16-debian-10-r28</span><br><span class="line"></span><br><span class="line">docker run -it --rm \</span><br><span class="line">--env ALLOW_NONE_AUTHENTICATION=yes \</span><br><span class="line">bitnami/etcd:3.4.16-debian-10-r28 \</span><br><span class="line">etcdctl --endpoints http://172.17.0.1:2379 put /key1 value1</span><br><span class="line"></span><br><span class="line">docker run -it --rm \</span><br><span class="line">--env ALLOW_NONE_AUTHENTICATION=yes \</span><br><span class="line">bitnami/etcd:3.4.16-debian-10-r28 \</span><br><span class="line">etcdctl --endpoints http://172.17.0.1:2379 get / --prefix</span><br></pre></td></tr></table></figure>
@@ -40,6 +21,25 @@
         <tag>DNS</tag>
         <tag>CoreDNS</tag>
         <tag>etcd</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>DNS相关概念</title>
+    <url>/2021/07/24/DNS%E7%9B%B8%E5%85%B3%E6%A6%82%E5%BF%B5/</url>
+    <content><![CDATA[<h1 id="概念"><a href="#概念" class="headerlink" title="概念"></a>概念</h1><p>DNS是 Domain Name System 的缩写，作用是根据域名查询IP地址</p>
+<h1 id="查询方式"><a href="#查询方式" class="headerlink" title="查询方式"></a>查询方式</h1><h2 id="递归查询"><a href="#递归查询" class="headerlink" title="递归查询"></a>递归查询</h2><p>DNS服务器接收到客户机请求，必须使用一个准确的查询结果回复客户机。<br>如果DNS服务器本地没有存储查询DNS信息，那么该服务器会询问其他服务器，并将返回的查询结果提交给客户机。</p>
+<h2 id="迭代查询"><a href="#迭代查询" class="headerlink" title="迭代查询"></a>迭代查询</h2><p>DNS服务器会向客户机提供其他能够解析查询请求的DNS服务器地址。<br>当客户机发送查询请求时，DNS服务器并不直接回复查询结果，而是告诉客户机另一台DNS服务器地址。<br>客户机再向这台DNS服务器提交请求，依次循环直到返回查询的结果为止。</p>
+<span id="more"></span>
+
+<h1 id="DNS记录类型"><a href="#DNS记录类型" class="headerlink" title="DNS记录类型"></a>DNS记录类型</h1><p>A：地址记录（Address），返回域名指向的IP地址。<br>NS：域名服务器记录（Name Server），返回保存下一级域名信息的服务器地址。该记录只能设置为域名，不能设置为IP地址。<br>MX：邮件记录（Mail eXchange），返回接收电子邮件的服务器地址。<br>CNAME：规范名称记录（Canonical Name），返回另一个域名，即当前查询的域名是另一个域名的跳转。<br>PTR：逆向查询记录（Pointer Record），只用于从IP地址查询域名。</p>
+<h1 id="私有DNS选型"><a href="#私有DNS选型" class="headerlink" title="私有DNS选型"></a>私有DNS选型</h1><p>BIND<br>PowerDNS<br>Dnsmasq<br>CoreDNS</p>
+<p>参考：<a href="https://en.wikipedia.org/wiki/Comparison_of_DNS_server_software">https://en.wikipedia.org/wiki/Comparison_of_DNS_server_software</a></p>
+]]></content>
+      <categories>
+        <category>DNS</category>
+      </categories>
+      <tags>
+        <tag>DNS</tag>
       </tags>
   </entry>
   <entry>
@@ -151,6 +151,60 @@
       </tags>
   </entry>
   <entry>
+    <title>使用kubespray安装安装K8S</title>
+    <url>/2021/08/14/%E4%BD%BF%E7%94%A8kubespray%E5%AE%89%E8%A3%85%E5%AE%89%E8%A3%85K8S/</url>
+    <content><![CDATA[<h1 id="测试环境"><a href="#测试环境" class="headerlink" title="测试环境"></a>测试环境</h1><p>k8s-01：4C+2G+10G<br>k8s-02：4C+2G+10G<br>k8s-03：4C+2G+10G</p>
+<h1 id="预配置"><a href="#预配置" class="headerlink" title="预配置"></a>预配置</h1><p>关闭selinux</p>
+<p>关闭firewalld</p>
+<p>开启ip_forward</p>
+<p>修改yum源</p>
+<p>修改pip源</p>
+<p>安装软件</p>
+<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">yum install git python-pip -y</span><br></pre></td></tr></table></figure>
+
+<p>免密登录：</p>
+<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">ssh-keygen</span><br><span class="line"><span class="meta">#</span><span class="bash"> ssh-copy-id root@ip</span></span><br><span class="line">ssh-copy-id root@192.168.128.201</span><br><span class="line">ssh-copy-id root@192.168.128.202</span><br><span class="line">ssh-copy-id root@192.168.128.203</span><br></pre></td></tr></table></figure>
+
+<span id="more"></span>
+
+<h1 id="安装"><a href="#安装" class="headerlink" title="安装"></a>安装</h1><figure class="highlight shell"><table><tr><td class="code"><pre><span class="line"><span class="meta">#</span><span class="bash"> 下载源码</span></span><br><span class="line"><span class="meta">#</span><span class="bash"> git <span class="built_in">clone</span> https://github.com/kubernetes-incubator/kubespray.git -b v2.14.2</span></span><br><span class="line">git clone https://ghproxy.com/https://github.com/kubernetes-incubator/kubespray.git -b v2.14.2</span><br><span class="line">cd kubespray</span><br><span class="line"><span class="meta"></span></span><br><span class="line"><span class="meta">#</span><span class="bash"> 添加依赖</span></span><br><span class="line">vi requirements.txt</span><br><span class="line"><span class="meta">#</span><span class="bash"><span class="comment">##</span></span></span><br><span class="line">ruamel.yaml.clib==0.2.2</span><br><span class="line">MarkupSafe==1.1.1</span><br><span class="line"><span class="meta">#</span><span class="bash"><span class="comment">##</span></span></span><br><span class="line"><span class="meta"></span></span><br><span class="line"><span class="meta">#</span><span class="bash"> 安装依赖</span></span><br><span class="line">pip install -r requirements.txt</span><br><span class="line"><span class="meta"></span></span><br><span class="line"><span class="meta">#</span><span class="bash"> 拷贝inventory</span></span><br><span class="line">cp -rfp inventory/sample inventory/mycluster</span><br><span class="line"><span class="meta"></span></span><br><span class="line"><span class="meta">#</span><span class="bash"> 配置代理（需要socks服务端开启允许局域网访问）</span></span><br><span class="line">vi inventory/mycluster/group_vars/all/all.yml</span><br><span class="line"><span class="meta">#</span><span class="bash"><span class="comment">##</span></span></span><br><span class="line">http_proxy: &quot;http://192.168.128.1:1081&quot;</span><br><span class="line">https_proxy: &quot;http://192.168.128.1:1081&quot;</span><br><span class="line">download_validate_certs: False</span><br><span class="line"><span class="meta">#</span><span class="bash"><span class="comment">##</span></span></span><br><span class="line"><span class="meta"></span></span><br><span class="line"><span class="meta">#</span><span class="bash"> 添加需要的组件</span></span><br><span class="line">vi inventory/mycluster/group_vars/k8s-cluster/addons.yml</span><br><span class="line"><span class="meta"></span></span><br><span class="line"><span class="meta">#</span><span class="bash"> 手动配置inventory部署</span></span><br><span class="line">vi inventory/mycluster/inventory.ini </span><br><span class="line">ansible-playbook -i inventory/mycluster/inventory.ini cluster.yml</span><br><span class="line"><span class="meta"></span></span><br><span class="line"><span class="meta">#</span><span class="bash"> 自动配置inventory部署</span></span><br><span class="line">yum -y install python3 python3-pip</span><br><span class="line">pip3 install -r contrib/inventory_builder/requirements.txt</span><br><span class="line">declare -a IPS=(192.168.128.201 192.168.128.202 192.168.128.203)</span><br><span class="line">CONFIG_FILE=inventory/mycluster/hosts.yml python3 contrib/inventory_builder/inventory.py $&#123;IPS[@]&#125;</span><br><span class="line"><span class="meta">#</span><span class="bash"> 修改主机名：node1 改为 k8s-01，node2 改为 k8s-02，node3 改为 k8s-03</span></span><br><span class="line">vi inventory/mycluster/hosts.yml</span><br><span class="line">ansible-playbook -i inventory/mycluster/hosts.yml cluster.yml</span><br><span class="line"><span class="meta"></span></span><br><span class="line"><span class="meta">#</span><span class="bash"> 部署失败，重试</span></span><br><span class="line">ansible-playbook -i inventory/mycluster/hosts.yml cluster.yml --limit @cluster.retry</span><br><span class="line"><span class="meta">#</span><span class="bash"> 部署失败，重置</span></span><br><span class="line">ansible-playbook -i inventory/mycluster/hosts.yml reset.yml</span><br><span class="line"><span class="meta"></span></span><br><span class="line"><span class="meta">#</span><span class="bash"> 添加节点（仅worker）</span></span><br><span class="line"><span class="meta">#</span><span class="bash"> 修改inventory</span></span><br><span class="line">ansible-playbook -i inventory/mycluster/hosts.yml scale.yml</span><br><span class="line"><span class="meta">#</span><span class="bash"> 删除节点（仅worker）</span></span><br><span class="line"><span class="meta">#</span><span class="bash"> 修改inventory</span></span><br><span class="line">ansible-playbook -i inventory/mycluster/hosts.yml remove-node.yml</span><br><span class="line"><span class="meta">#</span><span class="bash"> 添加和删除节点（包含master、worker、etcd）</span></span><br><span class="line"><span class="meta">#</span><span class="bash"> 修改inventory</span></span><br><span class="line">ansible-playbook -i inventory/mycluster/hosts.yml cluster.yml</span><br><span class="line"><span class="meta">#</span><span class="bash"> 更新集群（全量更新）</span></span><br><span class="line">ansible-playbook -i inventory/mycluster/hosts.yml cluster.yml -e kube_version=v1.24.4</span><br><span class="line"><span class="meta">#</span><span class="bash"> 更新集群（滚动更新，会先驱逐POD）</span></span><br><span class="line">ansible-playbook -i inventory/mycluster/hosts.yml upgrade-cluster.yml -e kube_version=v1.24.4</span><br></pre></td></tr></table></figure>
+
+]]></content>
+      <categories>
+        <category>K8S</category>
+      </categories>
+      <tags>
+        <tag>K8S</tag>
+        <tag>kubespray</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>修改Proxifier配置文件存储路径</title>
+    <url>/2020/10/01/%E4%BF%AE%E6%94%B9Proxifier%E9%85%8D%E7%BD%AE%E6%96%87%E4%BB%B6%E5%AD%98%E5%82%A8%E8%B7%AF%E5%BE%84/</url>
+    <content><![CDATA[<h1 id="发现问题"><a href="#发现问题" class="headerlink" title="发现问题"></a>发现问题</h1><p>今天使用Proxifier的时候，发现配置文件存储路径为：C:\Users\<User>\AppData\Roaming\Proxifier\Profiles。<br>这样就会存在一些风险，例如：重装系统的时候（格式化系统盘），如果没想起来备份，可能就再也找不到了。<br>风险既然发现，就要想办法规避。</p>
+<span id="more"></span>
+
+<h1 id="解决问题"><a href="#解决问题" class="headerlink" title="解决问题"></a>解决问题</h1><h2 id="过程"><a href="#过程" class="headerlink" title="过程"></a>过程</h2><ul>
+<li>首先，查看Proxifier帮助文档（路径：D:\Program Files (x86)\Proxifier\Proxifier.chm），无果。</li>
+<li>然后，Google查资料，无果。</li>
+<li>然后，试了试在C:\Users\<User>\AppData\Roaming\Proxifier下面创建Profiles快捷方式，删除Profiles文件夹，结果启动Proxifier之后，竟然又自动生成了Profiles文件夹，失败。</li>
+<li>最后，我想起来Linux有个ln命令，效果是我想要的，开始Google查询“windows 软连接”，找到了mklink命令。</li>
+</ul>
+<p>查看help：</p>
+<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">λ mklink</span><br><span class="line">创建符号链接。</span><br><span class="line"></span><br><span class="line">MKLINK [[/D] | [/H] | [/J]] Link Target</span><br><span class="line"></span><br><span class="line">        /D      创建目录符号链接。默认为文件</span><br><span class="line">                符号链接。</span><br><span class="line">        /H      创建硬链接而非符号链接。</span><br><span class="line">        /J      创建目录联接。</span><br><span class="line">        Link    指定新的符号链接名称。</span><br><span class="line">        Target  指定新链接引用的路径</span><br><span class="line">                (相对或绝对)。</span><br></pre></td></tr></table></figure>
+
+<h2 id="结论"><a href="#结论" class="headerlink" title="结论"></a>结论</h2><p>注：需要管理员权限</p>
+<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">λ mklink /D C:\Users\&lt;User&gt;\AppData\Roaming\Proxifier\Profiles E:\Config\Proxifier\Profiles</span><br></pre></td></tr></table></figure>
+]]></content>
+      <categories>
+        <category>Proxy</category>
+      </categories>
+      <tags>
+        <tag>Proxy</tag>
+        <tag>Proxifier</tag>
+      </tags>
+  </entry>
+  <entry>
     <title>升级jar包中单文件</title>
     <url>/2020/10/01/%E5%8D%87%E7%BA%A7jar%E5%8C%85%E4%B8%AD%E5%8D%95%E6%96%87%E4%BB%B6/</url>
     <content><![CDATA[<h1 id="发现问题"><a href="#发现问题" class="headerlink" title="发现问题"></a>发现问题</h1><p>开发springboot项目的时候，我们经常会以jar包的形式进行部署。这个时候，如果需要修改某一个文件，那么该怎么升级呢？</p>
@@ -198,23 +252,6 @@
       </categories>
       <tags>
         <tag>Java</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>在Termux中安装mitmproxy</title>
-    <url>/2021/07/26/%E5%9C%A8Termux%E4%B8%AD%E5%AE%89%E8%A3%85mitmproxy/</url>
-    <content><![CDATA[<h1 id="安装"><a href="#安装" class="headerlink" title="安装"></a>安装</h1><p>安装 termux ，可以参考 <a href="/2021/07/25/%E5%AE%89%E8%A3%85Termux/" title="这里">这里</a></p>
-<p>安装 mitmproxy</p>
-<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">pkg install libffi openssl python rust</span><br><span class="line">pip install mitmproxy</span><br><span class="line">mitmproxy --version</span><br></pre></td></tr></table></figure>
-
-<h1 id="测试"><a href="#测试" class="headerlink" title="测试"></a>测试</h1><p>测试 mitmproxy ，可以参考 <a href="/2021/07/24/%E5%AE%89%E8%A3%85mitmproxy/" title="这里">这里</a></p>
-]]></content>
-      <categories>
-        <category>Termux</category>
-      </categories>
-      <tags>
-        <tag>Termux</tag>
-        <tag>mitmproxy</tag>
       </tags>
   </entry>
   <entry>
@@ -284,6 +321,23 @@
       <tags>
         <tag>DNS</tag>
         <tag>CoreDNS</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>在Termux中安装mitmproxy</title>
+    <url>/2021/07/26/%E5%9C%A8Termux%E4%B8%AD%E5%AE%89%E8%A3%85mitmproxy/</url>
+    <content><![CDATA[<h1 id="安装"><a href="#安装" class="headerlink" title="安装"></a>安装</h1><p>安装 termux ，可以参考 <a href="/2021/07/25/%E5%AE%89%E8%A3%85Termux/" title="这里">这里</a></p>
+<p>安装 mitmproxy</p>
+<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">pkg install libffi openssl python rust</span><br><span class="line">pip install mitmproxy</span><br><span class="line">mitmproxy --version</span><br></pre></td></tr></table></figure>
+
+<h1 id="测试"><a href="#测试" class="headerlink" title="测试"></a>测试</h1><p>测试 mitmproxy ，可以参考 <a href="/2021/07/24/%E5%AE%89%E8%A3%85mitmproxy/" title="这里">这里</a></p>
+]]></content>
+      <categories>
+        <category>Termux</category>
+      </categories>
+      <tags>
+        <tag>Termux</tag>
+        <tag>mitmproxy</tag>
       </tags>
   </entry>
   <entry>
@@ -402,6 +456,24 @@
       </tags>
   </entry>
   <entry>
+    <title>安装dashboard</title>
+    <url>/2021/08/14/%E5%AE%89%E8%A3%85dashboard/</url>
+    <content><![CDATA[<h1 id="yaml安装"><a href="#yaml安装" class="headerlink" title="yaml安装"></a>yaml安装</h1><figure class="highlight shell"><table><tr><td class="code"><pre><span class="line"><span class="meta">#</span><span class="bash"> wget https://raw.githubusercontent.com/kubernetes/dashboard/v2.2.0/aio/deploy/recommended.yaml -O dashboard.yaml</span></span><br><span class="line">wget https://ghproxy.com/https://raw.githubusercontent.com/kubernetes/dashboard/v2.2.0/aio/deploy/recommended.yaml \</span><br><span class="line">-O dashboard.yaml</span><br><span class="line"><span class="meta">#</span><span class="bash"> 修改配置</span></span><br><span class="line"><span class="meta">#</span><span class="bash"><span class="comment"># 修改 namespace</span></span></span><br><span class="line"><span class="meta">#</span><span class="bash"><span class="comment"># 启用 NodePort</span></span></span><br><span class="line"><span class="meta">#</span><span class="bash"><span class="comment"># 修改 ClusterRoleBinding 中 ClusterRole 为 cluster-admin</span></span></span><br><span class="line">vi dashboard.yaml</span><br><span class="line"><span class="meta">#</span><span class="bash"> 提交</span></span><br><span class="line">kubectl apply -f dashboard.yaml</span><br></pre></td></tr></table></figure>
+
+<span id="more"></span>
+
+<h1 id="helm安装"><a href="#helm安装" class="headerlink" title="helm安装"></a>helm安装</h1><figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">helm repo add kubernetes-dashboard https://kubernetes.github.io/dashboard</span><br><span class="line">helm pull kubernetes-dashboard/kubernetes-dashboard --version 4.2.0</span><br><span class="line">tar zxvf kubernetes-dashboard-4.2.0.tgz </span><br><span class="line">cd kubernetes-dashboard</span><br><span class="line">cp values.yaml values-override.yaml</span><br><span class="line">vi values-override.yaml</span><br><span class="line"><span class="meta">#</span><span class="bash"><span class="comment">##</span></span></span><br><span class="line">extraArgs:</span><br><span class="line">  - --token-ttl=0</span><br><span class="line">service:</span><br><span class="line">  type: NodePort</span><br><span class="line">  nodePort: 30000</span><br><span class="line">metricsScraper:</span><br><span class="line">  enabled: true</span><br><span class="line">metrics-server:</span><br><span class="line">  enabled: true</span><br><span class="line">  args:</span><br><span class="line">    - --kubelet-preferred-address-types=InternalIP</span><br><span class="line">    - --kubelet-insecure-tls</span><br><span class="line"><span class="meta">#</span><span class="bash"><span class="comment">##</span></span></span><br><span class="line">helm install --create-namespace --namespace cmp-dashboard dashboard -f values-override.yaml .</span><br><span class="line"><span class="meta"></span></span><br><span class="line"><span class="meta">#</span><span class="bash"> 获取 token</span></span><br><span class="line">kubectl -n cmp-dashboard get secrets \</span><br><span class="line"><span class="meta">$</span><span class="bash">(kubectl -n cmp-dashboard get secrets | grep kubernetes-dashboard-token | awk <span class="string">&#x27;&#123;print $1&#125;&#x27;</span>) \</span></span><br><span class="line"><span class="bash">-o jsonpath=<span class="string">&quot;&#123;[&#x27;data&#x27;][&#x27;token&#x27;]&#125;&quot;</span> | base64 --decode &amp;&amp; <span class="built_in">echo</span></span></span><br><span class="line"><span class="meta"></span></span><br><span class="line"><span class="meta">#</span><span class="bash"> 提升权限</span></span><br><span class="line">vi dashboard-rbac.yaml</span><br><span class="line"><span class="meta">#</span><span class="bash"><span class="comment">##</span></span></span><br><span class="line">apiVersion: rbac.authorization.k8s.io/v1</span><br><span class="line">kind: ClusterRoleBinding</span><br><span class="line">metadata:</span><br><span class="line">  name: dashboard-kubernetes-dashboard</span><br><span class="line">roleRef:</span><br><span class="line">  apiGroup: rbac.authorization.k8s.io</span><br><span class="line">  kind: ClusterRole</span><br><span class="line">  name: cluster-admin</span><br><span class="line">subjects:</span><br><span class="line">  - kind: ServiceAccount</span><br><span class="line">	name: dashboard-kubernetes-dashboard</span><br><span class="line">namespace: cmp-dashboard</span><br><span class="line"><span class="meta">#</span><span class="bash"><span class="comment">##</span></span></span><br><span class="line">kubectl apply -f dashboard-rbac.yaml</span><br><span class="line"><span class="meta"></span></span><br><span class="line"><span class="meta">#</span><span class="bash"> 获取 token</span></span><br><span class="line">kubectl -n cmp-dashboard get secrets \</span><br><span class="line"><span class="meta">$</span><span class="bash">(kubectl -n cmp-dashboard get secrets | grep kubernetes-dashboard-token | awk <span class="string">&#x27;&#123;print $1&#125;&#x27;</span>) \</span></span><br><span class="line"><span class="bash">-o go-template=<span class="string">&quot;&#123;&#123;.data.token | base64decode&#125;&#125;&quot;</span> &amp;&amp; <span class="built_in">echo</span></span></span><br></pre></td></tr></table></figure>
+
+]]></content>
+      <categories>
+        <category>K8S</category>
+      </categories>
+      <tags>
+        <tag>K8S</tag>
+        <tag>harbor</tag>
+      </tags>
+  </entry>
+  <entry>
     <title>安装etcd</title>
     <url>/2021/07/27/%E5%AE%89%E8%A3%85etcd/</url>
     <content><![CDATA[<h1 id="安装"><a href="#安装" class="headerlink" title="安装"></a>安装</h1><h2 id="二进制"><a href="#二进制" class="headerlink" title="二进制"></a>二进制</h2><h2 id="docker"><a href="#docker" class="headerlink" title="docker"></a>docker</h2><figure class="highlight shell"><table><tr><td class="code"><pre><span class="line"><span class="meta">#</span><span class="bash"> 配置 etcd 使用主机IP 地址</span></span><br><span class="line">export NODE1=172.17.0.1</span><br><span class="line"><span class="meta">#</span><span class="bash"> 配置一个 Docker 卷来存储 etcd 数据</span></span><br><span class="line">docker volume create --name etcd-data</span><br><span class="line">export DATA_DIR=etcd-data</span><br><span class="line"><span class="meta">#</span><span class="bash"> 配置 REGISTRY</span></span><br><span class="line"><span class="meta">#</span><span class="bash"> <span class="built_in">export</span> REGISTRY=quay.io/coreos/etcd</span></span><br><span class="line">export REGISTRY=quay.mirrors.ustc.edu.cn/coreos/etcd</span><br><span class="line"><span class="meta">#</span><span class="bash"> 配置 TAG</span></span><br><span class="line"><span class="meta">#</span><span class="bash"> TAG=latest</span></span><br><span class="line">export TAG=v3.4.16</span><br><span class="line"><span class="meta">#</span><span class="bash"> 启动</span></span><br><span class="line">docker run \</span><br><span class="line">-p 2379:2379 \</span><br><span class="line">-p 2380:2380 \</span><br><span class="line">--volume=$&#123;DATA_DIR&#125;:/etcd-data \</span><br><span class="line">--name etcd $&#123;REGISTRY&#125;:$&#123;TAG&#125; \</span><br><span class="line">/usr/local/bin/etcd \</span><br><span class="line">--data-dir=/etcd-data --name node1 \</span><br><span class="line">--initial-advertise-peer-urls http://$&#123;NODE1&#125;:2380 --listen-peer-urls http://0.0.0.0:2380 \</span><br><span class="line">--advertise-client-urls http://$&#123;NODE1&#125;:2379 --listen-client-urls http://0.0.0.0:2379 \</span><br><span class="line">--initial-cluster node1=http://$&#123;NODE1&#125;:2380</span><br></pre></td></tr></table></figure>
@@ -412,6 +484,27 @@
       </categories>
       <tags>
         <tag>etcd</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>安装harbor</title>
+    <url>/2021/08/14/%E5%AE%89%E8%A3%85harbor/</url>
+    <content><![CDATA[<h1 id="添加仓库"><a href="#添加仓库" class="headerlink" title="添加仓库"></a>添加仓库</h1><figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">helm repo add harbor https://helm.goharbor.io</span><br></pre></td></tr></table></figure>
+
+<h1 id="下载指定版本，修改配置"><a href="#下载指定版本，修改配置" class="headerlink" title="下载指定版本，修改配置"></a>下载指定版本，修改配置</h1><figure class="highlight shell"><table><tr><td class="code"><pre><span class="line"><span class="meta">#</span><span class="bash"> 查找版本</span></span><br><span class="line">helm search repo harbor/harbor --versions</span><br><span class="line"><span class="meta">#</span><span class="bash"> 下载指定版本</span></span><br><span class="line">helm fetch harbor/harbor --version 1.6.2</span><br><span class="line"><span class="meta">#</span><span class="bash"> 修改配置</span></span><br><span class="line">tar zxvf harbor-1.6.2.tgz</span><br><span class="line">cd harbor</span><br><span class="line">cp values.yaml values-override.yaml</span><br><span class="line">vi values-override.yaml</span><br><span class="line"><span class="meta">#</span><span class="bash"><span class="comment">##</span></span></span><br><span class="line">expose:</span><br><span class="line">  type: nodePort</span><br><span class="line">  tls:</span><br><span class="line">    auto:</span><br><span class="line">      commonName: &quot;goharbor.io&quot;</span><br><span class="line">  nodePort:</span><br><span class="line">    ports:</span><br><span class="line">      http:</span><br><span class="line">        nodePort: 30003</span><br><span class="line">      https:</span><br><span class="line">        nodePort: 30002</span><br><span class="line">externalURL: https://192.168.3.201:30002</span><br><span class="line">trivy:</span><br><span class="line"><span class="meta">  #</span><span class="bash"> 第一种方法：填写 GitHub Token，自动下载 Trivy DB</span></span><br><span class="line">  gitHubToken: &quot;xxx&quot;</span><br><span class="line"><span class="meta">  #</span><span class="bash"> 第二种方法：跳过更新，手动下载 Trivy DB 到 /home/scanner/.cache/trivy/db/trivy.db</span></span><br><span class="line"><span class="meta">  #</span><span class="bash"> skipUpdate: <span class="literal">true</span></span></span><br><span class="line">notary:</span><br><span class="line">  enabled: false</span><br><span class="line"><span class="meta">#</span><span class="bash"><span class="comment">##</span></span></span><br></pre></td></tr></table></figure>
+
+<span id="more"></span>
+
+<h1 id="安装部署"><a href="#安装部署" class="headerlink" title="安装部署"></a>安装部署</h1><figure class="highlight shell"><table><tr><td class="code"><pre><span class="line"><span class="meta">#</span><span class="bash"> 安装</span></span><br><span class="line">helm install --create-namespace --namespace cmp-harbor harbor -f values-override.yaml .</span><br><span class="line"><span class="meta">#</span><span class="bash"> 升级</span></span><br><span class="line">helm -n cmp-harbor upgrade harbor -f values-override.yaml .</span><br></pre></td></tr></table></figure>
+
+<h1 id="配置"><a href="#配置" class="headerlink" title="配置"></a>配置</h1><figure class="highlight shell"><table><tr><td class="code"><pre><span class="line"><span class="meta">#</span><span class="bash"> 配置docker，允许自签名证书</span></span><br><span class="line">vi /etc/docker/daemon.json </span><br><span class="line"><span class="meta">#</span><span class="bash"><span class="comment">##</span></span></span><br><span class="line">&#123;</span><br><span class="line">  &quot;insecure-registries&quot;: [&quot;https://192.168.3.201:30002&quot;]</span><br><span class="line">&#125;</span><br><span class="line"><span class="meta">#</span><span class="bash"><span class="comment">##</span></span></span><br><span class="line">systemctl daemon-reload</span><br><span class="line">systemctl restart docker</span><br><span class="line"><span class="meta">#</span><span class="bash"> 登录</span></span><br><span class="line">docker login -u admin -p Harbor12345 192.168.3.201:30002</span><br><span class="line">cat ~/.docker/config.json</span><br><span class="line"><span class="meta">#</span><span class="bash"> 推送镜像</span></span><br><span class="line">docker push 192.168.3.201:30002/library/nginx:1.20-alpine</span><br></pre></td></tr></table></figure>
+]]></content>
+      <categories>
+        <category>K8S</category>
+      </categories>
+      <tags>
+        <tag>K8S</tag>
+        <tag>harbor</tag>
       </tags>
   </entry>
   <entry>
@@ -448,8 +541,8 @@
         <category>mitmproxy</category>
       </categories>
       <tags>
-        <tag>mitmproxy</tag>
         <tag>Proxy</tag>
+        <tag>mitmproxy</tag>
         <tag>Python</tag>
       </tags>
   </entry>
@@ -488,6 +581,55 @@
       </tags>
   </entry>
   <entry>
+    <title>安装rook-ceph</title>
+    <url>/2021/08/14/%E5%AE%89%E8%A3%85rook-ceph/</url>
+    <content><![CDATA[<h1 id="添加仓库"><a href="#添加仓库" class="headerlink" title="添加仓库"></a>添加仓库</h1><figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">helm repo add rook https://charts.rook.io/release</span><br></pre></td></tr></table></figure>
+
+<h1 id="下载指定版本，修改配置"><a href="#下载指定版本，修改配置" class="headerlink" title="下载指定版本，修改配置"></a>下载指定版本，修改配置</h1><figure class="highlight shell"><table><tr><td class="code"><pre><span class="line"><span class="meta">#</span><span class="bash"> rook-ceph</span></span><br><span class="line">helm fetch rook/rook-ceph --version 1.7.0</span><br><span class="line">tar zxvf rook-ceph-v1.7.0.tgz</span><br><span class="line">cd rook-ceph</span><br><span class="line">cp values.yaml values-override.yaml</span><br><span class="line">vi values-override.yaml</span><br><span class="line"><span class="meta">#</span><span class="bash"> rook-ceph-cluster</span></span><br><span class="line">helm fetch rook/rook-ceph-cluster --version 1.7.0</span><br><span class="line">tar zxvf rook-ceph-cluster-v1.7.0.tgz</span><br><span class="line">cd rook-ceph-cluster</span><br><span class="line">cp values.yaml values-override.yaml</span><br><span class="line">vi values-override.yaml</span><br></pre></td></tr></table></figure>
+
+<span id="more"></span>
+
+<h1 id="安装部署"><a href="#安装部署" class="headerlink" title="安装部署"></a>安装部署</h1><figure class="highlight shell"><table><tr><td class="code"><pre><span class="line"><span class="meta">#</span><span class="bash"> rook-ceph</span></span><br><span class="line">cd rook-ceph</span><br><span class="line">helm install --create-namespace --namespace rook-ceph rook-ceph -f values-override.yaml .</span><br><span class="line"><span class="meta">#</span><span class="bash"> rook-ceph-cluster</span></span><br><span class="line">cd rook-ceph-cluster</span><br><span class="line">helm install --create-namespace --namespace rook-ceph rook-ceph-cluster -f values-override.yaml .</span><br></pre></td></tr></table></figure>
+
+<h1 id="维护"><a href="#维护" class="headerlink" title="维护"></a>维护</h1><h2 id="通过-toolbox-维护"><a href="#通过-toolbox-维护" class="headerlink" title="通过 toolbox 维护"></a>通过 toolbox 维护</h2><figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">kubectl -n rook-ceph exec -it \</span><br><span class="line"><span class="meta">$</span><span class="bash">(kubectl -n rook-ceph get pod -l <span class="string">&quot;app=rook-ceph-tools&quot;</span> -o jsonpath=<span class="string">&#x27;&#123;.items[0].metadata.name&#125;&#x27;</span>) \</span></span><br><span class="line"><span class="bash">-- bash</span></span><br><span class="line">ceph status</span><br><span class="line">ceph df</span><br><span class="line">ceph osd status</span><br><span class="line">ceph osd df</span><br><span class="line">ceph osd tree</span><br><span class="line">ceph osd lspools</span><br></pre></td></tr></table></figure>
+
+<h2 id="通过-dashboard-维护"><a href="#通过-dashboard-维护" class="headerlink" title="通过 dashboard 维护"></a>通过 dashboard 维护</h2><figure class="highlight shell"><table><tr><td class="code"><pre><span class="line"><span class="meta">#</span><span class="bash"> 添加nodeport</span></span><br><span class="line">kubectl -n rook-ceph get svc rook-ceph-mgr-dashboard -o yaml &gt; rook-ceph-mgr-dashboard-nodeport.yaml</span><br><span class="line">vi rook-ceph-mgr-dashboard-nodeport.yaml</span><br><span class="line">kubectl apply -f rook-ceph-mgr-dashboard-nodeport.yaml</span><br><span class="line"><span class="meta">#</span><span class="bash"> 获取密码，账号：admin</span></span><br><span class="line">kubectl -n rook-ceph get secret rook-ceph-dashboard-password -o jsonpath=&quot;&#123;[&#x27;data&#x27;][&#x27;password&#x27;]&#125;&quot; | base64 --decode &amp;&amp; echo</span><br></pre></td></tr></table></figure>
+]]></content>
+      <categories>
+        <category>K8S</category>
+      </categories>
+      <tags>
+        <tag>K8S</tag>
+        <tag>ceph</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>安装sshuttle</title>
+    <url>/2021/07/21/%E5%AE%89%E8%A3%85sshuttle/</url>
+    <content><![CDATA[<h1 id="说明"><a href="#说明" class="headerlink" title="说明"></a>说明</h1><p>支持TCP、UDP，不支持ICMP</p>
+<h1 id="安装"><a href="#安装" class="headerlink" title="安装"></a>安装</h1><figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">export &#123;http,https,ftp&#125;_proxy=&quot;http://127.0.0.1:1081&quot;</span><br><span class="line">yum install python3 python3-devel gcc</span><br></pre></td></tr></table></figure>
+
+<h2 id="主机环境安装"><a href="#主机环境安装" class="headerlink" title="主机环境安装"></a>主机环境安装</h2><figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">pip3 install sshuttle</span><br></pre></td></tr></table></figure>
+
+<h2 id="虚拟环境安装"><a href="#虚拟环境安装" class="headerlink" title="虚拟环境安装"></a>虚拟环境安装</h2><figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">pip3 install virtualenv</span><br><span class="line">virtualenv -p python3 /tmp/sshuttle</span><br><span class="line">source /tmp/sshuttle/bin/activate</span><br><span class="line">python -V &amp;&amp; pip -V</span><br><span class="line">pip install sshuttle</span><br></pre></td></tr></table></figure>
+
+<span id="more"></span>
+
+<h1 id="配置"><a href="#配置" class="headerlink" title="配置"></a>配置</h1><h2 id="代理TCP"><a href="#代理TCP" class="headerlink" title="代理TCP"></a>代理TCP</h2><figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">sshuttle -r root@127.0.0.1:60022 0.0.0.0/0 -x 192.168.128.0/24 -v</span><br></pre></td></tr></table></figure>
+
+<h2 id="代理TCP和DNS"><a href="#代理TCP和DNS" class="headerlink" title="代理TCP和DNS"></a>代理TCP和DNS</h2><figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">sshuttle -r root@127.0.0.1:60022 0.0.0.0/0 -x 192.168.128.0/24 --dns -v</span><br></pre></td></tr></table></figure>
+
+<h2 id="代理TCP和UDP"><a href="#代理TCP和UDP" class="headerlink" title="代理TCP和UDP"></a>代理TCP和UDP</h2><figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">sshuttle -r root@127.0.0.1:60022 0.0.0.0/0 -x 192.168.128.0/24 --method tproxy -v</span><br><span class="line"><span class="meta">#</span><span class="bash"> 添加路由</span></span><br><span class="line">ip route add local default dev lo table 100</span><br><span class="line">ip rule add fwmark 1 lookup 100</span><br><span class="line">ip -6 route add local default dev lo table 100</span><br><span class="line">ip -6 rule add fwmark 1 lookup 100</span><br></pre></td></tr></table></figure>
+]]></content>
+      <categories>
+        <category>Proxy</category>
+      </categories>
+      <tags>
+        <tag>Proxy</tag>
+        <tag>sshuttle</tag>
+      </tags>
+  </entry>
+  <entry>
     <title>配置Docker容器的访问策略</title>
     <url>/2021/07/21/%E9%85%8D%E7%BD%AEDocker%E5%AE%B9%E5%99%A8%E7%9A%84%E8%AE%BF%E9%97%AE%E7%AD%96%E7%95%A5/</url>
     <content><![CDATA[<h1 id="需求"><a href="#需求" class="headerlink" title="需求"></a>需求</h1><p>需要对容器暴露的主机端口进行白名单访问控制，仅允许某些IP访问主机端口。</p>
@@ -521,58 +663,6 @@
       <tags>
         <tag>iptables</tag>
         <tag>Docker</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>安装sshuttle</title>
-    <url>/2021/07/21/%E5%AE%89%E8%A3%85sshuttle/</url>
-    <content><![CDATA[<h1 id="说明"><a href="#说明" class="headerlink" title="说明"></a>说明</h1><p>支持TCP、UDP，不支持ICMP</p>
-<h1 id="安装"><a href="#安装" class="headerlink" title="安装"></a>安装</h1><figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">export &#123;http,https,ftp&#125;_proxy=&quot;http://127.0.0.1:1081&quot;</span><br><span class="line">yum install python3 python3-devel gcc</span><br></pre></td></tr></table></figure>
-
-<h2 id="主机环境安装"><a href="#主机环境安装" class="headerlink" title="主机环境安装"></a>主机环境安装</h2><figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">pip3 install sshuttle</span><br></pre></td></tr></table></figure>
-
-<h2 id="虚拟环境安装"><a href="#虚拟环境安装" class="headerlink" title="虚拟环境安装"></a>虚拟环境安装</h2><figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">pip3 install virtualenv</span><br><span class="line">virtualenv -p python3 /tmp/sshuttle</span><br><span class="line">source /tmp/sshuttle/bin/activate</span><br><span class="line">python -V &amp;&amp; pip -V</span><br><span class="line">pip install sshuttle</span><br></pre></td></tr></table></figure>
-
-<span id="more"></span>
-
-<h1 id="配置"><a href="#配置" class="headerlink" title="配置"></a>配置</h1><h2 id="代理TCP"><a href="#代理TCP" class="headerlink" title="代理TCP"></a>代理TCP</h2><figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">sshuttle -r root@127.0.0.1:60022 0.0.0.0/0 -x 192.168.128.0/24 -v</span><br></pre></td></tr></table></figure>
-
-<h2 id="代理TCP和DNS"><a href="#代理TCP和DNS" class="headerlink" title="代理TCP和DNS"></a>代理TCP和DNS</h2><figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">sshuttle -r root@127.0.0.1:60022 0.0.0.0/0 -x 192.168.128.0/24 --dns -v</span><br></pre></td></tr></table></figure>
-
-<h2 id="代理TCP和UDP"><a href="#代理TCP和UDP" class="headerlink" title="代理TCP和UDP"></a>代理TCP和UDP</h2><figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">sshuttle -r root@127.0.0.1:60022 0.0.0.0/0 -x 192.168.128.0/24 --method tproxy -v</span><br><span class="line"><span class="meta">#</span><span class="bash"> 添加路由</span></span><br><span class="line">ip route add local default dev lo table 100</span><br><span class="line">ip rule add fwmark 1 lookup 100</span><br><span class="line">ip -6 route add local default dev lo table 100</span><br><span class="line">ip -6 rule add fwmark 1 lookup 100</span><br></pre></td></tr></table></figure>
-]]></content>
-      <categories>
-        <category>Proxy</category>
-      </categories>
-      <tags>
-        <tag>Proxy</tag>
-        <tag>sshuttle</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>修改Proxifier配置文件存储路径</title>
-    <url>/2020/10/01/%E4%BF%AE%E6%94%B9Proxifier%E9%85%8D%E7%BD%AE%E6%96%87%E4%BB%B6%E5%AD%98%E5%82%A8%E8%B7%AF%E5%BE%84/</url>
-    <content><![CDATA[<h1 id="发现问题"><a href="#发现问题" class="headerlink" title="发现问题"></a>发现问题</h1><p>今天使用Proxifier的时候，发现配置文件存储路径为：C:\Users\<User>\AppData\Roaming\Proxifier\Profiles。<br>这样就会存在一些风险，例如：重装系统的时候（格式化系统盘），如果没想起来备份，可能就再也找不到了。<br>风险既然发现，就要想办法规避。</p>
-<span id="more"></span>
-
-<h1 id="解决问题"><a href="#解决问题" class="headerlink" title="解决问题"></a>解决问题</h1><h2 id="过程"><a href="#过程" class="headerlink" title="过程"></a>过程</h2><ul>
-<li>首先，查看Proxifier帮助文档（路径：D:\Program Files (x86)\Proxifier\Proxifier.chm），无果。</li>
-<li>然后，Google查资料，无果。</li>
-<li>然后，试了试在C:\Users\<User>\AppData\Roaming\Proxifier下面创建Profiles快捷方式，删除Profiles文件夹，结果启动Proxifier之后，竟然又自动生成了Profiles文件夹，失败。</li>
-<li>最后，我想起来Linux有个ln命令，效果是我想要的，开始Google查询“windows 软连接”，找到了mklink命令。</li>
-</ul>
-<p>查看help：</p>
-<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">λ mklink</span><br><span class="line">创建符号链接。</span><br><span class="line"></span><br><span class="line">MKLINK [[/D] | [/H] | [/J]] Link Target</span><br><span class="line"></span><br><span class="line">        /D      创建目录符号链接。默认为文件</span><br><span class="line">                符号链接。</span><br><span class="line">        /H      创建硬链接而非符号链接。</span><br><span class="line">        /J      创建目录联接。</span><br><span class="line">        Link    指定新的符号链接名称。</span><br><span class="line">        Target  指定新链接引用的路径</span><br><span class="line">                (相对或绝对)。</span><br></pre></td></tr></table></figure>
-
-<h2 id="结论"><a href="#结论" class="headerlink" title="结论"></a>结论</h2><p>注：需要管理员权限</p>
-<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">λ mklink /D C:\Users\&lt;User&gt;\AppData\Roaming\Proxifier\Profiles E:\Config\Proxifier\Profiles</span><br></pre></td></tr></table></figure>
-]]></content>
-      <categories>
-        <category>Proxy</category>
-      </categories>
-      <tags>
-        <tag>Proxy</tag>
-        <tag>Proxifier</tag>
       </tags>
   </entry>
 </search>
