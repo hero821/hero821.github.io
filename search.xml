@@ -43,144 +43,6 @@
       </tags>
   </entry>
   <entry>
-    <title>Nginx实现流量拷贝</title>
-    <url>/2021/07/26/Nginx%E5%AE%9E%E7%8E%B0%E6%B5%81%E9%87%8F%E6%8B%B7%E8%B4%9D/</url>
-    <content><![CDATA[<h1 id="基于-Nginx-Mirror-模块"><a href="#基于-Nginx-Mirror-模块" class="headerlink" title="基于 Nginx Mirror 模块"></a>基于 Nginx Mirror 模块</h1><h2 id="配置"><a href="#配置" class="headerlink" title="配置"></a>配置</h2><figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">vi /etc/nginx/conf.d/default.conf</span><br><span class="line"><span class="meta">#</span><span class="bash"><span class="comment">##</span></span></span><br><span class="line">server &#123;</span><br><span class="line">  listen    8080;</span><br><span class="line">  server_name localhost;</span><br><span class="line">  location / &#123;</span><br><span class="line">    mirror /mirror;</span><br><span class="line">    proxy_pass http://192.168.0.2:30000;</span><br><span class="line">  &#125;</span><br><span class="line">  location /mirror &#123;</span><br><span class="line">    internal;</span><br><span class="line">    proxy_pass http://127.0.0.1:8888$request_uri;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br><span class="line"><span class="meta">#</span><span class="bash"><span class="comment">##</span></span></span><br><span class="line">nginx -s reload</span><br></pre></td></tr></table></figure>
-
-<h2 id="测试"><a href="#测试" class="headerlink" title="测试"></a>测试</h2><figure class="highlight shell"><table><tr><td class="code"><pre><span class="line"><span class="meta">#</span><span class="bash"> 启动 fiddler 用于抓包，监听端口 8888</span></span><br><span class="line"><span class="meta">#</span><span class="bash"> 请求</span></span><br><span class="line">curl -L -X POST &#x27;http://localhost:8080/swagger-ui.html?param1=value1&#x27; \</span><br><span class="line">-H &#x27;Content-Type: application/json&#x27; \</span><br><span class="line">-d &#x27;&#123;</span><br><span class="line">  &quot;param2&quot;: &quot;value2&quot;</span><br><span class="line">&#125;&#x27;</span><br><span class="line"><span class="meta">#</span><span class="bash"> 在 fiddler 中，可以看到相关记录</span></span><br></pre></td></tr></table></figure>
-
-<span id="more"></span>
-
-<h1 id="基于-lua-脚本"><a href="#基于-lua-脚本" class="headerlink" title="基于 lua 脚本"></a>基于 lua 脚本</h1><h2 id="配置-1"><a href="#配置-1" class="headerlink" title="配置"></a>配置</h2><figure class="highlight shell"><table><tr><td class="code"><pre><span class="line"><span class="meta">#</span><span class="bash"> TODO</span></span><br></pre></td></tr></table></figure>
-
-<h2 id="测试-1"><a href="#测试-1" class="headerlink" title="测试"></a>测试</h2><figure class="highlight shell"><table><tr><td class="code"><pre><span class="line"><span class="meta">#</span><span class="bash"> TODO</span></span><br></pre></td></tr></table></figure>
-
-<h1 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h1><p><a href="http://nginx.org/en/docs/http/ngx_http_mirror_module.html">http://nginx.org/en/docs/http/ngx_http_mirror_module.html</a></p>
-]]></content>
-      <categories>
-        <category>Nginx</category>
-      </categories>
-      <tags>
-        <tag>Nginx</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>修改Proxifier配置文件存储路径</title>
-    <url>/2020/10/01/%E4%BF%AE%E6%94%B9Proxifier%E9%85%8D%E7%BD%AE%E6%96%87%E4%BB%B6%E5%AD%98%E5%82%A8%E8%B7%AF%E5%BE%84/</url>
-    <content><![CDATA[<h1 id="发现问题"><a href="#发现问题" class="headerlink" title="发现问题"></a>发现问题</h1><p>今天使用Proxifier的时候，发现配置文件存储路径为：C:\Users\<User>\AppData\Roaming\Proxifier\Profiles。<br>这样就会存在一些风险，例如：重装系统的时候（格式化系统盘），如果没想起来备份，可能就再也找不到了。<br>风险既然发现，就要想办法规避。</p>
-<span id="more"></span>
-
-<h1 id="解决问题"><a href="#解决问题" class="headerlink" title="解决问题"></a>解决问题</h1><h2 id="过程"><a href="#过程" class="headerlink" title="过程"></a>过程</h2><ul>
-<li>首先，查看Proxifier帮助文档（路径：D:\Program Files (x86)\Proxifier\Proxifier.chm），无果。</li>
-<li>然后，Google查资料，无果。</li>
-<li>然后，试了试在C:\Users\<User>\AppData\Roaming\Proxifier下面创建Profiles快捷方式，删除Profiles文件夹，结果启动Proxifier之后，竟然又自动生成了Profiles文件夹，失败。</li>
-<li>最后，我想起来Linux有个ln命令，效果是我想要的，开始Google查询“windows 软连接”，找到了mklink命令。</li>
-</ul>
-<p>查看help：</p>
-<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">λ mklink</span><br><span class="line">创建符号链接。</span><br><span class="line"></span><br><span class="line">MKLINK [[/D] | [/H] | [/J]] Link Target</span><br><span class="line"></span><br><span class="line">        /D      创建目录符号链接。默认为文件</span><br><span class="line">                符号链接。</span><br><span class="line">        /H      创建硬链接而非符号链接。</span><br><span class="line">        /J      创建目录联接。</span><br><span class="line">        Link    指定新的符号链接名称。</span><br><span class="line">        Target  指定新链接引用的路径</span><br><span class="line">                (相对或绝对)。</span><br></pre></td></tr></table></figure>
-
-<h2 id="结论"><a href="#结论" class="headerlink" title="结论"></a>结论</h2><p>注：需要管理员权限</p>
-<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">λ mklink /D C:\Users\&lt;User&gt;\AppData\Roaming\Proxifier\Profiles E:\Config\Proxifier\Profiles</span><br></pre></td></tr></table></figure>
-]]></content>
-      <categories>
-        <category>Proxy</category>
-      </categories>
-      <tags>
-        <tag>Proxy</tag>
-        <tag>Proxifier</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>使用kubespray安装K8S</title>
-    <url>/2021/08/14/%E4%BD%BF%E7%94%A8kubespray%E5%AE%89%E8%A3%85K8S/</url>
-    <content><![CDATA[<h1 id="测试环境"><a href="#测试环境" class="headerlink" title="测试环境"></a>测试环境</h1><p>k8s-01：4C+2G+10G<br>k8s-02：4C+2G+10G<br>k8s-03：4C+2G+10G</p>
-<h1 id="预配置"><a href="#预配置" class="headerlink" title="预配置"></a>预配置</h1><p>关闭selinux</p>
-<p>关闭firewalld</p>
-<p>开启ip_forward</p>
-<p>修改yum源</p>
-<p>修改pip源</p>
-<p>安装软件</p>
-<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">yum install git python-pip -y</span><br></pre></td></tr></table></figure>
-
-<p>免密登录：</p>
-<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">ssh-keygen</span><br><span class="line"><span class="meta">#</span><span class="bash"> ssh-copy-id root@ip</span></span><br><span class="line">ssh-copy-id root@192.168.128.201</span><br><span class="line">ssh-copy-id root@192.168.128.202</span><br><span class="line">ssh-copy-id root@192.168.128.203</span><br></pre></td></tr></table></figure>
-
-<span id="more"></span>
-
-<h1 id="安装"><a href="#安装" class="headerlink" title="安装"></a>安装</h1><figure class="highlight shell"><table><tr><td class="code"><pre><span class="line"><span class="meta">#</span><span class="bash"> 下载源码</span></span><br><span class="line"><span class="meta">#</span><span class="bash"> git <span class="built_in">clone</span> https://github.com/kubernetes-incubator/kubespray.git -b v2.14.2</span></span><br><span class="line">git clone https://ghproxy.com/https://github.com/kubernetes-incubator/kubespray.git -b v2.14.2</span><br><span class="line">cd kubespray</span><br><span class="line"><span class="meta"></span></span><br><span class="line"><span class="meta">#</span><span class="bash"> 添加依赖</span></span><br><span class="line">vi requirements.txt</span><br><span class="line"><span class="meta">#</span><span class="bash"><span class="comment">##</span></span></span><br><span class="line">ruamel.yaml.clib==0.2.2</span><br><span class="line">MarkupSafe==1.1.1</span><br><span class="line"><span class="meta">#</span><span class="bash"><span class="comment">##</span></span></span><br><span class="line"><span class="meta"></span></span><br><span class="line"><span class="meta">#</span><span class="bash"> 安装依赖</span></span><br><span class="line">pip install -r requirements.txt</span><br><span class="line"><span class="meta"></span></span><br><span class="line"><span class="meta">#</span><span class="bash"> 拷贝inventory</span></span><br><span class="line">cp -rfp inventory/sample inventory/mycluster</span><br><span class="line"><span class="meta"></span></span><br><span class="line"><span class="meta">#</span><span class="bash"> 配置代理（需要socks服务端开启允许局域网访问）</span></span><br><span class="line">vi inventory/mycluster/group_vars/all/all.yml</span><br><span class="line"><span class="meta">#</span><span class="bash"><span class="comment">##</span></span></span><br><span class="line">http_proxy: &quot;http://192.168.128.1:1081&quot;</span><br><span class="line">https_proxy: &quot;http://192.168.128.1:1081&quot;</span><br><span class="line">download_validate_certs: False</span><br><span class="line"><span class="meta">#</span><span class="bash"><span class="comment">##</span></span></span><br><span class="line"><span class="meta"></span></span><br><span class="line"><span class="meta">#</span><span class="bash"> 添加需要的组件</span></span><br><span class="line">vi inventory/mycluster/group_vars/k8s-cluster/addons.yml</span><br><span class="line"><span class="meta"></span></span><br><span class="line"><span class="meta">#</span><span class="bash"> 手动配置inventory部署</span></span><br><span class="line">vi inventory/mycluster/inventory.ini </span><br><span class="line">ansible-playbook -i inventory/mycluster/inventory.ini cluster.yml</span><br><span class="line"><span class="meta"></span></span><br><span class="line"><span class="meta">#</span><span class="bash"> 自动配置inventory部署</span></span><br><span class="line">yum -y install python3 python3-pip</span><br><span class="line">pip3 install -r contrib/inventory_builder/requirements.txt</span><br><span class="line">declare -a IPS=(192.168.128.201 192.168.128.202 192.168.128.203)</span><br><span class="line">CONFIG_FILE=inventory/mycluster/hosts.yml python3 contrib/inventory_builder/inventory.py $&#123;IPS[@]&#125;</span><br><span class="line"><span class="meta">#</span><span class="bash"> 修改主机名：node1 改为 k8s-01，node2 改为 k8s-02，node3 改为 k8s-03</span></span><br><span class="line">vi inventory/mycluster/hosts.yml</span><br><span class="line">ansible-playbook -i inventory/mycluster/hosts.yml cluster.yml</span><br><span class="line"><span class="meta"></span></span><br><span class="line"><span class="meta">#</span><span class="bash"> 部署失败，重试</span></span><br><span class="line">ansible-playbook -i inventory/mycluster/hosts.yml cluster.yml --limit @cluster.retry</span><br><span class="line"><span class="meta">#</span><span class="bash"> 部署失败，重置</span></span><br><span class="line">ansible-playbook -i inventory/mycluster/hosts.yml reset.yml</span><br><span class="line"><span class="meta"></span></span><br><span class="line"><span class="meta">#</span><span class="bash"> 添加节点（仅worker）</span></span><br><span class="line"><span class="meta">#</span><span class="bash"> 修改inventory</span></span><br><span class="line">ansible-playbook -i inventory/mycluster/hosts.yml scale.yml</span><br><span class="line"><span class="meta">#</span><span class="bash"> 删除节点（仅worker）</span></span><br><span class="line"><span class="meta">#</span><span class="bash"> 修改inventory</span></span><br><span class="line">ansible-playbook -i inventory/mycluster/hosts.yml remove-node.yml</span><br><span class="line"><span class="meta">#</span><span class="bash"> 添加和删除节点（包含master、worker、etcd）</span></span><br><span class="line"><span class="meta">#</span><span class="bash"> 修改inventory</span></span><br><span class="line">ansible-playbook -i inventory/mycluster/hosts.yml cluster.yml</span><br><span class="line"><span class="meta">#</span><span class="bash"> 更新集群（全量更新）</span></span><br><span class="line">ansible-playbook -i inventory/mycluster/hosts.yml cluster.yml -e kube_version=v1.24.4</span><br><span class="line"><span class="meta">#</span><span class="bash"> 更新集群（滚动更新，会先驱逐POD）</span></span><br><span class="line">ansible-playbook -i inventory/mycluster/hosts.yml upgrade-cluster.yml -e kube_version=v1.24.4</span><br></pre></td></tr></table></figure>
-
-]]></content>
-      <categories>
-        <category>K8S</category>
-      </categories>
-      <tags>
-        <tag>K8S</tag>
-        <tag>kubespray</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>在Termux中安装Linux</title>
-    <url>/2021/07/25/%E5%9C%A8Termux%E4%B8%AD%E5%AE%89%E8%A3%85Linux/</url>
-    <content><![CDATA[<h1 id="涉及软件"><a href="#涉及软件" class="headerlink" title="涉及软件"></a>涉及软件</h1><ul>
-<li>termux</li>
-<li>anlinux 或者 andronix</li>
-</ul>
-<span id="more"></span>
-
-<h1 id="安装"><a href="#安装" class="headerlink" title="安装"></a>安装</h1><ol>
-<li>google play store 中安装 termux 和 anlinux</li>
-<li>打开 anlinux，选择 仪表盘 菜单</li>
-<li>点击 选择 按钮，选中 CentOS，点击 确定 按钮</li>
-<li>点击 复制 按钮，复制指令</li>
-<li>点击 启动 按钮，打开 termux，粘贴指令，点击输入法键盘 回车 按钮</li>
-<li>等待安装完成</li>
-</ol>
-<p>安装完成之后，当前目录会生产4个文件</p>
-<ul>
-<li>centos-binds</li>
-<li>centos-fs</li>
-<li>centos.sh</li>
-<li>start-centos.sh</li>
-</ul>
-<h1 id="配置"><a href="#配置" class="headerlink" title="配置"></a>配置</h1><p>关于 termux 的配置，可以参考 <a href="/2021/07/25/%E5%AE%89%E8%A3%85Termux/" title="这里">这里</a></p>
-<h1 id="启动"><a href="#启动" class="headerlink" title="启动"></a>启动</h1><figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">./start-centos.sh</span><br></pre></td></tr></table></figure>
-
-<h1 id="使用"><a href="#使用" class="headerlink" title="使用"></a>使用</h1><h2 id="安装-openresty"><a href="#安装-openresty" class="headerlink" title="安装 openresty"></a>安装 openresty</h2><figure class="highlight shell"><table><tr><td class="code"><pre><span class="line"><span class="meta">#</span><span class="bash"> 安装 wget</span></span><br><span class="line">yum install wget</span><br><span class="line"><span class="meta">#</span><span class="bash"> 配置 yum 源</span></span><br><span class="line">cd /etc/yum.repos.d</span><br><span class="line">wget https://openresty.org/package/centos/openresty.repo</span><br><span class="line"><span class="meta">#</span><span class="bash"> 安装 openresty</span></span><br><span class="line">yum install openresty</span><br><span class="line"><span class="meta">#</span><span class="bash"> 修改端口为8080（手机权限问题，默认端口80无法启动）</span></span><br><span class="line">vi /usr/local/openresty/nginx/conf/nginx.conf</span><br><span class="line"><span class="meta">#</span><span class="bash"> 启动 openresty</span></span><br><span class="line">openresty</span><br><span class="line"><span class="meta">#</span><span class="bash"> 配置 lua</span></span><br><span class="line"><span class="meta">#</span><span class="bash"><span class="comment">##</span></span></span><br><span class="line">server &#123;</span><br><span class="line">  listen       8082;</span><br><span class="line">  server_name  localhost;</span><br><span class="line">  location / &#123;</span><br><span class="line">    default_type text/html;</span><br><span class="line">    content_by_lua_block &#123;</span><br><span class="line">      ngx.say(&quot;&lt;p&gt;hello, world&lt;/p&gt;&quot;)</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br><span class="line"><span class="meta">#</span><span class="bash"><span class="comment">##</span></span></span><br><span class="line">openresty -s reload</span><br><span class="line"><span class="meta">#</span><span class="bash"> 测试</span></span><br><span class="line">curl http://127.0.0.1:8082</span><br></pre></td></tr></table></figure>
-
-<h1 id="卸载"><a href="#卸载" class="headerlink" title="卸载"></a>卸载</h1><ol>
-<li>打开 anlinux，选择 删除系统 菜单</li>
-<li>点击 选择 按钮，选中 CentOS，点击 确定 按钮</li>
-<li>点击 复制 按钮，复制指令</li>
-<li>点击 启动 按钮，打开 termux，粘贴指令，点击输入法键盘 回车 按钮</li>
-<li>等待卸载完成</li>
-</ol>
-<h1 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h1><p><a href="https://github.com/EXALAB/AnLinux-App">https://github.com/EXALAB/AnLinux-App</a></p>
-]]></content>
-      <categories>
-        <category>Termux</category>
-      </categories>
-      <tags>
-        <tag>Termux</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>在Termux中安装mitmproxy</title>
-    <url>/2021/07/26/%E5%9C%A8Termux%E4%B8%AD%E5%AE%89%E8%A3%85mitmproxy/</url>
-    <content><![CDATA[<h1 id="安装"><a href="#安装" class="headerlink" title="安装"></a>安装</h1><p>安装 termux ，可以参考 <a href="/2021/07/25/%E5%AE%89%E8%A3%85Termux/" title="这里">这里</a></p>
-<p>安装 mitmproxy</p>
-<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">pkg install libffi openssl python rust</span><br><span class="line">pip install mitmproxy</span><br><span class="line">mitmproxy --version</span><br></pre></td></tr></table></figure>
-
-<h1 id="测试"><a href="#测试" class="headerlink" title="测试"></a>测试</h1><p>测试 mitmproxy ，可以参考 <a href="/2021/07/24/%E5%AE%89%E8%A3%85mitmproxy/" title="这里">这里</a></p>
-]]></content>
-      <categories>
-        <category>Termux</category>
-      </categories>
-      <tags>
-        <tag>Termux</tag>
-        <tag>mitmproxy</tag>
-      </tags>
-  </entry>
-  <entry>
     <title>Linux路由相关概念</title>
     <url>/2021/07/25/Linux%E8%B7%AF%E7%94%B1%E7%9B%B8%E5%85%B3%E6%A6%82%E5%BF%B5/</url>
     <content><![CDATA[<h1 id="路由规则-ip-rule"><a href="#路由规则-ip-rule" class="headerlink" title="路由规则 ip rule"></a>路由规则 ip rule</h1><p><strong>操作系统默认规则</strong></p>
@@ -267,27 +129,79 @@
       </tags>
   </entry>
   <entry>
-    <title>安装CoreDNS</title>
-    <url>/2021/07/24/%E5%AE%89%E8%A3%85CoreDNS/</url>
-    <content><![CDATA[<h1 id="安装"><a href="#安装" class="headerlink" title="安装"></a>安装</h1><h2 id="二进制"><a href="#二进制" class="headerlink" title="二进制"></a>二进制</h2><figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">wget https://github.com/coredns/coredns/releases/download/v1.8.4/coredns_1.8.4_linux_amd64.tgz</span><br><span class="line">mkdir coredns_1.8.4_linux_amd64</span><br><span class="line">tar zxvf coredns_1.8.4_linux_amd64.tgz -C coredns_1.8.4_linux_amd64</span><br></pre></td></tr></table></figure>
+    <title>Nginx实现流量拷贝</title>
+    <url>/2021/07/26/Nginx%E5%AE%9E%E7%8E%B0%E6%B5%81%E9%87%8F%E6%8B%B7%E8%B4%9D/</url>
+    <content><![CDATA[<h1 id="基于-Nginx-Mirror-模块"><a href="#基于-Nginx-Mirror-模块" class="headerlink" title="基于 Nginx Mirror 模块"></a>基于 Nginx Mirror 模块</h1><h2 id="配置"><a href="#配置" class="headerlink" title="配置"></a>配置</h2><figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">vi /etc/nginx/conf.d/default.conf</span><br><span class="line"><span class="meta">#</span><span class="bash"><span class="comment">##</span></span></span><br><span class="line">server &#123;</span><br><span class="line">  listen    8080;</span><br><span class="line">  server_name localhost;</span><br><span class="line">  location / &#123;</span><br><span class="line">    mirror /mirror;</span><br><span class="line">    proxy_pass http://192.168.0.2:30000;</span><br><span class="line">  &#125;</span><br><span class="line">  location /mirror &#123;</span><br><span class="line">    internal;</span><br><span class="line">    proxy_pass http://127.0.0.1:8888$request_uri;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br><span class="line"><span class="meta">#</span><span class="bash"><span class="comment">##</span></span></span><br><span class="line">nginx -s reload</span><br></pre></td></tr></table></figure>
 
-<h2 id="docker"><a href="#docker" class="headerlink" title="docker"></a>docker</h2><figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">docker pull coredns/coredns:1.8.4</span><br></pre></td></tr></table></figure>
-
-<h2 id="源码"><a href="#源码" class="headerlink" title="源码"></a>源码</h2><figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">git clone https://github.com/coredns/coredns -b v1.8.4</span><br><span class="line">cd coredns</span><br><span class="line">make</span><br></pre></td></tr></table></figure>
+<h2 id="测试"><a href="#测试" class="headerlink" title="测试"></a>测试</h2><figure class="highlight shell"><table><tr><td class="code"><pre><span class="line"><span class="meta">#</span><span class="bash"> 启动 fiddler 用于抓包，监听端口 8888</span></span><br><span class="line"><span class="meta">#</span><span class="bash"> 请求</span></span><br><span class="line">curl -L -X POST &#x27;http://localhost:8080/swagger-ui.html?param1=value1&#x27; \</span><br><span class="line">-H &#x27;Content-Type: application/json&#x27; \</span><br><span class="line">-d &#x27;&#123;</span><br><span class="line">  &quot;param2&quot;: &quot;value2&quot;</span><br><span class="line">&#125;&#x27;</span><br><span class="line"><span class="meta">#</span><span class="bash"> 在 fiddler 中，可以看到相关记录</span></span><br></pre></td></tr></table></figure>
 
 <span id="more"></span>
 
-<h1 id="配置"><a href="#配置" class="headerlink" title="配置"></a>配置</h1><figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">./coredns -plugins</span><br><span class="line">vi Corefile</span><br><span class="line"><span class="meta">#</span><span class="bash"><span class="comment">##</span></span></span><br><span class="line">. &#123;</span><br><span class="line">  hosts &#123;</span><br><span class="line">    10.0.0.1 example.org</span><br><span class="line">    fallthrough</span><br><span class="line">  &#125;</span><br><span class="line">  forward . /etc/resolv.conf</span><br><span class="line">  cache</span><br><span class="line">  log</span><br><span class="line">  errors</span><br><span class="line">&#125;</span><br><span class="line"><span class="meta">#</span><span class="bash"><span class="comment">##</span></span></span><br></pre></td></tr></table></figure>
+<h1 id="基于-lua-脚本"><a href="#基于-lua-脚本" class="headerlink" title="基于 lua 脚本"></a>基于 lua 脚本</h1><h2 id="配置-1"><a href="#配置-1" class="headerlink" title="配置"></a>配置</h2><figure class="highlight shell"><table><tr><td class="code"><pre><span class="line"><span class="meta">#</span><span class="bash"> TODO</span></span><br></pre></td></tr></table></figure>
 
-<h1 id="测试"><a href="#测试" class="headerlink" title="测试"></a>测试</h1><figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">./coredns -dns.port=1053</span><br><span class="line">dig @localhost -p 1053 a example.org</span><br></pre></td></tr></table></figure>
+<h2 id="测试-1"><a href="#测试-1" class="headerlink" title="测试"></a>测试</h2><figure class="highlight shell"><table><tr><td class="code"><pre><span class="line"><span class="meta">#</span><span class="bash"> TODO</span></span><br></pre></td></tr></table></figure>
+
+<h1 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h1><p><a href="http://nginx.org/en/docs/http/ngx_http_mirror_module.html">http://nginx.org/en/docs/http/ngx_http_mirror_module.html</a></p>
+]]></content>
+      <categories>
+        <category>Nginx</category>
+      </categories>
+      <tags>
+        <tag>Nginx</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>使用kubespray安装K8S</title>
+    <url>/2021/08/14/%E4%BD%BF%E7%94%A8kubespray%E5%AE%89%E8%A3%85K8S/</url>
+    <content><![CDATA[<h1 id="测试环境"><a href="#测试环境" class="headerlink" title="测试环境"></a>测试环境</h1><p>k8s-01：4C+2G+10G<br>k8s-02：4C+2G+10G<br>k8s-03：4C+2G+10G</p>
+<h1 id="预配置"><a href="#预配置" class="headerlink" title="预配置"></a>预配置</h1><p>关闭selinux</p>
+<p>关闭firewalld</p>
+<p>开启ip_forward</p>
+<p>修改yum源</p>
+<p>修改pip源</p>
+<p>安装软件</p>
+<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">yum install git python-pip -y</span><br></pre></td></tr></table></figure>
+
+<p>免密登录：</p>
+<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">ssh-keygen</span><br><span class="line"><span class="meta">#</span><span class="bash"> ssh-copy-id root@ip</span></span><br><span class="line">ssh-copy-id root@192.168.128.201</span><br><span class="line">ssh-copy-id root@192.168.128.202</span><br><span class="line">ssh-copy-id root@192.168.128.203</span><br></pre></td></tr></table></figure>
+
+<span id="more"></span>
+
+<h1 id="安装"><a href="#安装" class="headerlink" title="安装"></a>安装</h1><figure class="highlight shell"><table><tr><td class="code"><pre><span class="line"><span class="meta">#</span><span class="bash"> 下载源码</span></span><br><span class="line"><span class="meta">#</span><span class="bash"> git <span class="built_in">clone</span> https://github.com/kubernetes-incubator/kubespray.git -b v2.14.2</span></span><br><span class="line">git clone https://ghproxy.com/https://github.com/kubernetes-incubator/kubespray.git -b v2.14.2</span><br><span class="line">cd kubespray</span><br><span class="line"><span class="meta"></span></span><br><span class="line"><span class="meta">#</span><span class="bash"> 添加依赖</span></span><br><span class="line">vi requirements.txt</span><br><span class="line"><span class="meta">#</span><span class="bash"><span class="comment">##</span></span></span><br><span class="line">ruamel.yaml.clib==0.2.2</span><br><span class="line">MarkupSafe==1.1.1</span><br><span class="line"><span class="meta">#</span><span class="bash"><span class="comment">##</span></span></span><br><span class="line"><span class="meta"></span></span><br><span class="line"><span class="meta">#</span><span class="bash"> 安装依赖</span></span><br><span class="line">pip install -r requirements.txt</span><br><span class="line"><span class="meta"></span></span><br><span class="line"><span class="meta">#</span><span class="bash"> 拷贝inventory</span></span><br><span class="line">cp -rfp inventory/sample inventory/mycluster</span><br><span class="line"><span class="meta"></span></span><br><span class="line"><span class="meta">#</span><span class="bash"> 配置代理（需要socks服务端开启允许局域网访问）</span></span><br><span class="line">vi inventory/mycluster/group_vars/all/all.yml</span><br><span class="line"><span class="meta">#</span><span class="bash"><span class="comment">##</span></span></span><br><span class="line">http_proxy: &quot;http://192.168.128.1:1081&quot;</span><br><span class="line">https_proxy: &quot;http://192.168.128.1:1081&quot;</span><br><span class="line">download_validate_certs: False</span><br><span class="line"><span class="meta">#</span><span class="bash"><span class="comment">##</span></span></span><br><span class="line"><span class="meta"></span></span><br><span class="line"><span class="meta">#</span><span class="bash"> 添加需要的组件</span></span><br><span class="line">vi inventory/mycluster/group_vars/k8s-cluster/addons.yml</span><br><span class="line"><span class="meta"></span></span><br><span class="line"><span class="meta">#</span><span class="bash"> 手动配置inventory部署</span></span><br><span class="line">vi inventory/mycluster/inventory.ini </span><br><span class="line">ansible-playbook -i inventory/mycluster/inventory.ini cluster.yml</span><br><span class="line"><span class="meta"></span></span><br><span class="line"><span class="meta">#</span><span class="bash"> 自动配置inventory部署</span></span><br><span class="line">yum -y install python3 python3-pip</span><br><span class="line">pip3 install -r contrib/inventory_builder/requirements.txt</span><br><span class="line">declare -a IPS=(192.168.128.201 192.168.128.202 192.168.128.203)</span><br><span class="line">CONFIG_FILE=inventory/mycluster/hosts.yml python3 contrib/inventory_builder/inventory.py $&#123;IPS[@]&#125;</span><br><span class="line"><span class="meta">#</span><span class="bash"> 修改主机名：node1 改为 k8s-01，node2 改为 k8s-02，node3 改为 k8s-03</span></span><br><span class="line">vi inventory/mycluster/hosts.yml</span><br><span class="line">ansible-playbook -i inventory/mycluster/hosts.yml cluster.yml</span><br><span class="line"><span class="meta"></span></span><br><span class="line"><span class="meta">#</span><span class="bash"> 部署失败，重试</span></span><br><span class="line">ansible-playbook -i inventory/mycluster/hosts.yml cluster.yml --limit @cluster.retry</span><br><span class="line"><span class="meta">#</span><span class="bash"> 部署失败，重置</span></span><br><span class="line">ansible-playbook -i inventory/mycluster/hosts.yml reset.yml</span><br><span class="line"><span class="meta"></span></span><br><span class="line"><span class="meta">#</span><span class="bash"> 添加节点（仅worker）</span></span><br><span class="line"><span class="meta">#</span><span class="bash"> 修改inventory</span></span><br><span class="line">ansible-playbook -i inventory/mycluster/hosts.yml scale.yml</span><br><span class="line"><span class="meta">#</span><span class="bash"> 删除节点（仅worker）</span></span><br><span class="line"><span class="meta">#</span><span class="bash"> 修改inventory</span></span><br><span class="line">ansible-playbook -i inventory/mycluster/hosts.yml remove-node.yml</span><br><span class="line"><span class="meta">#</span><span class="bash"> 添加和删除节点（包含master、worker、etcd）</span></span><br><span class="line"><span class="meta">#</span><span class="bash"> 修改inventory</span></span><br><span class="line">ansible-playbook -i inventory/mycluster/hosts.yml cluster.yml</span><br><span class="line"><span class="meta">#</span><span class="bash"> 更新集群（全量更新）</span></span><br><span class="line">ansible-playbook -i inventory/mycluster/hosts.yml cluster.yml -e kube_version=v1.24.4</span><br><span class="line"><span class="meta">#</span><span class="bash"> 更新集群（滚动更新，会先驱逐POD）</span></span><br><span class="line">ansible-playbook -i inventory/mycluster/hosts.yml upgrade-cluster.yml -e kube_version=v1.24.4</span><br></pre></td></tr></table></figure>
 
 ]]></content>
       <categories>
-        <category>DNS</category>
+        <category>K8S</category>
       </categories>
       <tags>
-        <tag>DNS</tag>
-        <tag>CoreDNS</tag>
+        <tag>K8S</tag>
+        <tag>kubespray</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>修改Proxifier配置文件存储路径</title>
+    <url>/2020/10/01/%E4%BF%AE%E6%94%B9Proxifier%E9%85%8D%E7%BD%AE%E6%96%87%E4%BB%B6%E5%AD%98%E5%82%A8%E8%B7%AF%E5%BE%84/</url>
+    <content><![CDATA[<h1 id="发现问题"><a href="#发现问题" class="headerlink" title="发现问题"></a>发现问题</h1><p>今天使用Proxifier的时候，发现配置文件存储路径为：C:\Users\<User>\AppData\Roaming\Proxifier\Profiles。<br>这样就会存在一些风险，例如：重装系统的时候（格式化系统盘），如果没想起来备份，可能就再也找不到了。<br>风险既然发现，就要想办法规避。</p>
+<span id="more"></span>
+
+<h1 id="解决问题"><a href="#解决问题" class="headerlink" title="解决问题"></a>解决问题</h1><h2 id="过程"><a href="#过程" class="headerlink" title="过程"></a>过程</h2><ul>
+<li>首先，查看Proxifier帮助文档（路径：D:\Program Files (x86)\Proxifier\Proxifier.chm），无果。</li>
+<li>然后，Google查资料，无果。</li>
+<li>然后，试了试在C:\Users\<User>\AppData\Roaming\Proxifier下面创建Profiles快捷方式，删除Profiles文件夹，结果启动Proxifier之后，竟然又自动生成了Profiles文件夹，失败。</li>
+<li>最后，我想起来Linux有个ln命令，效果是我想要的，开始Google查询“windows 软连接”，找到了mklink命令。</li>
+</ul>
+<p>查看help：</p>
+<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">λ mklink</span><br><span class="line">创建符号链接。</span><br><span class="line"></span><br><span class="line">MKLINK [[/D] | [/H] | [/J]] Link Target</span><br><span class="line"></span><br><span class="line">        /D      创建目录符号链接。默认为文件</span><br><span class="line">                符号链接。</span><br><span class="line">        /H      创建硬链接而非符号链接。</span><br><span class="line">        /J      创建目录联接。</span><br><span class="line">        Link    指定新的符号链接名称。</span><br><span class="line">        Target  指定新链接引用的路径</span><br><span class="line">                (相对或绝对)。</span><br></pre></td></tr></table></figure>
+
+<h2 id="结论"><a href="#结论" class="headerlink" title="结论"></a>结论</h2><p>注：需要管理员权限</p>
+<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">λ mklink /D C:\Users\&lt;User&gt;\AppData\Roaming\Proxifier\Profiles E:\Config\Proxifier\Profiles</span><br></pre></td></tr></table></figure>
+]]></content>
+      <categories>
+        <category>Proxy</category>
+      </categories>
+      <tags>
+        <tag>Proxy</tag>
+        <tag>Proxifier</tag>
       </tags>
   </entry>
   <entry>
@@ -338,6 +252,136 @@
       </categories>
       <tags>
         <tag>Java</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>在Termux中安装Linux</title>
+    <url>/2021/07/25/%E5%9C%A8Termux%E4%B8%AD%E5%AE%89%E8%A3%85Linux/</url>
+    <content><![CDATA[<h1 id="涉及软件"><a href="#涉及软件" class="headerlink" title="涉及软件"></a>涉及软件</h1><ul>
+<li>termux</li>
+<li>anlinux 或者 andronix</li>
+</ul>
+<span id="more"></span>
+
+<h1 id="安装"><a href="#安装" class="headerlink" title="安装"></a>安装</h1><ol>
+<li>google play store 中安装 termux 和 anlinux</li>
+<li>打开 anlinux，选择 仪表盘 菜单</li>
+<li>点击 选择 按钮，选中 CentOS，点击 确定 按钮</li>
+<li>点击 复制 按钮，复制指令</li>
+<li>点击 启动 按钮，打开 termux，粘贴指令，点击输入法键盘 回车 按钮</li>
+<li>等待安装完成</li>
+</ol>
+<p>安装完成之后，当前目录会生产4个文件</p>
+<ul>
+<li>centos-binds</li>
+<li>centos-fs</li>
+<li>centos.sh</li>
+<li>start-centos.sh</li>
+</ul>
+<h1 id="配置"><a href="#配置" class="headerlink" title="配置"></a>配置</h1><p>关于 termux 的配置，可以参考 <a href="/2021/07/25/%E5%AE%89%E8%A3%85Termux/" title="这里">这里</a></p>
+<h1 id="启动"><a href="#启动" class="headerlink" title="启动"></a>启动</h1><figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">./start-centos.sh</span><br></pre></td></tr></table></figure>
+
+<h1 id="使用"><a href="#使用" class="headerlink" title="使用"></a>使用</h1><h2 id="安装-openresty"><a href="#安装-openresty" class="headerlink" title="安装 openresty"></a>安装 openresty</h2><figure class="highlight shell"><table><tr><td class="code"><pre><span class="line"><span class="meta">#</span><span class="bash"> 安装 wget</span></span><br><span class="line">yum install wget</span><br><span class="line"><span class="meta">#</span><span class="bash"> 配置 yum 源</span></span><br><span class="line">cd /etc/yum.repos.d</span><br><span class="line">wget https://openresty.org/package/centos/openresty.repo</span><br><span class="line"><span class="meta">#</span><span class="bash"> 安装 openresty</span></span><br><span class="line">yum install openresty</span><br><span class="line"><span class="meta">#</span><span class="bash"> 修改端口为8080（手机权限问题，默认端口80无法启动）</span></span><br><span class="line">vi /usr/local/openresty/nginx/conf/nginx.conf</span><br><span class="line"><span class="meta">#</span><span class="bash"> 启动 openresty</span></span><br><span class="line">openresty</span><br><span class="line"><span class="meta">#</span><span class="bash"> 配置 lua</span></span><br><span class="line"><span class="meta">#</span><span class="bash"><span class="comment">##</span></span></span><br><span class="line">server &#123;</span><br><span class="line">  listen       8082;</span><br><span class="line">  server_name  localhost;</span><br><span class="line">  location / &#123;</span><br><span class="line">    default_type text/html;</span><br><span class="line">    content_by_lua_block &#123;</span><br><span class="line">      ngx.say(&quot;&lt;p&gt;hello, world&lt;/p&gt;&quot;)</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br><span class="line"><span class="meta">#</span><span class="bash"><span class="comment">##</span></span></span><br><span class="line">openresty -s reload</span><br><span class="line"><span class="meta">#</span><span class="bash"> 测试</span></span><br><span class="line">curl http://127.0.0.1:8082</span><br></pre></td></tr></table></figure>
+
+<h1 id="卸载"><a href="#卸载" class="headerlink" title="卸载"></a>卸载</h1><ol>
+<li>打开 anlinux，选择 删除系统 菜单</li>
+<li>点击 选择 按钮，选中 CentOS，点击 确定 按钮</li>
+<li>点击 复制 按钮，复制指令</li>
+<li>点击 启动 按钮，打开 termux，粘贴指令，点击输入法键盘 回车 按钮</li>
+<li>等待卸载完成</li>
+</ol>
+<h1 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h1><p><a href="https://github.com/EXALAB/AnLinux-App">https://github.com/EXALAB/AnLinux-App</a></p>
+]]></content>
+      <categories>
+        <category>Termux</category>
+      </categories>
+      <tags>
+        <tag>Termux</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>安装CoreDNS</title>
+    <url>/2021/07/24/%E5%AE%89%E8%A3%85CoreDNS/</url>
+    <content><![CDATA[<h1 id="安装"><a href="#安装" class="headerlink" title="安装"></a>安装</h1><h2 id="二进制"><a href="#二进制" class="headerlink" title="二进制"></a>二进制</h2><figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">wget https://github.com/coredns/coredns/releases/download/v1.8.4/coredns_1.8.4_linux_amd64.tgz</span><br><span class="line">mkdir coredns_1.8.4_linux_amd64</span><br><span class="line">tar zxvf coredns_1.8.4_linux_amd64.tgz -C coredns_1.8.4_linux_amd64</span><br></pre></td></tr></table></figure>
+
+<h2 id="docker"><a href="#docker" class="headerlink" title="docker"></a>docker</h2><figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">docker pull coredns/coredns:1.8.4</span><br></pre></td></tr></table></figure>
+
+<h2 id="源码"><a href="#源码" class="headerlink" title="源码"></a>源码</h2><figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">git clone https://github.com/coredns/coredns -b v1.8.4</span><br><span class="line">cd coredns</span><br><span class="line">make</span><br></pre></td></tr></table></figure>
+
+<span id="more"></span>
+
+<h1 id="配置"><a href="#配置" class="headerlink" title="配置"></a>配置</h1><figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">./coredns -plugins</span><br><span class="line">vi Corefile</span><br><span class="line"><span class="meta">#</span><span class="bash"><span class="comment">##</span></span></span><br><span class="line">. &#123;</span><br><span class="line">  hosts &#123;</span><br><span class="line">    10.0.0.1 example.org</span><br><span class="line">    fallthrough</span><br><span class="line">  &#125;</span><br><span class="line">  forward . /etc/resolv.conf</span><br><span class="line">  cache</span><br><span class="line">  log</span><br><span class="line">  errors</span><br><span class="line">&#125;</span><br><span class="line"><span class="meta">#</span><span class="bash"><span class="comment">##</span></span></span><br></pre></td></tr></table></figure>
+
+<h1 id="测试"><a href="#测试" class="headerlink" title="测试"></a>测试</h1><figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">./coredns -dns.port=1053</span><br><span class="line">dig @localhost -p 1053 a example.org</span><br></pre></td></tr></table></figure>
+
+]]></content>
+      <categories>
+        <category>DNS</category>
+      </categories>
+      <tags>
+        <tag>DNS</tag>
+        <tag>CoreDNS</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>在Termux中安装mitmproxy</title>
+    <url>/2021/07/26/%E5%9C%A8Termux%E4%B8%AD%E5%AE%89%E8%A3%85mitmproxy/</url>
+    <content><![CDATA[<h1 id="安装"><a href="#安装" class="headerlink" title="安装"></a>安装</h1><p>安装 termux ，可以参考 <a href="/2021/07/25/%E5%AE%89%E8%A3%85Termux/" title="这里">这里</a></p>
+<p>安装 mitmproxy</p>
+<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">pkg install libffi openssl python rust</span><br><span class="line">pip install mitmproxy</span><br><span class="line">mitmproxy --version</span><br></pre></td></tr></table></figure>
+
+<h1 id="测试"><a href="#测试" class="headerlink" title="测试"></a>测试</h1><p>测试 mitmproxy ，可以参考 <a href="/2021/07/24/%E5%AE%89%E8%A3%85mitmproxy/" title="这里">这里</a></p>
+]]></content>
+      <categories>
+        <category>Termux</category>
+      </categories>
+      <tags>
+        <tag>Termux</tag>
+        <tag>mitmproxy</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>安装Termux</title>
+    <url>/2021/07/25/%E5%AE%89%E8%A3%85Termux/</url>
+    <content><![CDATA[<h1 id="安装"><a href="#安装" class="headerlink" title="安装"></a>安装</h1><p>方法1：打开 <a href="https://f-droid.org/packages/com.termux">https://f-droid.org/packages/com.termux</a> ，下载 APK 安装，推荐</p>
+<p>方法2：打开 google play store 搜索 termux ，直接安装</p>
+<span id="more"></span>
+
+<h1 id="配置"><a href="#配置" class="headerlink" title="配置"></a>配置</h1><h2 id="修改-apt-软件源"><a href="#修改-apt-软件源" class="headerlink" title="修改 apt 软件源"></a>修改 apt 软件源</h2><figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">sed -i &#x27;s@^\(deb.*stable main\)$@#\1\ndeb https://mirrors.tuna.tsinghua.edu.cn/termux/termux-packages-24 stable main@&#x27; \</span><br><span class="line"><span class="meta">$</span><span class="bash">PREFIX/etc/apt/sources.list</span></span><br><span class="line">sed -i &#x27;s@^\(deb.*games stable\)$@#\1\ndeb https://mirrors.tuna.tsinghua.edu.cn/termux/game-packages-24 games stable@&#x27; \</span><br><span class="line"><span class="meta">$</span><span class="bash">PREFIX/etc/apt/sources.list.d/game.list</span></span><br><span class="line">sed -i &#x27;s@^\(deb.*science stable\)$@#\1\ndeb https://mirrors.tuna.tsinghua.edu.cn/termux/science-packages-24 science stable@&#x27; \</span><br><span class="line"><span class="meta">$</span><span class="bash">PREFIX/etc/apt/sources.list.d/science.list</span></span><br><span class="line">pkg update</span><br></pre></td></tr></table></figure>
+
+<h2 id="访问手机存储"><a href="#访问手机存储" class="headerlink" title="访问手机存储"></a>访问手机存储</h2><figure class="highlight shell"><table><tr><td class="code"><pre><span class="line"><span class="meta">#</span><span class="bash"> 获取权限，会在 home 下生成 storage 目录</span></span><br><span class="line">termux-setup-storage</span><br><span class="line"><span class="meta">#</span><span class="bash"> 查看 storage 目录结构</span></span><br><span class="line">tree storage</span><br><span class="line">storage</span><br><span class="line">├── dcim -&gt; /storage/emulated/0/DCIM</span><br><span class="line">├── downloads -&gt; /storage/emulated/0/Download</span><br><span class="line">├── movies -&gt; /storage/emulated/0/Movies</span><br><span class="line">├── music -&gt; /storage/emulated/0/Music</span><br><span class="line">├── pictures -&gt; /storage/emulated/0/Pictures</span><br><span class="line">└── shared -&gt; /storage/emulated/0</span><br><span class="line"></span><br><span class="line">6 directories, 0 files</span><br></pre></td></tr></table></figure>
+
+<h1 id="使用"><a href="#使用" class="headerlink" title="使用"></a>使用</h1><h2 id="安装-SSH-服务"><a href="#安装-SSH-服务" class="headerlink" title="安装 SSH 服务"></a>安装 SSH 服务</h2><p><strong>安装 OPENSSH</strong></p>
+<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">pkg install openssh</span><br><span class="line"><span class="meta">#</span><span class="bash"> 启动sshd</span></span><br><span class="line">sshd</span><br><span class="line"><span class="meta">#</span><span class="bash"> 停止sshd</span></span><br><span class="line">pkill sshd</span><br><span class="line"><span class="meta">#</span><span class="bash"> 修改密码</span></span><br><span class="line">passwd</span><br><span class="line"><span class="meta">#</span><span class="bash"> 获取用户</span></span><br><span class="line">id</span><br><span class="line">uid=10300(u0_a300) gid=10300(u0_a300) groups=10300(u0_a300),3003(inet),9997(everybody),20300(u0_a300_cache),50300(all_a300)</span><br></pre></td></tr></table></figure>
+
+<p><strong>配置远程登录</strong></p>
+<p>方法1：通过密码登录</p>
+<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line"><span class="meta">#</span><span class="bash"> 查看 termux 配置，默认 PasswordAuthentication yes</span></span><br><span class="line">cat $PREFIX/etc/ssh/sshd_config</span><br></pre></td></tr></table></figure>
+
+<p>方法2：在客户端生成秘钥对</p>
+<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line"><span class="meta">#</span><span class="bash"> 生成密钥对，复制 id_rsa.pub 内容到 termux：data\data\com.termux\files\home\.ssh\authorized_keys</span></span><br><span class="line">ssh-keygen</span><br></pre></td></tr></table></figure>
+
+<p>方法3：在 termux 生成秘钥对</p>
+<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line"><span class="meta">#</span><span class="bash"> 生成密钥对，复制 id_rsa 到客户端</span></span><br><span class="line">ssh-keygen</span><br><span class="line">cd .ssh</span><br><span class="line">cat id_rsa.pub &gt; authorized_keys</span><br></pre></td></tr></table></figure>
+
+<p>方法4：直接使用 openssh 安装的时候生成的密钥对</p>
+<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line"><span class="meta">#</span><span class="bash"> 复制 ssh_host_rsa_key.pub 到 authorized_keys</span></span><br><span class="line">cat ../usr/etc/ssh/ssh_host_rsa_key.pub &gt; .ssh/authorized_keys</span><br><span class="line"><span class="meta">#</span><span class="bash"> 复制 ssh_host_rsa_key 到 客户端</span></span><br><span class="line">cat ../usr/etc/ssh/ssh_host_rsa_key</span><br></pre></td></tr></table></figure>
+
+<p><strong>客户端登录</strong></p>
+<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line"><span class="meta">#</span><span class="bash"> 密码登录</span></span><br><span class="line">ssh u0_a300@192.168.137.2 -p 8022</span><br><span class="line"><span class="meta">#</span><span class="bash"> 密钥登录</span></span><br><span class="line">ssh -i ~/.ssh/id_rsa 192.168.137.2 -p 8022</span><br></pre></td></tr></table></figure>
+
+<h2 id="查看监听端口"><a href="#查看监听端口" class="headerlink" title="查看监听端口"></a>查看监听端口</h2><p>Andorid 10 版本以后的 Termux 无法正常使用 netstat -an 命令，可以通过 nmap 命令查看</p>
+<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line"><span class="meta">#</span><span class="bash"> 安装nmap</span></span><br><span class="line">pkg install nmap</span><br><span class="line"><span class="meta">#</span><span class="bash"> 扫描端口</span></span><br><span class="line">nmap 127.0.0.1</span><br></pre></td></tr></table></figure>
+
+<h1 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h1><p><a href="https://www.sqlsec.com/2018/05/termux.html">https://www.sqlsec.com/2018/05/termux.html</a></p>
+<p><a href="https://github.com/termux/termux-app">https://github.com/termux/termux-app</a></p>
+]]></content>
+      <categories>
+        <category>Termux</category>
+      </categories>
+      <tags>
+        <tag>Termux</tag>
+        <tag>手机</tag>
       </tags>
   </entry>
   <entry>
@@ -409,24 +453,6 @@
       <tags>
         <tag>Proxy</tag>
         <tag>badvpn</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>安装dashboard</title>
-    <url>/2021/08/14/%E5%AE%89%E8%A3%85dashboard/</url>
-    <content><![CDATA[<h1 id="yaml安装"><a href="#yaml安装" class="headerlink" title="yaml安装"></a>yaml安装</h1><figure class="highlight shell"><table><tr><td class="code"><pre><span class="line"><span class="meta">#</span><span class="bash"> wget https://raw.githubusercontent.com/kubernetes/dashboard/v2.2.0/aio/deploy/recommended.yaml -O dashboard.yaml</span></span><br><span class="line">wget https://ghproxy.com/https://raw.githubusercontent.com/kubernetes/dashboard/v2.2.0/aio/deploy/recommended.yaml \</span><br><span class="line">-O dashboard.yaml</span><br><span class="line"><span class="meta">#</span><span class="bash"> 修改配置</span></span><br><span class="line"><span class="meta">#</span><span class="bash"><span class="comment"># 修改 namespace</span></span></span><br><span class="line"><span class="meta">#</span><span class="bash"><span class="comment"># 启用 NodePort</span></span></span><br><span class="line"><span class="meta">#</span><span class="bash"><span class="comment"># 修改 ClusterRoleBinding 中 ClusterRole 为 cluster-admin</span></span></span><br><span class="line">vi dashboard.yaml</span><br><span class="line"><span class="meta">#</span><span class="bash"> 提交</span></span><br><span class="line">kubectl apply -f dashboard.yaml</span><br></pre></td></tr></table></figure>
-
-<span id="more"></span>
-
-<h1 id="helm安装"><a href="#helm安装" class="headerlink" title="helm安装"></a>helm安装</h1><figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">helm repo add kubernetes-dashboard https://kubernetes.github.io/dashboard</span><br><span class="line">helm pull kubernetes-dashboard/kubernetes-dashboard --version 4.2.0</span><br><span class="line">tar zxvf kubernetes-dashboard-4.2.0.tgz </span><br><span class="line">cd kubernetes-dashboard</span><br><span class="line">cp values.yaml values-override.yaml</span><br><span class="line">vi values-override.yaml</span><br><span class="line"><span class="meta">#</span><span class="bash"><span class="comment">##</span></span></span><br><span class="line">extraArgs:</span><br><span class="line">  - --token-ttl=0</span><br><span class="line">service:</span><br><span class="line">  type: NodePort</span><br><span class="line">  nodePort: 30000</span><br><span class="line">metricsScraper:</span><br><span class="line">  enabled: true</span><br><span class="line">metrics-server:</span><br><span class="line">  enabled: true</span><br><span class="line">  args:</span><br><span class="line">    - --kubelet-preferred-address-types=InternalIP</span><br><span class="line">    - --kubelet-insecure-tls</span><br><span class="line"><span class="meta">#</span><span class="bash"><span class="comment">##</span></span></span><br><span class="line">helm install --create-namespace --namespace cmp-dashboard dashboard -f values-override.yaml .</span><br><span class="line"><span class="meta"></span></span><br><span class="line"><span class="meta">#</span><span class="bash"> 获取 token</span></span><br><span class="line">kubectl -n cmp-dashboard get secrets \</span><br><span class="line"><span class="meta">$</span><span class="bash">(kubectl -n cmp-dashboard get secrets | grep kubernetes-dashboard-token | awk <span class="string">&#x27;&#123;print $1&#125;&#x27;</span>) \</span></span><br><span class="line"><span class="bash">-o jsonpath=<span class="string">&quot;&#123;[&#x27;data&#x27;][&#x27;token&#x27;]&#125;&quot;</span> | base64 --decode &amp;&amp; <span class="built_in">echo</span></span></span><br><span class="line"><span class="meta"></span></span><br><span class="line"><span class="meta">#</span><span class="bash"> 提升权限</span></span><br><span class="line">vi dashboard-rbac.yaml</span><br><span class="line"><span class="meta">#</span><span class="bash"><span class="comment">##</span></span></span><br><span class="line">apiVersion: rbac.authorization.k8s.io/v1</span><br><span class="line">kind: ClusterRoleBinding</span><br><span class="line">metadata:</span><br><span class="line">  name: dashboard-kubernetes-dashboard</span><br><span class="line">roleRef:</span><br><span class="line">  apiGroup: rbac.authorization.k8s.io</span><br><span class="line">  kind: ClusterRole</span><br><span class="line">  name: cluster-admin</span><br><span class="line">subjects:</span><br><span class="line">  - kind: ServiceAccount</span><br><span class="line">	name: dashboard-kubernetes-dashboard</span><br><span class="line">namespace: cmp-dashboard</span><br><span class="line"><span class="meta">#</span><span class="bash"><span class="comment">##</span></span></span><br><span class="line">kubectl apply -f dashboard-rbac.yaml</span><br><span class="line"><span class="meta"></span></span><br><span class="line"><span class="meta">#</span><span class="bash"> 获取 token</span></span><br><span class="line">kubectl -n cmp-dashboard get secrets \</span><br><span class="line"><span class="meta">$</span><span class="bash">(kubectl -n cmp-dashboard get secrets | grep kubernetes-dashboard-token | awk <span class="string">&#x27;&#123;print $1&#125;&#x27;</span>) \</span></span><br><span class="line"><span class="bash">-o go-template=<span class="string">&quot;&#123;&#123;.data.token | base64decode&#125;&#125;&quot;</span> &amp;&amp; <span class="built_in">echo</span></span></span><br></pre></td></tr></table></figure>
-
-]]></content>
-      <categories>
-        <category>K8S</category>
-      </categories>
-      <tags>
-        <tag>K8S</tag>
-        <tag>harbor</tag>
       </tags>
   </entry>
   <entry>
@@ -503,6 +529,29 @@
       </tags>
   </entry>
   <entry>
+    <title>安装rook-ceph</title>
+    <url>/2021/08/14/%E5%AE%89%E8%A3%85rook-ceph/</url>
+    <content><![CDATA[<h1 id="添加仓库"><a href="#添加仓库" class="headerlink" title="添加仓库"></a>添加仓库</h1><figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">helm repo add rook https://charts.rook.io/release</span><br></pre></td></tr></table></figure>
+
+<h1 id="下载指定版本，修改配置"><a href="#下载指定版本，修改配置" class="headerlink" title="下载指定版本，修改配置"></a>下载指定版本，修改配置</h1><figure class="highlight shell"><table><tr><td class="code"><pre><span class="line"><span class="meta">#</span><span class="bash"> rook-ceph</span></span><br><span class="line">helm fetch rook/rook-ceph --version 1.7.0</span><br><span class="line">tar zxvf rook-ceph-v1.7.0.tgz</span><br><span class="line">cd rook-ceph</span><br><span class="line">cp values.yaml values-override.yaml</span><br><span class="line">vi values-override.yaml</span><br><span class="line"><span class="meta">#</span><span class="bash"> rook-ceph-cluster</span></span><br><span class="line">helm fetch rook/rook-ceph-cluster --version 1.7.0</span><br><span class="line">tar zxvf rook-ceph-cluster-v1.7.0.tgz</span><br><span class="line">cd rook-ceph-cluster</span><br><span class="line">cp values.yaml values-override.yaml</span><br><span class="line">vi values-override.yaml</span><br></pre></td></tr></table></figure>
+
+<span id="more"></span>
+
+<h1 id="安装部署"><a href="#安装部署" class="headerlink" title="安装部署"></a>安装部署</h1><figure class="highlight shell"><table><tr><td class="code"><pre><span class="line"><span class="meta">#</span><span class="bash"> rook-ceph</span></span><br><span class="line">cd rook-ceph</span><br><span class="line">helm install --create-namespace --namespace rook-ceph rook-ceph -f values-override.yaml .</span><br><span class="line"><span class="meta">#</span><span class="bash"> rook-ceph-cluster</span></span><br><span class="line">cd rook-ceph-cluster</span><br><span class="line">helm install --create-namespace --namespace rook-ceph rook-ceph-cluster -f values-override.yaml .</span><br></pre></td></tr></table></figure>
+
+<h1 id="维护"><a href="#维护" class="headerlink" title="维护"></a>维护</h1><h2 id="通过-toolbox-维护"><a href="#通过-toolbox-维护" class="headerlink" title="通过 toolbox 维护"></a>通过 toolbox 维护</h2><figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">kubectl -n rook-ceph exec -it \</span><br><span class="line"><span class="meta">$</span><span class="bash">(kubectl -n rook-ceph get pod -l <span class="string">&quot;app=rook-ceph-tools&quot;</span> -o jsonpath=<span class="string">&#x27;&#123;.items[0].metadata.name&#125;&#x27;</span>) \</span></span><br><span class="line"><span class="bash">-- bash</span></span><br><span class="line">ceph status</span><br><span class="line">ceph df</span><br><span class="line">ceph osd status</span><br><span class="line">ceph osd df</span><br><span class="line">ceph osd tree</span><br><span class="line">ceph osd lspools</span><br></pre></td></tr></table></figure>
+
+<h2 id="通过-dashboard-维护"><a href="#通过-dashboard-维护" class="headerlink" title="通过 dashboard 维护"></a>通过 dashboard 维护</h2><figure class="highlight shell"><table><tr><td class="code"><pre><span class="line"><span class="meta">#</span><span class="bash"> 添加nodeport</span></span><br><span class="line">kubectl -n rook-ceph get svc rook-ceph-mgr-dashboard -o yaml &gt; rook-ceph-mgr-dashboard-nodeport.yaml</span><br><span class="line">vi rook-ceph-mgr-dashboard-nodeport.yaml</span><br><span class="line">kubectl apply -f rook-ceph-mgr-dashboard-nodeport.yaml</span><br><span class="line"><span class="meta">#</span><span class="bash"> 获取密码，账号：admin</span></span><br><span class="line">kubectl -n rook-ceph get secret rook-ceph-dashboard-password -o jsonpath=&quot;&#123;[&#x27;data&#x27;][&#x27;password&#x27;]&#125;&quot; | base64 --decode &amp;&amp; echo</span><br></pre></td></tr></table></figure>
+]]></content>
+      <categories>
+        <category>K8S</category>
+      </categories>
+      <tags>
+        <tag>K8S</tag>
+        <tag>ceph</tag>
+      </tags>
+  </entry>
+  <entry>
     <title>安装redsocks</title>
     <url>/2021/07/21/%E5%AE%89%E8%A3%85redsocks/</url>
     <content><![CDATA[<h1 id="安装"><a href="#安装" class="headerlink" title="安装"></a>安装</h1><figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">yum install libevent-devel git gcc</span><br><span class="line">git clone https://github.com/darkk/redsocks</span><br><span class="line">cd redsocks</span><br><span class="line">make</span><br><span class="line">cp redsocks /usr/bin</span><br></pre></td></tr></table></figure>
@@ -534,73 +583,6 @@
         <tag>Proxy</tag>
         <tag>redsocks</tag>
         <tag>iptables</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>安装Termux</title>
-    <url>/2021/07/25/%E5%AE%89%E8%A3%85Termux/</url>
-    <content><![CDATA[<h1 id="安装"><a href="#安装" class="headerlink" title="安装"></a>安装</h1><p>方法1：打开 <a href="https://f-droid.org/packages/com.termux">https://f-droid.org/packages/com.termux</a> ，下载 APK 安装，推荐</p>
-<p>方法2：打开 google play store 搜索 termux ，直接安装</p>
-<span id="more"></span>
-
-<h1 id="配置"><a href="#配置" class="headerlink" title="配置"></a>配置</h1><h2 id="修改-apt-软件源"><a href="#修改-apt-软件源" class="headerlink" title="修改 apt 软件源"></a>修改 apt 软件源</h2><figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">sed -i &#x27;s@^\(deb.*stable main\)$@#\1\ndeb https://mirrors.tuna.tsinghua.edu.cn/termux/termux-packages-24 stable main@&#x27; \</span><br><span class="line"><span class="meta">$</span><span class="bash">PREFIX/etc/apt/sources.list</span></span><br><span class="line">sed -i &#x27;s@^\(deb.*games stable\)$@#\1\ndeb https://mirrors.tuna.tsinghua.edu.cn/termux/game-packages-24 games stable@&#x27; \</span><br><span class="line"><span class="meta">$</span><span class="bash">PREFIX/etc/apt/sources.list.d/game.list</span></span><br><span class="line">sed -i &#x27;s@^\(deb.*science stable\)$@#\1\ndeb https://mirrors.tuna.tsinghua.edu.cn/termux/science-packages-24 science stable@&#x27; \</span><br><span class="line"><span class="meta">$</span><span class="bash">PREFIX/etc/apt/sources.list.d/science.list</span></span><br><span class="line">pkg update</span><br></pre></td></tr></table></figure>
-
-<h2 id="访问手机存储"><a href="#访问手机存储" class="headerlink" title="访问手机存储"></a>访问手机存储</h2><figure class="highlight shell"><table><tr><td class="code"><pre><span class="line"><span class="meta">#</span><span class="bash"> 获取权限，会在 home 下生成 storage 目录</span></span><br><span class="line">termux-setup-storage</span><br><span class="line"><span class="meta">#</span><span class="bash"> 查看 storage 目录结构</span></span><br><span class="line">tree storage</span><br><span class="line">storage</span><br><span class="line">├── dcim -&gt; /storage/emulated/0/DCIM</span><br><span class="line">├── downloads -&gt; /storage/emulated/0/Download</span><br><span class="line">├── movies -&gt; /storage/emulated/0/Movies</span><br><span class="line">├── music -&gt; /storage/emulated/0/Music</span><br><span class="line">├── pictures -&gt; /storage/emulated/0/Pictures</span><br><span class="line">└── shared -&gt; /storage/emulated/0</span><br><span class="line"></span><br><span class="line">6 directories, 0 files</span><br></pre></td></tr></table></figure>
-
-<h1 id="使用"><a href="#使用" class="headerlink" title="使用"></a>使用</h1><h2 id="安装-SSH-服务"><a href="#安装-SSH-服务" class="headerlink" title="安装 SSH 服务"></a>安装 SSH 服务</h2><p><strong>安装 OPENSSH</strong></p>
-<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">pkg install openssh</span><br><span class="line"><span class="meta">#</span><span class="bash"> 启动sshd</span></span><br><span class="line">sshd</span><br><span class="line"><span class="meta">#</span><span class="bash"> 停止sshd</span></span><br><span class="line">pkill sshd</span><br><span class="line"><span class="meta">#</span><span class="bash"> 修改密码</span></span><br><span class="line">passwd</span><br><span class="line"><span class="meta">#</span><span class="bash"> 获取用户</span></span><br><span class="line">id</span><br><span class="line">uid=10300(u0_a300) gid=10300(u0_a300) groups=10300(u0_a300),3003(inet),9997(everybody),20300(u0_a300_cache),50300(all_a300)</span><br></pre></td></tr></table></figure>
-
-<p><strong>配置远程登录</strong></p>
-<p>方法1：通过密码登录</p>
-<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line"><span class="meta">#</span><span class="bash"> 查看 termux 配置，默认 PasswordAuthentication yes</span></span><br><span class="line">cat $PREFIX/etc/ssh/sshd_config</span><br></pre></td></tr></table></figure>
-
-<p>方法2：在客户端生成秘钥对</p>
-<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line"><span class="meta">#</span><span class="bash"> 生成密钥对，复制 id_rsa.pub 内容到 termux：data\data\com.termux\files\home\.ssh\authorized_keys</span></span><br><span class="line">ssh-keygen</span><br></pre></td></tr></table></figure>
-
-<p>方法3：在 termux 生成秘钥对</p>
-<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line"><span class="meta">#</span><span class="bash"> 生成密钥对，复制 id_rsa 到客户端</span></span><br><span class="line">ssh-keygen</span><br><span class="line">cd .ssh</span><br><span class="line">cat id_rsa.pub &gt; authorized_keys</span><br></pre></td></tr></table></figure>
-
-<p>方法4：直接使用 openssh 安装的时候生成的密钥对</p>
-<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line"><span class="meta">#</span><span class="bash"> 复制 ssh_host_rsa_key.pub 到 authorized_keys</span></span><br><span class="line">cat ../usr/etc/ssh/ssh_host_rsa_key.pub &gt; .ssh/authorized_keys</span><br><span class="line"><span class="meta">#</span><span class="bash"> 复制 ssh_host_rsa_key 到 客户端</span></span><br><span class="line">cat ../usr/etc/ssh/ssh_host_rsa_key</span><br></pre></td></tr></table></figure>
-
-<p><strong>客户端登录</strong></p>
-<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line"><span class="meta">#</span><span class="bash"> 密码登录</span></span><br><span class="line">ssh u0_a300@192.168.137.2 -p 8022</span><br><span class="line"><span class="meta">#</span><span class="bash"> 密钥登录</span></span><br><span class="line">ssh -i ~/.ssh/id_rsa 192.168.137.2 -p 8022</span><br></pre></td></tr></table></figure>
-
-<h2 id="查看监听端口"><a href="#查看监听端口" class="headerlink" title="查看监听端口"></a>查看监听端口</h2><p>Andorid 10 版本以后的 Termux 无法正常使用 netstat -an 命令，可以通过 nmap 命令查看</p>
-<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line"><span class="meta">#</span><span class="bash"> 安装nmap</span></span><br><span class="line">pkg install nmap</span><br><span class="line"><span class="meta">#</span><span class="bash"> 扫描端口</span></span><br><span class="line">nmap 127.0.0.1</span><br></pre></td></tr></table></figure>
-
-<h1 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h1><p><a href="https://www.sqlsec.com/2018/05/termux.html">https://www.sqlsec.com/2018/05/termux.html</a></p>
-<p><a href="https://github.com/termux/termux-app">https://github.com/termux/termux-app</a></p>
-]]></content>
-      <categories>
-        <category>Termux</category>
-      </categories>
-      <tags>
-        <tag>Termux</tag>
-        <tag>手机</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>安装rook-ceph</title>
-    <url>/2021/08/14/%E5%AE%89%E8%A3%85rook-ceph/</url>
-    <content><![CDATA[<h1 id="添加仓库"><a href="#添加仓库" class="headerlink" title="添加仓库"></a>添加仓库</h1><figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">helm repo add rook https://charts.rook.io/release</span><br></pre></td></tr></table></figure>
-
-<h1 id="下载指定版本，修改配置"><a href="#下载指定版本，修改配置" class="headerlink" title="下载指定版本，修改配置"></a>下载指定版本，修改配置</h1><figure class="highlight shell"><table><tr><td class="code"><pre><span class="line"><span class="meta">#</span><span class="bash"> rook-ceph</span></span><br><span class="line">helm fetch rook/rook-ceph --version 1.7.0</span><br><span class="line">tar zxvf rook-ceph-v1.7.0.tgz</span><br><span class="line">cd rook-ceph</span><br><span class="line">cp values.yaml values-override.yaml</span><br><span class="line">vi values-override.yaml</span><br><span class="line"><span class="meta">#</span><span class="bash"> rook-ceph-cluster</span></span><br><span class="line">helm fetch rook/rook-ceph-cluster --version 1.7.0</span><br><span class="line">tar zxvf rook-ceph-cluster-v1.7.0.tgz</span><br><span class="line">cd rook-ceph-cluster</span><br><span class="line">cp values.yaml values-override.yaml</span><br><span class="line">vi values-override.yaml</span><br></pre></td></tr></table></figure>
-
-<span id="more"></span>
-
-<h1 id="安装部署"><a href="#安装部署" class="headerlink" title="安装部署"></a>安装部署</h1><figure class="highlight shell"><table><tr><td class="code"><pre><span class="line"><span class="meta">#</span><span class="bash"> rook-ceph</span></span><br><span class="line">cd rook-ceph</span><br><span class="line">helm install --create-namespace --namespace rook-ceph rook-ceph -f values-override.yaml .</span><br><span class="line"><span class="meta">#</span><span class="bash"> rook-ceph-cluster</span></span><br><span class="line">cd rook-ceph-cluster</span><br><span class="line">helm install --create-namespace --namespace rook-ceph rook-ceph-cluster -f values-override.yaml .</span><br></pre></td></tr></table></figure>
-
-<h1 id="维护"><a href="#维护" class="headerlink" title="维护"></a>维护</h1><h2 id="通过-toolbox-维护"><a href="#通过-toolbox-维护" class="headerlink" title="通过 toolbox 维护"></a>通过 toolbox 维护</h2><figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">kubectl -n rook-ceph exec -it \</span><br><span class="line"><span class="meta">$</span><span class="bash">(kubectl -n rook-ceph get pod -l <span class="string">&quot;app=rook-ceph-tools&quot;</span> -o jsonpath=<span class="string">&#x27;&#123;.items[0].metadata.name&#125;&#x27;</span>) \</span></span><br><span class="line"><span class="bash">-- bash</span></span><br><span class="line">ceph status</span><br><span class="line">ceph df</span><br><span class="line">ceph osd status</span><br><span class="line">ceph osd df</span><br><span class="line">ceph osd tree</span><br><span class="line">ceph osd lspools</span><br></pre></td></tr></table></figure>
-
-<h2 id="通过-dashboard-维护"><a href="#通过-dashboard-维护" class="headerlink" title="通过 dashboard 维护"></a>通过 dashboard 维护</h2><figure class="highlight shell"><table><tr><td class="code"><pre><span class="line"><span class="meta">#</span><span class="bash"> 添加nodeport</span></span><br><span class="line">kubectl -n rook-ceph get svc rook-ceph-mgr-dashboard -o yaml &gt; rook-ceph-mgr-dashboard-nodeport.yaml</span><br><span class="line">vi rook-ceph-mgr-dashboard-nodeport.yaml</span><br><span class="line">kubectl apply -f rook-ceph-mgr-dashboard-nodeport.yaml</span><br><span class="line"><span class="meta">#</span><span class="bash"> 获取密码，账号：admin</span></span><br><span class="line">kubectl -n rook-ceph get secret rook-ceph-dashboard-password -o jsonpath=&quot;&#123;[&#x27;data&#x27;][&#x27;password&#x27;]&#125;&quot; | base64 --decode &amp;&amp; echo</span><br></pre></td></tr></table></figure>
-]]></content>
-      <categories>
-        <category>K8S</category>
-      </categories>
-      <tags>
-        <tag>K8S</tag>
-        <tag>ceph</tag>
       </tags>
   </entry>
   <entry>
@@ -663,6 +645,24 @@
       <tags>
         <tag>iptables</tag>
         <tag>Docker</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>安装dashboard</title>
+    <url>/2021/08/14/%E5%AE%89%E8%A3%85dashboard/</url>
+    <content><![CDATA[<h1 id="yaml安装"><a href="#yaml安装" class="headerlink" title="yaml安装"></a>yaml安装</h1><figure class="highlight shell"><table><tr><td class="code"><pre><span class="line"><span class="meta">#</span><span class="bash"> wget https://raw.githubusercontent.com/kubernetes/dashboard/v2.2.0/aio/deploy/recommended.yaml -O dashboard.yaml</span></span><br><span class="line">wget https://ghproxy.com/https://raw.githubusercontent.com/kubernetes/dashboard/v2.2.0/aio/deploy/recommended.yaml \</span><br><span class="line">-O dashboard.yaml</span><br><span class="line"><span class="meta">#</span><span class="bash"> 修改配置</span></span><br><span class="line"><span class="meta">#</span><span class="bash"><span class="comment"># 修改 namespace</span></span></span><br><span class="line"><span class="meta">#</span><span class="bash"><span class="comment"># 启用 NodePort</span></span></span><br><span class="line"><span class="meta">#</span><span class="bash"><span class="comment"># 修改 ClusterRoleBinding 中 ClusterRole 为 cluster-admin</span></span></span><br><span class="line">vi dashboard.yaml</span><br><span class="line"><span class="meta">#</span><span class="bash"> 提交</span></span><br><span class="line">kubectl apply -f dashboard.yaml</span><br></pre></td></tr></table></figure>
+
+<span id="more"></span>
+
+<h1 id="helm安装"><a href="#helm安装" class="headerlink" title="helm安装"></a>helm安装</h1><figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">helm repo add kubernetes-dashboard https://kubernetes.github.io/dashboard</span><br><span class="line">helm pull kubernetes-dashboard/kubernetes-dashboard --version 4.2.0</span><br><span class="line">tar zxvf kubernetes-dashboard-4.2.0.tgz </span><br><span class="line">cd kubernetes-dashboard</span><br><span class="line">cp values.yaml values-override.yaml</span><br><span class="line">vi values-override.yaml</span><br><span class="line"><span class="meta">#</span><span class="bash"><span class="comment">##</span></span></span><br><span class="line">extraArgs:</span><br><span class="line">  - --token-ttl=0</span><br><span class="line">service:</span><br><span class="line">  type: NodePort</span><br><span class="line">  nodePort: 30000</span><br><span class="line">metricsScraper:</span><br><span class="line">  enabled: true</span><br><span class="line">metrics-server:</span><br><span class="line">  enabled: true</span><br><span class="line">  args:</span><br><span class="line">    - --kubelet-preferred-address-types=InternalIP</span><br><span class="line">    - --kubelet-insecure-tls</span><br><span class="line"><span class="meta">#</span><span class="bash"><span class="comment">##</span></span></span><br><span class="line">helm install --create-namespace --namespace cmp-dashboard dashboard -f values-override.yaml .</span><br><span class="line"><span class="meta"></span></span><br><span class="line"><span class="meta">#</span><span class="bash"> 获取 token</span></span><br><span class="line">kubectl -n cmp-dashboard get secrets \</span><br><span class="line"><span class="meta">$</span><span class="bash">(kubectl -n cmp-dashboard get secrets | grep kubernetes-dashboard-token | awk <span class="string">&#x27;&#123;print $1&#125;&#x27;</span>) \</span></span><br><span class="line"><span class="bash">-o jsonpath=<span class="string">&quot;&#123;[&#x27;data&#x27;][&#x27;token&#x27;]&#125;&quot;</span> | base64 --decode &amp;&amp; <span class="built_in">echo</span></span></span><br><span class="line"><span class="meta"></span></span><br><span class="line"><span class="meta">#</span><span class="bash"> 提升权限</span></span><br><span class="line">vi dashboard-rbac.yaml</span><br><span class="line"><span class="meta">#</span><span class="bash"><span class="comment">##</span></span></span><br><span class="line">apiVersion: rbac.authorization.k8s.io/v1</span><br><span class="line">kind: ClusterRoleBinding</span><br><span class="line">metadata:</span><br><span class="line">  name: dashboard-kubernetes-dashboard</span><br><span class="line">roleRef:</span><br><span class="line">  apiGroup: rbac.authorization.k8s.io</span><br><span class="line">  kind: ClusterRole</span><br><span class="line">  name: cluster-admin</span><br><span class="line">subjects:</span><br><span class="line">  - kind: ServiceAccount</span><br><span class="line">	name: dashboard-kubernetes-dashboard</span><br><span class="line">namespace: cmp-dashboard</span><br><span class="line"><span class="meta">#</span><span class="bash"><span class="comment">##</span></span></span><br><span class="line">kubectl apply -f dashboard-rbac.yaml</span><br><span class="line"><span class="meta"></span></span><br><span class="line"><span class="meta">#</span><span class="bash"> 获取 token</span></span><br><span class="line">kubectl -n cmp-dashboard get secrets \</span><br><span class="line"><span class="meta">$</span><span class="bash">(kubectl -n cmp-dashboard get secrets | grep kubernetes-dashboard-token | awk <span class="string">&#x27;&#123;print $1&#125;&#x27;</span>) \</span></span><br><span class="line"><span class="bash">-o go-template=<span class="string">&quot;&#123;&#123;.data.token | base64decode&#125;&#125;&quot;</span> &amp;&amp; <span class="built_in">echo</span></span></span><br></pre></td></tr></table></figure>
+
+]]></content>
+      <categories>
+        <category>K8S</category>
+      </categories>
+      <tags>
+        <tag>K8S</tag>
+        <tag>harbor</tag>
       </tags>
   </entry>
 </search>
