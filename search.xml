@@ -474,19 +474,6 @@
       </tags>
   </entry>
   <entry>
-    <title>安装etcd</title>
-    <url>/2021/07/27/%E5%AE%89%E8%A3%85etcd/</url>
-    <content><![CDATA[<h1 id="安装"><a href="#安装" class="headerlink" title="安装"></a>安装</h1><h2 id="二进制"><a href="#二进制" class="headerlink" title="二进制"></a>二进制</h2><h2 id="docker"><a href="#docker" class="headerlink" title="docker"></a>docker</h2><figure class="highlight shell"><table><tr><td class="code"><pre><span class="line"><span class="meta">#</span><span class="bash"> 配置 etcd 使用主机IP 地址</span></span><br><span class="line">export NODE1=172.17.0.1</span><br><span class="line"><span class="meta">#</span><span class="bash"> 配置一个 Docker 卷来存储 etcd 数据</span></span><br><span class="line">docker volume create --name etcd-data</span><br><span class="line">export DATA_DIR=etcd-data</span><br><span class="line"><span class="meta">#</span><span class="bash"> 配置 REGISTRY</span></span><br><span class="line"><span class="meta">#</span><span class="bash"> <span class="built_in">export</span> REGISTRY=quay.io/coreos/etcd</span></span><br><span class="line">export REGISTRY=quay.mirrors.ustc.edu.cn/coreos/etcd</span><br><span class="line"><span class="meta">#</span><span class="bash"> 配置 TAG</span></span><br><span class="line"><span class="meta">#</span><span class="bash"> TAG=latest</span></span><br><span class="line">export TAG=v3.4.16</span><br><span class="line"><span class="meta">#</span><span class="bash"> 启动</span></span><br><span class="line">docker run \</span><br><span class="line">-p 2379:2379 \</span><br><span class="line">-p 2380:2380 \</span><br><span class="line">--volume=$&#123;DATA_DIR&#125;:/etcd-data \</span><br><span class="line">--name etcd $&#123;REGISTRY&#125;:$&#123;TAG&#125; \</span><br><span class="line">/usr/local/bin/etcd \</span><br><span class="line">--data-dir=/etcd-data --name node1 \</span><br><span class="line">--initial-advertise-peer-urls http://$&#123;NODE1&#125;:2380 --listen-peer-urls http://0.0.0.0:2380 \</span><br><span class="line">--advertise-client-urls http://$&#123;NODE1&#125;:2379 --listen-client-urls http://0.0.0.0:2379 \</span><br><span class="line">--initial-cluster node1=http://$&#123;NODE1&#125;:2380</span><br></pre></td></tr></table></figure>
-
-<h2 id="源码"><a href="#源码" class="headerlink" title="源码"></a>源码</h2><h1 id="测试"><a href="#测试" class="headerlink" title="测试"></a>测试</h1>]]></content>
-      <categories>
-        <category>etcd</category>
-      </categories>
-      <tags>
-        <tag>etcd</tag>
-      </tags>
-  </entry>
-  <entry>
     <title>安装harbor</title>
     <url>/2021/08/14/%E5%AE%89%E8%A3%85harbor/</url>
     <content><![CDATA[<h1 id="添加仓库"><a href="#添加仓库" class="headerlink" title="添加仓库"></a>添加仓库</h1><figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">helm repo add harbor https://helm.goharbor.io</span><br></pre></td></tr></table></figure>
@@ -505,6 +492,53 @@
       <tags>
         <tag>K8S</tag>
         <tag>harbor</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>安装etcd</title>
+    <url>/2021/07/27/%E5%AE%89%E8%A3%85etcd/</url>
+    <content><![CDATA[<h1 id="安装"><a href="#安装" class="headerlink" title="安装"></a>安装</h1><h2 id="二进制"><a href="#二进制" class="headerlink" title="二进制"></a>二进制</h2><h2 id="docker"><a href="#docker" class="headerlink" title="docker"></a>docker</h2><figure class="highlight shell"><table><tr><td class="code"><pre><span class="line"><span class="meta">#</span><span class="bash"> 配置 etcd 使用主机IP 地址</span></span><br><span class="line">export NODE1=172.17.0.1</span><br><span class="line"><span class="meta">#</span><span class="bash"> 配置一个 Docker 卷来存储 etcd 数据</span></span><br><span class="line">docker volume create --name etcd-data</span><br><span class="line">export DATA_DIR=etcd-data</span><br><span class="line"><span class="meta">#</span><span class="bash"> 配置 REGISTRY</span></span><br><span class="line"><span class="meta">#</span><span class="bash"> <span class="built_in">export</span> REGISTRY=quay.io/coreos/etcd</span></span><br><span class="line">export REGISTRY=quay.mirrors.ustc.edu.cn/coreos/etcd</span><br><span class="line"><span class="meta">#</span><span class="bash"> 配置 TAG</span></span><br><span class="line"><span class="meta">#</span><span class="bash"> TAG=latest</span></span><br><span class="line">export TAG=v3.4.16</span><br><span class="line"><span class="meta">#</span><span class="bash"> 启动</span></span><br><span class="line">docker run \</span><br><span class="line">-p 2379:2379 \</span><br><span class="line">-p 2380:2380 \</span><br><span class="line">--volume=$&#123;DATA_DIR&#125;:/etcd-data \</span><br><span class="line">--name etcd $&#123;REGISTRY&#125;:$&#123;TAG&#125; \</span><br><span class="line">/usr/local/bin/etcd \</span><br><span class="line">--data-dir=/etcd-data --name node1 \</span><br><span class="line">--initial-advertise-peer-urls http://$&#123;NODE1&#125;:2380 --listen-peer-urls http://0.0.0.0:2380 \</span><br><span class="line">--advertise-client-urls http://$&#123;NODE1&#125;:2379 --listen-client-urls http://0.0.0.0:2379 \</span><br><span class="line">--initial-cluster node1=http://$&#123;NODE1&#125;:2380</span><br></pre></td></tr></table></figure>
+
+<h2 id="源码"><a href="#源码" class="headerlink" title="源码"></a>源码</h2><h1 id="测试"><a href="#测试" class="headerlink" title="测试"></a>测试</h1>]]></content>
+      <categories>
+        <category>etcd</category>
+      </categories>
+      <tags>
+        <tag>etcd</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>安装redsocks</title>
+    <url>/2021/07/21/%E5%AE%89%E8%A3%85redsocks/</url>
+    <content><![CDATA[<h1 id="安装"><a href="#安装" class="headerlink" title="安装"></a>安装</h1><figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">yum install libevent-devel git gcc</span><br><span class="line">git clone https://github.com/darkk/redsocks</span><br><span class="line">cd redsocks</span><br><span class="line">make</span><br><span class="line">cp redsocks /usr/bin</span><br></pre></td></tr></table></figure>
+
+<span id="more"></span>
+
+<h1 id="配置"><a href="#配置" class="headerlink" title="配置"></a>配置</h1><h2 id="配置redsocks"><a href="#配置redsocks" class="headerlink" title="配置redsocks"></a>配置redsocks</h2><figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">mkdir /etc/redsocks</span><br><span class="line">cp redsocks.conf.example /etc/redsocks/redsocks.conf</span><br><span class="line">cd /etc/redsocks</span><br><span class="line">vi redsocks.conf</span><br><span class="line"><span class="meta">#</span><span class="bash"><span class="comment">##</span></span></span><br><span class="line">base &#123;</span><br><span class="line"><span class="meta">#</span><span class="bash"> ...</span></span><br><span class="line">daemon = on;</span><br><span class="line"><span class="meta">#</span><span class="bash"> ...</span></span><br><span class="line">&#125;</span><br><span class="line">redsocks &#123;</span><br><span class="line"><span class="meta">#</span><span class="bash"> ...</span></span><br><span class="line">ip = 127.0.0.1;</span><br><span class="line"><span class="meta">#</span><span class="bash"> ...</span></span><br><span class="line">&#125;</span><br><span class="line"><span class="meta">#</span><span class="bash"><span class="comment">##</span></span></span><br></pre></td></tr></table></figure>
+
+<h2 id="配置iptables"><a href="#配置iptables" class="headerlink" title="配置iptables"></a>配置iptables</h2><p>仅192.168.0.0/24走代理</p>
+<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line"><span class="meta">#</span><span class="bash"> 新建链</span></span><br><span class="line">iptables -t nat -N REDSOCKS</span><br><span class="line"><span class="meta">#</span><span class="bash"> 应用REDSOCKS</span></span><br><span class="line">iptables -t nat -A OUTPUT -p tcp -j REDSOCKS</span><br><span class="line">iptables -t nat -A PREROUTING -p tcp -j REDSOCKS</span><br><span class="line"><span class="meta">#</span><span class="bash"> 仅192.168.0.0/24走代理</span></span><br><span class="line">iptables -t nat -A REDSOCKS -p tcp -d 192.168.0.0/24 -j REDIRECT --to-ports 12345</span><br><span class="line">iptables -t nat -A REDSOCKS -p tcp -j RETURN</span><br></pre></td></tr></table></figure>
+
+<p>仅192.168.0.0/24不走代理</p>
+<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line"><span class="meta">#</span><span class="bash"> 新建链</span></span><br><span class="line">iptables -t nat -N REDSOCKS</span><br><span class="line"><span class="meta">#</span><span class="bash"> 应用REDSOCKS</span></span><br><span class="line">iptables -t nat -A OUTPUT -p tcp -j REDSOCKS</span><br><span class="line">iptables -t nat -A PREROUTING -p tcp -j REDSOCKS</span><br><span class="line"><span class="meta">#</span><span class="bash"> 仅192.168.0.0/24不走代理</span></span><br><span class="line">iptables -t nat -A REDSOCKS -d 192.168.0.0/24 -j RETURN</span><br><span class="line">iptables -t nat -A REDSOCKS -p tcp -j REDIRECT --to-ports 12345</span><br></pre></td></tr></table></figure>
+
+<p>指定用户建立的连接走代理</p>
+<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">iptables -t nat -A OUTPUT -p tcp -m owner --uid-owner luser -j REDSOCKS</span><br><span class="line">firefox</span><br></pre></td></tr></table></figure>
+
+<p>指定组建立的连接走代理</p>
+<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">groupadd socksified</span><br><span class="line">usermod --append --groups socksified luser</span><br><span class="line">iptables -t nat -A OUTPUT -p tcp -m owner --gid-owner socksified -j REDSOCKS</span><br><span class="line"><span class="meta">#</span><span class="bash"> 以特定的组执行命令，结合上面命令使用</span></span><br><span class="line">id</span><br><span class="line">uid=1000(luser) gid=1000(luser) groups=1000(luser),1001(socksified)</span><br><span class="line">sg socksified -c id</span><br><span class="line">uid=1000(luser) gid=1001(socksified) groups=1000(luser),1001(socksified)</span><br><span class="line">sg socksified -c firefox</span><br></pre></td></tr></table></figure>
+
+<h1 id="启动"><a href="#启动" class="headerlink" title="启动"></a>启动</h1><h2 id="手动启动"><a href="#手动启动" class="headerlink" title="手动启动"></a>手动启动</h2><figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">redsocks -v</span><br><span class="line">redsocks -c /etc/redsocks/redsocks.conf</span><br></pre></td></tr></table></figure>
+
+<h2 id="自动启动"><a href="#自动启动" class="headerlink" title="自动启动"></a>自动启动</h2><figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">vi /lib/systemd/system/redsocks.service</span><br><span class="line"><span class="meta">#</span><span class="bash"><span class="comment">##</span></span></span><br><span class="line">[Unit]</span><br><span class="line">Description=redsocks</span><br><span class="line">After=network-online.target</span><br><span class="line">[Service]</span><br><span class="line">Type=simple</span><br><span class="line">Restart=always</span><br><span class="line">ExecStart=/usr/bin/redsocks -c /etc/redsocks/redsocks.conf</span><br><span class="line">[Install]</span><br><span class="line">WantedBy=multi-user.target</span><br><span class="line"><span class="meta">#</span><span class="bash"><span class="comment">##</span></span></span><br><span class="line">systemctl enable redsocks &amp;&amp; systemctl start redsocks &amp;&amp; systemctl status redsocks</span><br></pre></td></tr></table></figure>
+]]></content>
+      <categories>
+        <category>Proxy</category>
+      </categories>
+      <tags>
+        <tag>Proxy</tag>
+        <tag>redsocks</tag>
+        <tag>iptables</tag>
       </tags>
   </entry>
   <entry>
@@ -544,40 +578,6 @@
         <tag>Proxy</tag>
         <tag>mitmproxy</tag>
         <tag>Python</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>安装redsocks</title>
-    <url>/2021/07/21/%E5%AE%89%E8%A3%85redsocks/</url>
-    <content><![CDATA[<h1 id="安装"><a href="#安装" class="headerlink" title="安装"></a>安装</h1><figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">yum install libevent-devel git gcc</span><br><span class="line">git clone https://github.com/darkk/redsocks</span><br><span class="line">cd redsocks</span><br><span class="line">make</span><br><span class="line">cp redsocks /usr/bin</span><br></pre></td></tr></table></figure>
-
-<span id="more"></span>
-
-<h1 id="配置"><a href="#配置" class="headerlink" title="配置"></a>配置</h1><h2 id="配置redsocks"><a href="#配置redsocks" class="headerlink" title="配置redsocks"></a>配置redsocks</h2><figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">mkdir /etc/redsocks</span><br><span class="line">cp redsocks.conf.example /etc/redsocks/redsocks.conf</span><br><span class="line">cd /etc/redsocks</span><br><span class="line">vi redsocks.conf</span><br><span class="line"><span class="meta">#</span><span class="bash"><span class="comment">##</span></span></span><br><span class="line">base &#123;</span><br><span class="line"><span class="meta">#</span><span class="bash"> ...</span></span><br><span class="line">daemon = on;</span><br><span class="line"><span class="meta">#</span><span class="bash"> ...</span></span><br><span class="line">&#125;</span><br><span class="line">redsocks &#123;</span><br><span class="line"><span class="meta">#</span><span class="bash"> ...</span></span><br><span class="line">ip = 127.0.0.1;</span><br><span class="line"><span class="meta">#</span><span class="bash"> ...</span></span><br><span class="line">&#125;</span><br><span class="line"><span class="meta">#</span><span class="bash"><span class="comment">##</span></span></span><br></pre></td></tr></table></figure>
-
-<h2 id="配置iptables"><a href="#配置iptables" class="headerlink" title="配置iptables"></a>配置iptables</h2><p>仅192.168.0.0/24走代理</p>
-<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line"><span class="meta">#</span><span class="bash"> 新建链</span></span><br><span class="line">iptables -t nat -N REDSOCKS</span><br><span class="line"><span class="meta">#</span><span class="bash"> 应用REDSOCKS</span></span><br><span class="line">iptables -t nat -A OUTPUT -p tcp -j REDSOCKS</span><br><span class="line">iptables -t nat -A PREROUTING -p tcp -j REDSOCKS</span><br><span class="line"><span class="meta">#</span><span class="bash"> 仅192.168.0.0/24走代理</span></span><br><span class="line">iptables -t nat -A REDSOCKS -p tcp -d 192.168.0.0/24 -j REDIRECT --to-ports 12345</span><br><span class="line">iptables -t nat -A REDSOCKS -p tcp -j RETURN</span><br></pre></td></tr></table></figure>
-
-<p>仅192.168.0.0/24不走代理</p>
-<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line"><span class="meta">#</span><span class="bash"> 新建链</span></span><br><span class="line">iptables -t nat -N REDSOCKS</span><br><span class="line"><span class="meta">#</span><span class="bash"> 应用REDSOCKS</span></span><br><span class="line">iptables -t nat -A OUTPUT -p tcp -j REDSOCKS</span><br><span class="line">iptables -t nat -A PREROUTING -p tcp -j REDSOCKS</span><br><span class="line"><span class="meta">#</span><span class="bash"> 仅192.168.0.0/24不走代理</span></span><br><span class="line">iptables -t nat -A REDSOCKS -d 192.168.0.0/24 -j RETURN</span><br><span class="line">iptables -t nat -A REDSOCKS -p tcp -j REDIRECT --to-ports 12345</span><br></pre></td></tr></table></figure>
-
-<p>指定用户建立的连接走代理</p>
-<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">iptables -t nat -A OUTPUT -p tcp -m owner --uid-owner luser -j REDSOCKS</span><br><span class="line">firefox</span><br></pre></td></tr></table></figure>
-
-<p>指定组建立的连接走代理</p>
-<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">groupadd socksified</span><br><span class="line">usermod --append --groups socksified luser</span><br><span class="line">iptables -t nat -A OUTPUT -p tcp -m owner --gid-owner socksified -j REDSOCKS</span><br><span class="line"><span class="meta">#</span><span class="bash"> 以特定的组执行命令，结合上面命令使用</span></span><br><span class="line">id</span><br><span class="line">uid=1000(luser) gid=1000(luser) groups=1000(luser),1001(socksified)</span><br><span class="line">sg socksified -c id</span><br><span class="line">uid=1000(luser) gid=1001(socksified) groups=1000(luser),1001(socksified)</span><br><span class="line">sg socksified -c firefox</span><br></pre></td></tr></table></figure>
-
-<h1 id="启动"><a href="#启动" class="headerlink" title="启动"></a>启动</h1><h2 id="手动启动"><a href="#手动启动" class="headerlink" title="手动启动"></a>手动启动</h2><figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">redsocks -v</span><br><span class="line">redsocks -c /etc/redsocks/redsocks.conf</span><br></pre></td></tr></table></figure>
-
-<h2 id="自动启动"><a href="#自动启动" class="headerlink" title="自动启动"></a>自动启动</h2><figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">vi /lib/systemd/system/redsocks.service</span><br><span class="line"><span class="meta">#</span><span class="bash"><span class="comment">##</span></span></span><br><span class="line">[Unit]</span><br><span class="line">Description=redsocks</span><br><span class="line">After=network-online.target</span><br><span class="line">[Service]</span><br><span class="line">Type=simple</span><br><span class="line">Restart=always</span><br><span class="line">ExecStart=/usr/bin/redsocks -c /etc/redsocks/redsocks.conf</span><br><span class="line">[Install]</span><br><span class="line">WantedBy=multi-user.target</span><br><span class="line"><span class="meta">#</span><span class="bash"><span class="comment">##</span></span></span><br><span class="line">systemctl enable redsocks &amp;&amp; systemctl start redsocks &amp;&amp; systemctl status redsocks</span><br></pre></td></tr></table></figure>
-]]></content>
-      <categories>
-        <category>Proxy</category>
-      </categories>
-      <tags>
-        <tag>Proxy</tag>
-        <tag>redsocks</tag>
-        <tag>iptables</tag>
       </tags>
   </entry>
   <entry>
