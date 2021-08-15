@@ -581,6 +581,55 @@
       </tags>
   </entry>
   <entry>
+    <title>安装rook-ceph</title>
+    <url>/2021/08/14/%E5%AE%89%E8%A3%85rook-ceph/</url>
+    <content><![CDATA[<h1 id="添加仓库"><a href="#添加仓库" class="headerlink" title="添加仓库"></a>添加仓库</h1><figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">helm repo add rook https://charts.rook.io/release</span><br></pre></td></tr></table></figure>
+
+<h1 id="下载指定版本，修改配置"><a href="#下载指定版本，修改配置" class="headerlink" title="下载指定版本，修改配置"></a>下载指定版本，修改配置</h1><figure class="highlight shell"><table><tr><td class="code"><pre><span class="line"><span class="meta">#</span><span class="bash"> rook-ceph</span></span><br><span class="line">helm fetch rook/rook-ceph --version 1.7.0</span><br><span class="line">tar zxvf rook-ceph-v1.7.0.tgz</span><br><span class="line">cd rook-ceph</span><br><span class="line">cp values.yaml values-override.yaml</span><br><span class="line">vi values-override.yaml</span><br><span class="line"><span class="meta">#</span><span class="bash"> rook-ceph-cluster</span></span><br><span class="line">helm fetch rook/rook-ceph-cluster --version 1.7.0</span><br><span class="line">tar zxvf rook-ceph-cluster-v1.7.0.tgz</span><br><span class="line">cd rook-ceph-cluster</span><br><span class="line">cp values.yaml values-override.yaml</span><br><span class="line">vi values-override.yaml</span><br></pre></td></tr></table></figure>
+
+<span id="more"></span>
+
+<h1 id="安装部署"><a href="#安装部署" class="headerlink" title="安装部署"></a>安装部署</h1><figure class="highlight shell"><table><tr><td class="code"><pre><span class="line"><span class="meta">#</span><span class="bash"> rook-ceph</span></span><br><span class="line">cd rook-ceph</span><br><span class="line">helm install --create-namespace --namespace rook-ceph rook-ceph -f values-override.yaml .</span><br><span class="line"><span class="meta">#</span><span class="bash"> rook-ceph-cluster</span></span><br><span class="line">cd rook-ceph-cluster</span><br><span class="line">helm install --create-namespace --namespace rook-ceph rook-ceph-cluster -f values-override.yaml .</span><br></pre></td></tr></table></figure>
+
+<h1 id="维护"><a href="#维护" class="headerlink" title="维护"></a>维护</h1><h2 id="通过-toolbox-维护"><a href="#通过-toolbox-维护" class="headerlink" title="通过 toolbox 维护"></a>通过 toolbox 维护</h2><figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">kubectl -n rook-ceph exec -it \</span><br><span class="line"><span class="meta">$</span><span class="bash">(kubectl -n rook-ceph get pod -l <span class="string">&quot;app=rook-ceph-tools&quot;</span> -o jsonpath=<span class="string">&#x27;&#123;.items[0].metadata.name&#125;&#x27;</span>) \</span></span><br><span class="line"><span class="bash">-- bash</span></span><br><span class="line">ceph status</span><br><span class="line">ceph df</span><br><span class="line">ceph osd status</span><br><span class="line">ceph osd df</span><br><span class="line">ceph osd tree</span><br><span class="line">ceph osd lspools</span><br></pre></td></tr></table></figure>
+
+<h2 id="通过-dashboard-维护"><a href="#通过-dashboard-维护" class="headerlink" title="通过 dashboard 维护"></a>通过 dashboard 维护</h2><figure class="highlight shell"><table><tr><td class="code"><pre><span class="line"><span class="meta">#</span><span class="bash"> 添加nodeport</span></span><br><span class="line">kubectl -n rook-ceph get svc rook-ceph-mgr-dashboard -o yaml &gt; rook-ceph-mgr-dashboard-nodeport.yaml</span><br><span class="line">vi rook-ceph-mgr-dashboard-nodeport.yaml</span><br><span class="line">kubectl apply -f rook-ceph-mgr-dashboard-nodeport.yaml</span><br><span class="line"><span class="meta">#</span><span class="bash"> 获取密码，账号：admin</span></span><br><span class="line">kubectl -n rook-ceph get secret rook-ceph-dashboard-password -o jsonpath=&quot;&#123;[&#x27;data&#x27;][&#x27;password&#x27;]&#125;&quot; | base64 --decode &amp;&amp; echo</span><br></pre></td></tr></table></figure>
+]]></content>
+      <categories>
+        <category>K8S</category>
+      </categories>
+      <tags>
+        <tag>K8S</tag>
+        <tag>ceph</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>安装sshuttle</title>
+    <url>/2021/07/21/%E5%AE%89%E8%A3%85sshuttle/</url>
+    <content><![CDATA[<h1 id="说明"><a href="#说明" class="headerlink" title="说明"></a>说明</h1><p>支持TCP、UDP，不支持ICMP</p>
+<h1 id="安装"><a href="#安装" class="headerlink" title="安装"></a>安装</h1><figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">export &#123;http,https,ftp&#125;_proxy=&quot;http://127.0.0.1:1081&quot;</span><br><span class="line">yum install python3 python3-devel gcc</span><br></pre></td></tr></table></figure>
+
+<h2 id="主机环境安装"><a href="#主机环境安装" class="headerlink" title="主机环境安装"></a>主机环境安装</h2><figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">pip3 install sshuttle</span><br></pre></td></tr></table></figure>
+
+<h2 id="虚拟环境安装"><a href="#虚拟环境安装" class="headerlink" title="虚拟环境安装"></a>虚拟环境安装</h2><figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">pip3 install virtualenv</span><br><span class="line">virtualenv -p python3 /tmp/sshuttle</span><br><span class="line">source /tmp/sshuttle/bin/activate</span><br><span class="line">python -V &amp;&amp; pip -V</span><br><span class="line">pip install sshuttle</span><br></pre></td></tr></table></figure>
+
+<span id="more"></span>
+
+<h1 id="配置"><a href="#配置" class="headerlink" title="配置"></a>配置</h1><h2 id="代理TCP"><a href="#代理TCP" class="headerlink" title="代理TCP"></a>代理TCP</h2><figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">sshuttle -r root@127.0.0.1:60022 0.0.0.0/0 -x 192.168.128.0/24 -v</span><br></pre></td></tr></table></figure>
+
+<h2 id="代理TCP和DNS"><a href="#代理TCP和DNS" class="headerlink" title="代理TCP和DNS"></a>代理TCP和DNS</h2><figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">sshuttle -r root@127.0.0.1:60022 0.0.0.0/0 -x 192.168.128.0/24 --dns -v</span><br></pre></td></tr></table></figure>
+
+<h2 id="代理TCP和UDP"><a href="#代理TCP和UDP" class="headerlink" title="代理TCP和UDP"></a>代理TCP和UDP</h2><figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">sshuttle -r root@127.0.0.1:60022 0.0.0.0/0 -x 192.168.128.0/24 --method tproxy -v</span><br><span class="line"><span class="meta">#</span><span class="bash"> 添加路由</span></span><br><span class="line">ip route add local default dev lo table 100</span><br><span class="line">ip rule add fwmark 1 lookup 100</span><br><span class="line">ip -6 route add local default dev lo table 100</span><br><span class="line">ip -6 rule add fwmark 1 lookup 100</span><br></pre></td></tr></table></figure>
+]]></content>
+      <categories>
+        <category>Proxy</category>
+      </categories>
+      <tags>
+        <tag>Proxy</tag>
+        <tag>sshuttle</tag>
+      </tags>
+  </entry>
+  <entry>
     <title>配置Docker容器的访问策略</title>
     <url>/2021/07/21/%E9%85%8D%E7%BD%AEDocker%E5%AE%B9%E5%99%A8%E7%9A%84%E8%AE%BF%E9%97%AE%E7%AD%96%E7%95%A5/</url>
     <content><![CDATA[<h1 id="需求"><a href="#需求" class="headerlink" title="需求"></a>需求</h1><p>需要对容器暴露的主机端口进行白名单访问控制，仅允许某些IP访问主机端口。</p>
@@ -614,55 +663,6 @@
       <tags>
         <tag>iptables</tag>
         <tag>Docker</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>安装sshuttle</title>
-    <url>/2021/07/21/%E5%AE%89%E8%A3%85sshuttle/</url>
-    <content><![CDATA[<h1 id="说明"><a href="#说明" class="headerlink" title="说明"></a>说明</h1><p>支持TCP、UDP，不支持ICMP</p>
-<h1 id="安装"><a href="#安装" class="headerlink" title="安装"></a>安装</h1><figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">export &#123;http,https,ftp&#125;_proxy=&quot;http://127.0.0.1:1081&quot;</span><br><span class="line">yum install python3 python3-devel gcc</span><br></pre></td></tr></table></figure>
-
-<h2 id="主机环境安装"><a href="#主机环境安装" class="headerlink" title="主机环境安装"></a>主机环境安装</h2><figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">pip3 install sshuttle</span><br></pre></td></tr></table></figure>
-
-<h2 id="虚拟环境安装"><a href="#虚拟环境安装" class="headerlink" title="虚拟环境安装"></a>虚拟环境安装</h2><figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">pip3 install virtualenv</span><br><span class="line">virtualenv -p python3 /tmp/sshuttle</span><br><span class="line">source /tmp/sshuttle/bin/activate</span><br><span class="line">python -V &amp;&amp; pip -V</span><br><span class="line">pip install sshuttle</span><br></pre></td></tr></table></figure>
-
-<span id="more"></span>
-
-<h1 id="配置"><a href="#配置" class="headerlink" title="配置"></a>配置</h1><h2 id="代理TCP"><a href="#代理TCP" class="headerlink" title="代理TCP"></a>代理TCP</h2><figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">sshuttle -r root@127.0.0.1:60022 0.0.0.0/0 -x 192.168.128.0/24 -v</span><br></pre></td></tr></table></figure>
-
-<h2 id="代理TCP和DNS"><a href="#代理TCP和DNS" class="headerlink" title="代理TCP和DNS"></a>代理TCP和DNS</h2><figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">sshuttle -r root@127.0.0.1:60022 0.0.0.0/0 -x 192.168.128.0/24 --dns -v</span><br></pre></td></tr></table></figure>
-
-<h2 id="代理TCP和UDP"><a href="#代理TCP和UDP" class="headerlink" title="代理TCP和UDP"></a>代理TCP和UDP</h2><figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">sshuttle -r root@127.0.0.1:60022 0.0.0.0/0 -x 192.168.128.0/24 --method tproxy -v</span><br><span class="line"><span class="meta">#</span><span class="bash"> 添加路由</span></span><br><span class="line">ip route add local default dev lo table 100</span><br><span class="line">ip rule add fwmark 1 lookup 100</span><br><span class="line">ip -6 route add local default dev lo table 100</span><br><span class="line">ip -6 rule add fwmark 1 lookup 100</span><br></pre></td></tr></table></figure>
-]]></content>
-      <categories>
-        <category>Proxy</category>
-      </categories>
-      <tags>
-        <tag>Proxy</tag>
-        <tag>sshuttle</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>安装rook-ceph</title>
-    <url>/2021/08/14/%E5%AE%89%E8%A3%85rook-ceph/</url>
-    <content><![CDATA[<h1 id="添加仓库"><a href="#添加仓库" class="headerlink" title="添加仓库"></a>添加仓库</h1><figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">helm repo add rook https://charts.rook.io/release</span><br></pre></td></tr></table></figure>
-
-<h1 id="下载指定版本，修改配置"><a href="#下载指定版本，修改配置" class="headerlink" title="下载指定版本，修改配置"></a>下载指定版本，修改配置</h1><figure class="highlight shell"><table><tr><td class="code"><pre><span class="line"><span class="meta">#</span><span class="bash"> rook-ceph</span></span><br><span class="line">helm fetch rook/rook-ceph --version 1.7.0</span><br><span class="line">tar zxvf rook-ceph-v1.7.0.tgz</span><br><span class="line">cd rook-ceph</span><br><span class="line">cp values.yaml values-override.yaml</span><br><span class="line">vi values-override.yaml</span><br><span class="line"><span class="meta">#</span><span class="bash"> rook-ceph-cluster</span></span><br><span class="line">helm fetch rook/rook-ceph-cluster --version 1.7.0</span><br><span class="line">tar zxvf rook-ceph-cluster-v1.7.0.tgz</span><br><span class="line">cd rook-ceph-cluster</span><br><span class="line">cp values.yaml values-override.yaml</span><br><span class="line">vi values-override.yaml</span><br></pre></td></tr></table></figure>
-
-<span id="more"></span>
-
-<h1 id="安装部署"><a href="#安装部署" class="headerlink" title="安装部署"></a>安装部署</h1><figure class="highlight shell"><table><tr><td class="code"><pre><span class="line"><span class="meta">#</span><span class="bash"> rook-ceph</span></span><br><span class="line">cd rook-ceph</span><br><span class="line">helm install --create-namespace --namespace rook-ceph rook-ceph -f values-override.yaml .</span><br><span class="line"><span class="meta">#</span><span class="bash"> rook-ceph-cluster</span></span><br><span class="line">cd rook-ceph-cluster</span><br><span class="line">helm install --create-namespace --namespace rook-ceph rook-ceph-cluster -f values-override.yaml .</span><br></pre></td></tr></table></figure>
-
-<h1 id="维护"><a href="#维护" class="headerlink" title="维护"></a>维护</h1><h2 id="通过-toolbox-维护"><a href="#通过-toolbox-维护" class="headerlink" title="通过 toolbox 维护"></a>通过 toolbox 维护</h2><figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">kubectl -n rook-ceph exec -it \</span><br><span class="line"><span class="meta">$</span><span class="bash">(kubectl -n rook-ceph get pod -l <span class="string">&quot;app=rook-ceph-tools&quot;</span> -o jsonpath=<span class="string">&#x27;&#123;.items[0].metadata.name&#125;&#x27;</span>) \</span></span><br><span class="line"><span class="bash">-- bash</span></span><br><span class="line">ceph status</span><br><span class="line">ceph df</span><br><span class="line">ceph osd status</span><br><span class="line">ceph osd df</span><br><span class="line">ceph osd tree</span><br><span class="line">ceph osd lspools</span><br></pre></td></tr></table></figure>
-
-<h2 id="通过-dashboard-维护"><a href="#通过-dashboard-维护" class="headerlink" title="通过 dashboard 维护"></a>通过 dashboard 维护</h2><figure class="highlight shell"><table><tr><td class="code"><pre><span class="line"><span class="meta">#</span><span class="bash"> 添加nodeport</span></span><br><span class="line">kubectl -n rook-ceph get svc rook-ceph-mgr-dashboard -o yaml &gt; rook-ceph-mgr-dashboard-nodeport.yaml</span><br><span class="line">vi rook-ceph-mgr-dashboard-nodeport.yaml</span><br><span class="line">kubectl apply -f rook-ceph-mgr-dashboard-nodeport.yaml</span><br><span class="line"><span class="meta">#</span><span class="bash"> 获取密码，账号：admin</span></span><br><span class="line">kubectl -n rook-ceph get secret rook-ceph-dashboard-password -o jsonpath=&quot;&#123;[&#x27;data&#x27;][&#x27;password&#x27;]&#125;&quot; | base64 --decode &amp;&amp; echo</span><br></pre></td></tr></table></figure>
-]]></content>
-      <categories>
-        <category>K8S</category>
-      </categories>
-      <tags>
-        <tag>K8S</tag>
-        <tag>ceph</tag>
       </tags>
   </entry>
 </search>
