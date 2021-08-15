@@ -324,23 +324,6 @@
       </tags>
   </entry>
   <entry>
-    <title>在Termux中安装mitmproxy</title>
-    <url>/2021/07/26/%E5%9C%A8Termux%E4%B8%AD%E5%AE%89%E8%A3%85mitmproxy/</url>
-    <content><![CDATA[<h1 id="安装"><a href="#安装" class="headerlink" title="安装"></a>安装</h1><p>安装 termux ，可以参考 <a href="/2021/07/25/%E5%AE%89%E8%A3%85Termux/" title="这里">这里</a></p>
-<p>安装 mitmproxy</p>
-<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">pkg install libffi openssl python rust</span><br><span class="line">pip install mitmproxy</span><br><span class="line">mitmproxy --version</span><br></pre></td></tr></table></figure>
-
-<h1 id="测试"><a href="#测试" class="headerlink" title="测试"></a>测试</h1><p>测试 mitmproxy ，可以参考 <a href="/2021/07/24/%E5%AE%89%E8%A3%85mitmproxy/" title="这里">这里</a></p>
-]]></content>
-      <categories>
-        <category>Termux</category>
-      </categories>
-      <tags>
-        <tag>Termux</tag>
-        <tag>mitmproxy</tag>
-      </tags>
-  </entry>
-  <entry>
     <title>安装Termux</title>
     <url>/2021/07/25/%E5%AE%89%E8%A3%85Termux/</url>
     <content><![CDATA[<h1 id="安装"><a href="#安装" class="headerlink" title="安装"></a>安装</h1><p>方法1：打开 <a href="https://f-droid.org/packages/com.termux">https://f-droid.org/packages/com.termux</a> ，下载 APK 安装，推荐</p>
@@ -469,6 +452,24 @@
       </tags>
   </entry>
   <entry>
+    <title>安装dashboard</title>
+    <url>/2021/08/14/%E5%AE%89%E8%A3%85dashboard/</url>
+    <content><![CDATA[<h1 id="yaml安装"><a href="#yaml安装" class="headerlink" title="yaml安装"></a>yaml安装</h1><figure class="highlight shell"><table><tr><td class="code"><pre><span class="line"><span class="meta">#</span><span class="bash"> wget https://raw.githubusercontent.com/kubernetes/dashboard/v2.2.0/aio/deploy/recommended.yaml -O dashboard.yaml</span></span><br><span class="line">wget https://ghproxy.com/https://raw.githubusercontent.com/kubernetes/dashboard/v2.2.0/aio/deploy/recommended.yaml \</span><br><span class="line">-O dashboard.yaml</span><br><span class="line"><span class="meta">#</span><span class="bash"> 修改配置</span></span><br><span class="line"><span class="meta">#</span><span class="bash"><span class="comment"># 修改 namespace</span></span></span><br><span class="line"><span class="meta">#</span><span class="bash"><span class="comment"># 启用 NodePort</span></span></span><br><span class="line"><span class="meta">#</span><span class="bash"><span class="comment"># 修改 ClusterRoleBinding 中 ClusterRole 为 cluster-admin</span></span></span><br><span class="line">vi dashboard.yaml</span><br><span class="line"><span class="meta">#</span><span class="bash"> 提交</span></span><br><span class="line">kubectl apply -f dashboard.yaml</span><br></pre></td></tr></table></figure>
+
+<span id="more"></span>
+
+<h1 id="helm安装"><a href="#helm安装" class="headerlink" title="helm安装"></a>helm安装</h1><figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">helm repo add kubernetes-dashboard https://kubernetes.github.io/dashboard</span><br><span class="line">helm pull kubernetes-dashboard/kubernetes-dashboard --version 4.2.0</span><br><span class="line">tar zxvf kubernetes-dashboard-4.2.0.tgz </span><br><span class="line">cd kubernetes-dashboard</span><br><span class="line">cp values.yaml values-override.yaml</span><br><span class="line">vi values-override.yaml</span><br><span class="line"><span class="meta">#</span><span class="bash"><span class="comment">##</span></span></span><br><span class="line">extraArgs:</span><br><span class="line">  - --token-ttl=0</span><br><span class="line">service:</span><br><span class="line">  type: NodePort</span><br><span class="line">  nodePort: 30000</span><br><span class="line">metricsScraper:</span><br><span class="line">  enabled: true</span><br><span class="line">metrics-server:</span><br><span class="line">  enabled: true</span><br><span class="line">  args:</span><br><span class="line">    - --kubelet-preferred-address-types=InternalIP</span><br><span class="line">    - --kubelet-insecure-tls</span><br><span class="line"><span class="meta">#</span><span class="bash"><span class="comment">##</span></span></span><br><span class="line">helm install --create-namespace --namespace cmp-dashboard dashboard -f values-override.yaml .</span><br><span class="line"><span class="meta"></span></span><br><span class="line"><span class="meta">#</span><span class="bash"> 获取 token</span></span><br><span class="line">kubectl -n cmp-dashboard get secrets \</span><br><span class="line"><span class="meta">$</span><span class="bash">(kubectl -n cmp-dashboard get secrets | grep kubernetes-dashboard-token | awk <span class="string">&#x27;&#123;print $1&#125;&#x27;</span>) \</span></span><br><span class="line"><span class="bash">-o jsonpath=<span class="string">&quot;&#123;[&#x27;data&#x27;][&#x27;token&#x27;]&#125;&quot;</span> | base64 --decode &amp;&amp; <span class="built_in">echo</span></span></span><br><span class="line"><span class="meta"></span></span><br><span class="line"><span class="meta">#</span><span class="bash"> 提升权限</span></span><br><span class="line">vi dashboard-rbac.yaml</span><br><span class="line"><span class="meta">#</span><span class="bash"><span class="comment">##</span></span></span><br><span class="line">apiVersion: rbac.authorization.k8s.io/v1</span><br><span class="line">kind: ClusterRoleBinding</span><br><span class="line">metadata:</span><br><span class="line">  name: dashboard-kubernetes-dashboard</span><br><span class="line">roleRef:</span><br><span class="line">  apiGroup: rbac.authorization.k8s.io</span><br><span class="line">  kind: ClusterRole</span><br><span class="line">  name: cluster-admin</span><br><span class="line">subjects:</span><br><span class="line">  - kind: ServiceAccount</span><br><span class="line">	name: dashboard-kubernetes-dashboard</span><br><span class="line">namespace: cmp-dashboard</span><br><span class="line"><span class="meta">#</span><span class="bash"><span class="comment">##</span></span></span><br><span class="line">kubectl apply -f dashboard-rbac.yaml</span><br><span class="line"><span class="meta"></span></span><br><span class="line"><span class="meta">#</span><span class="bash"> 获取 token</span></span><br><span class="line">kubectl -n cmp-dashboard get secrets \</span><br><span class="line"><span class="meta">$</span><span class="bash">(kubectl -n cmp-dashboard get secrets | grep kubernetes-dashboard-token | awk <span class="string">&#x27;&#123;print $1&#125;&#x27;</span>) \</span></span><br><span class="line"><span class="bash">-o go-template=<span class="string">&quot;&#123;&#123;.data.token | base64decode&#125;&#125;&quot;</span> &amp;&amp; <span class="built_in">echo</span></span></span><br></pre></td></tr></table></figure>
+
+]]></content>
+      <categories>
+        <category>K8S</category>
+      </categories>
+      <tags>
+        <tag>K8S</tag>
+        <tag>harbor</tag>
+      </tags>
+  </entry>
+  <entry>
     <title>安装harbor</title>
     <url>/2021/08/14/%E5%AE%89%E8%A3%85harbor/</url>
     <content><![CDATA[<h1 id="添加仓库"><a href="#添加仓库" class="headerlink" title="添加仓库"></a>添加仓库</h1><figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">helm repo add harbor https://helm.goharbor.io</span><br></pre></td></tr></table></figure>
@@ -529,29 +530,6 @@
       </tags>
   </entry>
   <entry>
-    <title>安装rook-ceph</title>
-    <url>/2021/08/14/%E5%AE%89%E8%A3%85rook-ceph/</url>
-    <content><![CDATA[<h1 id="添加仓库"><a href="#添加仓库" class="headerlink" title="添加仓库"></a>添加仓库</h1><figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">helm repo add rook https://charts.rook.io/release</span><br></pre></td></tr></table></figure>
-
-<h1 id="下载指定版本，修改配置"><a href="#下载指定版本，修改配置" class="headerlink" title="下载指定版本，修改配置"></a>下载指定版本，修改配置</h1><figure class="highlight shell"><table><tr><td class="code"><pre><span class="line"><span class="meta">#</span><span class="bash"> rook-ceph</span></span><br><span class="line">helm fetch rook/rook-ceph --version 1.7.0</span><br><span class="line">tar zxvf rook-ceph-v1.7.0.tgz</span><br><span class="line">cd rook-ceph</span><br><span class="line">cp values.yaml values-override.yaml</span><br><span class="line">vi values-override.yaml</span><br><span class="line"><span class="meta">#</span><span class="bash"> rook-ceph-cluster</span></span><br><span class="line">helm fetch rook/rook-ceph-cluster --version 1.7.0</span><br><span class="line">tar zxvf rook-ceph-cluster-v1.7.0.tgz</span><br><span class="line">cd rook-ceph-cluster</span><br><span class="line">cp values.yaml values-override.yaml</span><br><span class="line">vi values-override.yaml</span><br></pre></td></tr></table></figure>
-
-<span id="more"></span>
-
-<h1 id="安装部署"><a href="#安装部署" class="headerlink" title="安装部署"></a>安装部署</h1><figure class="highlight shell"><table><tr><td class="code"><pre><span class="line"><span class="meta">#</span><span class="bash"> rook-ceph</span></span><br><span class="line">cd rook-ceph</span><br><span class="line">helm install --create-namespace --namespace rook-ceph rook-ceph -f values-override.yaml .</span><br><span class="line"><span class="meta">#</span><span class="bash"> rook-ceph-cluster</span></span><br><span class="line">cd rook-ceph-cluster</span><br><span class="line">helm install --create-namespace --namespace rook-ceph rook-ceph-cluster -f values-override.yaml .</span><br></pre></td></tr></table></figure>
-
-<h1 id="维护"><a href="#维护" class="headerlink" title="维护"></a>维护</h1><h2 id="通过-toolbox-维护"><a href="#通过-toolbox-维护" class="headerlink" title="通过 toolbox 维护"></a>通过 toolbox 维护</h2><figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">kubectl -n rook-ceph exec -it \</span><br><span class="line"><span class="meta">$</span><span class="bash">(kubectl -n rook-ceph get pod -l <span class="string">&quot;app=rook-ceph-tools&quot;</span> -o jsonpath=<span class="string">&#x27;&#123;.items[0].metadata.name&#125;&#x27;</span>) \</span></span><br><span class="line"><span class="bash">-- bash</span></span><br><span class="line">ceph status</span><br><span class="line">ceph df</span><br><span class="line">ceph osd status</span><br><span class="line">ceph osd df</span><br><span class="line">ceph osd tree</span><br><span class="line">ceph osd lspools</span><br></pre></td></tr></table></figure>
-
-<h2 id="通过-dashboard-维护"><a href="#通过-dashboard-维护" class="headerlink" title="通过 dashboard 维护"></a>通过 dashboard 维护</h2><figure class="highlight shell"><table><tr><td class="code"><pre><span class="line"><span class="meta">#</span><span class="bash"> 添加nodeport</span></span><br><span class="line">kubectl -n rook-ceph get svc rook-ceph-mgr-dashboard -o yaml &gt; rook-ceph-mgr-dashboard-nodeport.yaml</span><br><span class="line">vi rook-ceph-mgr-dashboard-nodeport.yaml</span><br><span class="line">kubectl apply -f rook-ceph-mgr-dashboard-nodeport.yaml</span><br><span class="line"><span class="meta">#</span><span class="bash"> 获取密码，账号：admin</span></span><br><span class="line">kubectl -n rook-ceph get secret rook-ceph-dashboard-password -o jsonpath=&quot;&#123;[&#x27;data&#x27;][&#x27;password&#x27;]&#125;&quot; | base64 --decode &amp;&amp; echo</span><br></pre></td></tr></table></figure>
-]]></content>
-      <categories>
-        <category>K8S</category>
-      </categories>
-      <tags>
-        <tag>K8S</tag>
-        <tag>ceph</tag>
-      </tags>
-  </entry>
-  <entry>
     <title>安装redsocks</title>
     <url>/2021/07/21/%E5%AE%89%E8%A3%85redsocks/</url>
     <content><![CDATA[<h1 id="安装"><a href="#安装" class="headerlink" title="安装"></a>安装</h1><figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">yum install libevent-devel git gcc</span><br><span class="line">git clone https://github.com/darkk/redsocks</span><br><span class="line">cd redsocks</span><br><span class="line">make</span><br><span class="line">cp redsocks /usr/bin</span><br></pre></td></tr></table></figure>
@@ -583,6 +561,29 @@
         <tag>Proxy</tag>
         <tag>redsocks</tag>
         <tag>iptables</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>安装rook-ceph</title>
+    <url>/2021/08/14/%E5%AE%89%E8%A3%85rook-ceph/</url>
+    <content><![CDATA[<h1 id="添加仓库"><a href="#添加仓库" class="headerlink" title="添加仓库"></a>添加仓库</h1><figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">helm repo add rook https://charts.rook.io/release</span><br></pre></td></tr></table></figure>
+
+<h1 id="下载指定版本，修改配置"><a href="#下载指定版本，修改配置" class="headerlink" title="下载指定版本，修改配置"></a>下载指定版本，修改配置</h1><figure class="highlight shell"><table><tr><td class="code"><pre><span class="line"><span class="meta">#</span><span class="bash"> rook-ceph</span></span><br><span class="line">helm fetch rook/rook-ceph --version 1.7.0</span><br><span class="line">tar zxvf rook-ceph-v1.7.0.tgz</span><br><span class="line">cd rook-ceph</span><br><span class="line">cp values.yaml values-override.yaml</span><br><span class="line">vi values-override.yaml</span><br><span class="line"><span class="meta">#</span><span class="bash"> rook-ceph-cluster</span></span><br><span class="line">helm fetch rook/rook-ceph-cluster --version 1.7.0</span><br><span class="line">tar zxvf rook-ceph-cluster-v1.7.0.tgz</span><br><span class="line">cd rook-ceph-cluster</span><br><span class="line">cp values.yaml values-override.yaml</span><br><span class="line">vi values-override.yaml</span><br></pre></td></tr></table></figure>
+
+<span id="more"></span>
+
+<h1 id="安装部署"><a href="#安装部署" class="headerlink" title="安装部署"></a>安装部署</h1><figure class="highlight shell"><table><tr><td class="code"><pre><span class="line"><span class="meta">#</span><span class="bash"> rook-ceph</span></span><br><span class="line">cd rook-ceph</span><br><span class="line">helm install --create-namespace --namespace rook-ceph rook-ceph -f values-override.yaml .</span><br><span class="line"><span class="meta">#</span><span class="bash"> rook-ceph-cluster</span></span><br><span class="line">cd rook-ceph-cluster</span><br><span class="line">helm install --create-namespace --namespace rook-ceph rook-ceph-cluster -f values-override.yaml .</span><br></pre></td></tr></table></figure>
+
+<h1 id="维护"><a href="#维护" class="headerlink" title="维护"></a>维护</h1><h2 id="通过-toolbox-维护"><a href="#通过-toolbox-维护" class="headerlink" title="通过 toolbox 维护"></a>通过 toolbox 维护</h2><figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">kubectl -n rook-ceph exec -it \</span><br><span class="line"><span class="meta">$</span><span class="bash">(kubectl -n rook-ceph get pod -l <span class="string">&quot;app=rook-ceph-tools&quot;</span> -o jsonpath=<span class="string">&#x27;&#123;.items[0].metadata.name&#125;&#x27;</span>) \</span></span><br><span class="line"><span class="bash">-- bash</span></span><br><span class="line">ceph status</span><br><span class="line">ceph df</span><br><span class="line">ceph osd status</span><br><span class="line">ceph osd df</span><br><span class="line">ceph osd tree</span><br><span class="line">ceph osd lspools</span><br></pre></td></tr></table></figure>
+
+<h2 id="通过-dashboard-维护"><a href="#通过-dashboard-维护" class="headerlink" title="通过 dashboard 维护"></a>通过 dashboard 维护</h2><figure class="highlight shell"><table><tr><td class="code"><pre><span class="line"><span class="meta">#</span><span class="bash"> 添加nodeport</span></span><br><span class="line">kubectl -n rook-ceph get svc rook-ceph-mgr-dashboard -o yaml &gt; rook-ceph-mgr-dashboard-nodeport.yaml</span><br><span class="line">vi rook-ceph-mgr-dashboard-nodeport.yaml</span><br><span class="line">kubectl apply -f rook-ceph-mgr-dashboard-nodeport.yaml</span><br><span class="line"><span class="meta">#</span><span class="bash"> 获取密码，账号：admin</span></span><br><span class="line">kubectl -n rook-ceph get secret rook-ceph-dashboard-password -o jsonpath=&quot;&#123;[&#x27;data&#x27;][&#x27;password&#x27;]&#125;&quot; | base64 --decode &amp;&amp; echo</span><br></pre></td></tr></table></figure>
+]]></content>
+      <categories>
+        <category>K8S</category>
+      </categories>
+      <tags>
+        <tag>K8S</tag>
+        <tag>ceph</tag>
       </tags>
   </entry>
   <entry>
@@ -648,21 +649,20 @@
       </tags>
   </entry>
   <entry>
-    <title>安装dashboard</title>
-    <url>/2021/08/14/%E5%AE%89%E8%A3%85dashboard/</url>
-    <content><![CDATA[<h1 id="yaml安装"><a href="#yaml安装" class="headerlink" title="yaml安装"></a>yaml安装</h1><figure class="highlight shell"><table><tr><td class="code"><pre><span class="line"><span class="meta">#</span><span class="bash"> wget https://raw.githubusercontent.com/kubernetes/dashboard/v2.2.0/aio/deploy/recommended.yaml -O dashboard.yaml</span></span><br><span class="line">wget https://ghproxy.com/https://raw.githubusercontent.com/kubernetes/dashboard/v2.2.0/aio/deploy/recommended.yaml \</span><br><span class="line">-O dashboard.yaml</span><br><span class="line"><span class="meta">#</span><span class="bash"> 修改配置</span></span><br><span class="line"><span class="meta">#</span><span class="bash"><span class="comment"># 修改 namespace</span></span></span><br><span class="line"><span class="meta">#</span><span class="bash"><span class="comment"># 启用 NodePort</span></span></span><br><span class="line"><span class="meta">#</span><span class="bash"><span class="comment"># 修改 ClusterRoleBinding 中 ClusterRole 为 cluster-admin</span></span></span><br><span class="line">vi dashboard.yaml</span><br><span class="line"><span class="meta">#</span><span class="bash"> 提交</span></span><br><span class="line">kubectl apply -f dashboard.yaml</span><br></pre></td></tr></table></figure>
+    <title>在Termux中安装mitmproxy</title>
+    <url>/2021/07/26/%E5%9C%A8Termux%E4%B8%AD%E5%AE%89%E8%A3%85mitmproxy/</url>
+    <content><![CDATA[<h1 id="安装"><a href="#安装" class="headerlink" title="安装"></a>安装</h1><p>安装 termux ，可以参考 <a href="/2021/07/25/%E5%AE%89%E8%A3%85Termux/" title="这里">这里</a></p>
+<p>安装 mitmproxy</p>
+<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">pkg install libffi openssl python rust</span><br><span class="line">pip install mitmproxy</span><br><span class="line">mitmproxy --version</span><br></pre></td></tr></table></figure>
 
-<span id="more"></span>
-
-<h1 id="helm安装"><a href="#helm安装" class="headerlink" title="helm安装"></a>helm安装</h1><figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">helm repo add kubernetes-dashboard https://kubernetes.github.io/dashboard</span><br><span class="line">helm pull kubernetes-dashboard/kubernetes-dashboard --version 4.2.0</span><br><span class="line">tar zxvf kubernetes-dashboard-4.2.0.tgz </span><br><span class="line">cd kubernetes-dashboard</span><br><span class="line">cp values.yaml values-override.yaml</span><br><span class="line">vi values-override.yaml</span><br><span class="line"><span class="meta">#</span><span class="bash"><span class="comment">##</span></span></span><br><span class="line">extraArgs:</span><br><span class="line">  - --token-ttl=0</span><br><span class="line">service:</span><br><span class="line">  type: NodePort</span><br><span class="line">  nodePort: 30000</span><br><span class="line">metricsScraper:</span><br><span class="line">  enabled: true</span><br><span class="line">metrics-server:</span><br><span class="line">  enabled: true</span><br><span class="line">  args:</span><br><span class="line">    - --kubelet-preferred-address-types=InternalIP</span><br><span class="line">    - --kubelet-insecure-tls</span><br><span class="line"><span class="meta">#</span><span class="bash"><span class="comment">##</span></span></span><br><span class="line">helm install --create-namespace --namespace cmp-dashboard dashboard -f values-override.yaml .</span><br><span class="line"><span class="meta"></span></span><br><span class="line"><span class="meta">#</span><span class="bash"> 获取 token</span></span><br><span class="line">kubectl -n cmp-dashboard get secrets \</span><br><span class="line"><span class="meta">$</span><span class="bash">(kubectl -n cmp-dashboard get secrets | grep kubernetes-dashboard-token | awk <span class="string">&#x27;&#123;print $1&#125;&#x27;</span>) \</span></span><br><span class="line"><span class="bash">-o jsonpath=<span class="string">&quot;&#123;[&#x27;data&#x27;][&#x27;token&#x27;]&#125;&quot;</span> | base64 --decode &amp;&amp; <span class="built_in">echo</span></span></span><br><span class="line"><span class="meta"></span></span><br><span class="line"><span class="meta">#</span><span class="bash"> 提升权限</span></span><br><span class="line">vi dashboard-rbac.yaml</span><br><span class="line"><span class="meta">#</span><span class="bash"><span class="comment">##</span></span></span><br><span class="line">apiVersion: rbac.authorization.k8s.io/v1</span><br><span class="line">kind: ClusterRoleBinding</span><br><span class="line">metadata:</span><br><span class="line">  name: dashboard-kubernetes-dashboard</span><br><span class="line">roleRef:</span><br><span class="line">  apiGroup: rbac.authorization.k8s.io</span><br><span class="line">  kind: ClusterRole</span><br><span class="line">  name: cluster-admin</span><br><span class="line">subjects:</span><br><span class="line">  - kind: ServiceAccount</span><br><span class="line">	name: dashboard-kubernetes-dashboard</span><br><span class="line">namespace: cmp-dashboard</span><br><span class="line"><span class="meta">#</span><span class="bash"><span class="comment">##</span></span></span><br><span class="line">kubectl apply -f dashboard-rbac.yaml</span><br><span class="line"><span class="meta"></span></span><br><span class="line"><span class="meta">#</span><span class="bash"> 获取 token</span></span><br><span class="line">kubectl -n cmp-dashboard get secrets \</span><br><span class="line"><span class="meta">$</span><span class="bash">(kubectl -n cmp-dashboard get secrets | grep kubernetes-dashboard-token | awk <span class="string">&#x27;&#123;print $1&#125;&#x27;</span>) \</span></span><br><span class="line"><span class="bash">-o go-template=<span class="string">&quot;&#123;&#123;.data.token | base64decode&#125;&#125;&quot;</span> &amp;&amp; <span class="built_in">echo</span></span></span><br></pre></td></tr></table></figure>
-
+<h1 id="测试"><a href="#测试" class="headerlink" title="测试"></a>测试</h1><p>测试 mitmproxy ，可以参考 <a href="/2021/07/24/%E5%AE%89%E8%A3%85mitmproxy/" title="这里">这里</a></p>
 ]]></content>
       <categories>
-        <category>K8S</category>
+        <category>Termux</category>
       </categories>
       <tags>
-        <tag>K8S</tag>
-        <tag>harbor</tag>
+        <tag>Termux</tag>
+        <tag>mitmproxy</tag>
       </tags>
   </entry>
 </search>
