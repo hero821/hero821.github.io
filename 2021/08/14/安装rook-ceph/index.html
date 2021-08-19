@@ -28,7 +28,7 @@
 <meta property="og:description" content="添加仓库1helm repo add rook https:&#x2F;&#x2F;charts.rook.io&#x2F;release  下载指定版本，修改配置123456789101112# rook-cephhelm fetch rook&#x2F;rook-ceph --version 1.7.0tar zxvf rook-ceph-v1.7.0.tgzcd rook-cephcp values.yaml values-ove">
 <meta property="og:locale" content="zh_CN">
 <meta property="article:published_time" content="2021-08-14T13:00:00.000Z">
-<meta property="article:modified_time" content="2021-08-14T17:21:52.572Z">
+<meta property="article:modified_time" content="2021-08-15T02:40:07.487Z">
 <meta property="article:author" content="hero821">
 <meta property="article:tag" content="K8S">
 <meta property="article:tag" content="ceph">
@@ -90,9 +90,9 @@
   <ul class="main-menu menu">
         <li class="menu-item menu-item-home"><a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a></li>
         <li class="menu-item menu-item-about"><a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>关于</a></li>
-        <li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签<span class="badge">24</span></a></li>
+        <li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签<span class="badge">29</span></a></li>
         <li class="menu-item menu-item-categories"><a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类<span class="badge">10</span></a></li>
-        <li class="menu-item menu-item-archives"><a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档<span class="badge">21</span></a></li>
+        <li class="menu-item menu-item-archives"><a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档<span class="badge">25</span></a></li>
       <li class="menu-item menu-item-search">
         <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
         </a>
@@ -165,7 +165,7 @@
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">21</span>
+          <span class="site-state-item-count">25</span>
           <span class="site-state-item-name">日志</span>
         </a>
       </div>
@@ -178,7 +178,7 @@
       <div class="site-state-item site-state-tags">
             <a href="/tags/">
           
-        <span class="site-state-item-count">24</span>
+        <span class="site-state-item-count">29</span>
         <span class="site-state-item-name">标签</span></a>
       </div>
   </nav>
@@ -304,7 +304,7 @@
 
 <h1 id="维护"><a href="#维护" class="headerlink" title="维护"></a>维护</h1><h2 id="通过-toolbox-维护"><a href="#通过-toolbox-维护" class="headerlink" title="通过 toolbox 维护"></a>通过 toolbox 维护</h2><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">kubectl -n rook-ceph exec -it \</span><br><span class="line"><span class="meta">$</span><span class="bash">(kubectl -n rook-ceph get pod -l <span class="string">&quot;app=rook-ceph-tools&quot;</span> -o jsonpath=<span class="string">&#x27;&#123;.items[0].metadata.name&#125;&#x27;</span>) \</span></span><br><span class="line"><span class="bash">-- bash</span></span><br><span class="line">ceph status</span><br><span class="line">ceph df</span><br><span class="line">ceph osd status</span><br><span class="line">ceph osd df</span><br><span class="line">ceph osd tree</span><br><span class="line">ceph osd lspools</span><br></pre></td></tr></table></figure>
 
-<h2 id="通过-dashboard-维护"><a href="#通过-dashboard-维护" class="headerlink" title="通过 dashboard 维护"></a>通过 dashboard 维护</h2><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#</span><span class="bash"> 添加nodeport</span></span><br><span class="line">kubectl -n rook-ceph get svc rook-ceph-mgr-dashboard -o yaml &gt; rook-ceph-mgr-dashboard-nodeport.yaml</span><br><span class="line">vi rook-ceph-mgr-dashboard-nodeport.yaml</span><br><span class="line">kubectl apply -f rook-ceph-mgr-dashboard-nodeport.yaml</span><br><span class="line"><span class="meta">#</span><span class="bash"> 获取密码，账号：admin</span></span><br><span class="line">kubectl -n rook-ceph get secret rook-ceph-dashboard-password -o jsonpath=&quot;&#123;[&#x27;data&#x27;][&#x27;password&#x27;]&#125;&quot; | base64 --decode &amp;&amp; echo</span><br></pre></td></tr></table></figure>
+<h2 id="通过-dashboard-维护"><a href="#通过-dashboard-维护" class="headerlink" title="通过 dashboard 维护"></a>通过 dashboard 维护</h2><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#</span><span class="bash"> 添加nodeport</span></span><br><span class="line">kubectl -n rook-ceph get svc rook-ceph-mgr-dashboard -o yaml &gt; rook-ceph-mgr-dashboard-nodeport.yaml</span><br><span class="line">vi rook-ceph-mgr-dashboard-nodeport.yaml</span><br><span class="line">kubectl apply -f rook-ceph-mgr-dashboard-nodeport.yaml</span><br><span class="line"><span class="meta">#</span><span class="bash"> 获取密码，账号：admin</span></span><br><span class="line">kubectl -n rook-ceph get secret rook-ceph-dashboard-password \</span><br><span class="line">-o jsonpath=&quot;&#123;[&#x27;data&#x27;][&#x27;password&#x27;]&#125;&quot; | base64 --decode &amp;&amp; echo</span><br></pre></td></tr></table></figure>
 
     </div>
 
