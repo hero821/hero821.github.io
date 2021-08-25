@@ -1,8 +1,32 @@
 <?xml version="1.0" encoding="utf-8"?>
 <search>
   <entry>
-    <title>CoreDNS使用etcd插件</title>
-    <url>/2021/07/24/CoreDNS%E4%BD%BF%E7%94%A8etcd%E6%8F%92%E4%BB%B6/</url>
+    <title>CentOS双网卡双IP双网关配置</title>
+    <url>/2021/08/24/CentOS%E5%8F%8C%E7%BD%91%E5%8D%A1%E5%8F%8CIP%E5%8F%8C%E7%BD%91%E5%85%B3%E9%85%8D%E7%BD%AE/</url>
+    <content><![CDATA[<h1 id="环境和现象"><a href="#环境和现象" class="headerlink" title="环境和现象"></a>环境和现象</h1><p>操作系统同时配置2个网卡</p>
+<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">[root@localhost ~]# ip addr</span><br><span class="line">2: ens192: &lt;BROADCAST,MULTICAST,UP,LOWER_UP&gt; mtu 1500 qdisc mq state UP group default qlen 1000</span><br><span class="line">    link/ether 00:50:56:b3:0b:5d brd ff:ff:ff:ff:ff:ff</span><br><span class="line">    inet 192.168.3.201/24 brd 192.168.3.255 scope global ens192</span><br><span class="line">       valid_lft forever preferred_lft forever</span><br><span class="line">    inet6 fe80::250:56ff:feb3:b5d/64 scope link </span><br><span class="line">       valid_lft forever preferred_lft forever</span><br><span class="line">3: ens224: &lt;BROADCAST,MULTICAST,UP,LOWER_UP&gt; mtu 1500 qdisc mq state UP group default qlen 1000</span><br><span class="line">    link/ether 00:50:56:b3:0c:3d brd ff:ff:ff:ff:ff:ff</span><br><span class="line">    inet 10.0.3.201/24 brd 10.0.3.255 scope global ens224</span><br><span class="line">       valid_lft forever preferred_lft forever</span><br><span class="line">    inet6 fe80::250:56ff:feb3:c3d/64 scope link </span><br><span class="line">       valid_lft forever preferred_lft forever</span><br></pre></td></tr></table></figure>
+
+<p>路由表默认网关只能同时存在1个，2个网卡都设置网关，后者会覆盖前者</p>
+<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">[root@localhost ~]# ip route</span><br><span class="line">default via 192.168.3.254 dev ens192</span><br><span class="line">192.168.3.0/24 dev ens192 proto kernel scope link src 192.168.3.201</span><br><span class="line">10.0.3.0/24 dev ens224 proto kernel scope link src 10.0.3.201</span><br></pre></td></tr></table></figure>
+
+<p>192.168.3.201 可以ping通，10.0.3.201 无法ping通</p>
+<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">[root@localhost ~]# ping 192.168.3.201 -c 1</span><br><span class="line">PING 192.168.3.201 (192.168.3.201) 56(84) bytes of data.</span><br><span class="line">64 bytes from 192.168.3.201: icmp_seq=1 ttl=128 time=5.27 ms</span><br><span class="line"></span><br><span class="line">--- 192.168.3.201 ping statistics ---</span><br><span class="line">1 packets transmitted, 1 received, 0% packet loss, time 0ms</span><br><span class="line">rtt min/avg/max/mdev = 5.272/5.272/5.272/0.000 ms</span><br><span class="line"></span><br><span class="line">[root@localhost ~]# ping 10.0.3.1 -c 1</span><br><span class="line">PING 10.0.3.1 (10.0.3.1) 56(84) bytes of data.</span><br><span class="line">^C</span><br><span class="line">--- 10.0.3.1 ping statistics ---</span><br><span class="line">1 packets transmitted, 0 received, 100% packet loss, time 0ms</span><br></pre></td></tr></table></figure>
+
+<h1 id="分析原因"><a href="#分析原因" class="headerlink" title="分析原因"></a>分析原因</h1><p>TODO</p>
+<h1 id="解决问题"><a href="#解决问题" class="headerlink" title="解决问题"></a>解决问题</h1><figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">echo 251 ens192 &gt;&gt; /etc/iproute2/rt_tables</span><br><span class="line">echo 252 ens224 &gt;&gt; /etc/iproute2/rt_tables</span><br><span class="line"></span><br><span class="line">ip route flush table ens192</span><br><span class="line">ip route flush table ens224</span><br><span class="line"></span><br><span class="line">ip route add default via 192.168.3.254 dev ens192 src 192.168.3.201 table ens192</span><br><span class="line">ip route add default via 10.0.3.254 dev ens224 src 10.0.3.201 table ens224</span><br><span class="line"></span><br><span class="line">ip rule add from 192.168.3.201/32 table ens192</span><br><span class="line">ip rule add from 10.0.3.201/32 table ens224</span><br></pre></td></tr></table></figure>
+
+]]></content>
+      <categories>
+        <category>网络</category>
+      </categories>
+      <tags>
+        <tag>网络</tag>
+        <tag>路由</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>CoreDNS之etcd插件</title>
+    <url>/2021/07/24/CoreDNS%E4%B9%8Betcd%E6%8F%92%E4%BB%B6/</url>
     <content><![CDATA[<h1 id="配置etcd"><a href="#配置etcd" class="headerlink" title="配置etcd"></a>配置etcd</h1><figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">docker run -d --name etcd \</span><br><span class="line">-p 2379:2379 \</span><br><span class="line">-p 2380:2380 \</span><br><span class="line">--env ALLOW_NONE_AUTHENTICATION=yes \</span><br><span class="line">bitnami/etcd:3.4.16-debian-10-r28</span><br><span class="line"></span><br><span class="line">docker run -it --rm \</span><br><span class="line">--env ALLOW_NONE_AUTHENTICATION=yes \</span><br><span class="line">bitnami/etcd:3.4.16-debian-10-r28 \</span><br><span class="line">etcdctl --endpoints http://172.17.0.1:2379 put /key1 value1</span><br><span class="line"></span><br><span class="line">docker run -it --rm \</span><br><span class="line">--env ALLOW_NONE_AUTHENTICATION=yes \</span><br><span class="line">bitnami/etcd:3.4.16-debian-10-r28 \</span><br><span class="line">etcdctl --endpoints http://172.17.0.1:2379 get / --prefix</span><br></pre></td></tr></table></figure>
 
 <span id="more"></span>
@@ -221,73 +245,6 @@
       </tags>
   </entry>
   <entry>
-    <title>在Termux中安装mitmproxy</title>
-    <url>/2021/07/26/%E5%9C%A8Termux%E4%B8%AD%E5%AE%89%E8%A3%85mitmproxy/</url>
-    <content><![CDATA[<h1 id="安装"><a href="#安装" class="headerlink" title="安装"></a>安装</h1><p>安装 termux ，可以参考 <a href="/2021/07/25/%E5%AE%89%E8%A3%85Termux/" title="这里">这里</a></p>
-<p>安装 mitmproxy</p>
-<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">pkg install libffi openssl python rust</span><br><span class="line">pip install mitmproxy</span><br><span class="line">mitmproxy --version</span><br></pre></td></tr></table></figure>
-
-<h1 id="测试"><a href="#测试" class="headerlink" title="测试"></a>测试</h1><p>测试 mitmproxy ，可以参考 <a href="/2021/07/24/%E5%AE%89%E8%A3%85mitmproxy/" title="这里">这里</a></p>
-]]></content>
-      <categories>
-        <category>Termux</category>
-      </categories>
-      <tags>
-        <tag>Termux</tag>
-        <tag>mitmproxy</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>升级jar包中单文件</title>
-    <url>/2020/10/01/%E5%8D%87%E7%BA%A7jar%E5%8C%85%E4%B8%AD%E5%8D%95%E6%96%87%E4%BB%B6/</url>
-    <content><![CDATA[<h1 id="发现问题"><a href="#发现问题" class="headerlink" title="发现问题"></a>发现问题</h1><p>开发springboot项目的时候，我们经常会以jar包的形式进行部署。这个时候，如果需要修改某一个文件，那么该怎么升级呢？</p>
-<ul>
-<li>本地重新打包，全包上传到服务器</li>
-<li>只上传单文件到服务器，在服务器上把单文件合并到原来的jar包中</li>
-</ul>
-<p>显然，第一种方案在网速较慢的时候，是影响工作效率的。</p>
-<span id="more"></span>
-
-<h1 id="解决问题"><a href="#解决问题" class="headerlink" title="解决问题"></a>解决问题</h1><h2 id="过程"><a href="#过程" class="headerlink" title="过程"></a>过程</h2><p>查看help：</p>
-<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">[security@localhost jars]$ jar</span><br><span class="line">用法: jar &#123;ctxui&#125;[vfm0Me] [jar-file] [manifest-file] [entry-point] [-C dir] files ...</span><br><span class="line">选项包括: </span><br><span class="line">    -c  创建新的归档文件</span><br><span class="line">    -t  列出归档目录</span><br><span class="line">    -x  从档案中提取指定的 (或所有) 文件</span><br><span class="line">    -u  更新现有的归档文件</span><br><span class="line">    -v  在标准输出中生成详细输出</span><br><span class="line">    -f  指定归档文件名</span><br><span class="line">    -m  包含指定清单文件中的清单信息</span><br><span class="line">    -e  为捆绑到可执行 jar 文件的独立应用程序</span><br><span class="line">        指定应用程序入口点</span><br><span class="line">    -0  仅存储; 不使用情况任何 ZIP 压缩</span><br><span class="line">    -M  不创建条目的清单文件</span><br><span class="line">    -i  为指定的 jar 文件生成索引信息</span><br><span class="line">    -C  更改为指定的目录并包含其中的文件</span><br><span class="line">如果有任何目录文件, 则对其进行递归处理。</span><br><span class="line">清单文件名, 归档文件名和入口点名称的指定顺序</span><br><span class="line">与 &#x27;m&#x27;, &#x27;f&#x27; 和 &#x27;e&#x27; 标记的指定顺序相同。</span><br><span class="line"></span><br><span class="line">示例 1: 将两个类文件归档到一个名为 classes.jar 的归档文件中: </span><br><span class="line">       jar cvf classes.jar Foo.class Bar.class </span><br><span class="line">示例 2: 使用现有的清单文件 &#x27;mymanifest&#x27; 并</span><br><span class="line">           将 foo/ 目录中的所有文件归档到 &#x27;classes.jar&#x27; 中: </span><br><span class="line">       jar cvfm classes.jar mymanifest -C foo/ .</span><br></pre></td></tr></table></figure>
-
-<h2 id="结论"><a href="#结论" class="headerlink" title="结论"></a>结论</h2><ul>
-<li>查看文件在jar包中的路径</li>
-</ul>
-<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">[security@localhost jars]$ jar tvf service.jar |grep todo</span><br><span class="line">  304 Fri Aug 23 12:00:00 CST 2019 BOOT-INF/classes/templates/todo.ftl</span><br></pre></td></tr></table></figure>
-
-<ul>
-<li>解压出文件</li>
-</ul>
-<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">[security@localhost jars]$ jar xvf service.jar BOOT-INF/classes/templates/todo.ftl</span><br><span class="line">  已解压: BOOT-INF/classes/templates/todo.ftl</span><br></pre></td></tr></table></figure>
-
-<ul>
-<li>覆盖解压出的文件</li>
-</ul>
-<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">mv todo.ftl BOOT-INF/classes/templates/todo.ftl</span><br></pre></td></tr></table></figure>
-
-<ul>
-<li>合并文件到jar包中</li>
-</ul>
-<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">[security@localhost jars]$ jar uvf service.jar BOOT-INF/classes/templates/todo.ftl</span><br><span class="line">  正在添加: BOOT-INF/classes/templates/todo.ftl(输入 = 304) (输出 = 195)(压缩了 35%)</span><br></pre></td></tr></table></figure>
-
-<ul>
-<li>删除解压出的文件</li>
-</ul>
-<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">[security@localhost jars]$ rm -rf BOOT-INF</span><br></pre></td></tr></table></figure>
-
-<ul>
-<li>重启服务</li>
-</ul>
-]]></content>
-      <categories>
-        <category>Java</category>
-      </categories>
-      <tags>
-        <tag>Java</tag>
-      </tags>
-  </entry>
-  <entry>
     <title>安装CoreDNS</title>
     <url>/2021/07/24/%E5%AE%89%E8%A3%85CoreDNS/</url>
     <content><![CDATA[<h1 id="安装"><a href="#安装" class="headerlink" title="安装"></a>安装</h1><h2 id="二进制"><a href="#二进制" class="headerlink" title="二进制"></a>二进制</h2><figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">wget https://github.com/coredns/coredns/releases/download/v1.8.4/coredns_1.8.4_linux_amd64.tgz</span><br><span class="line">mkdir coredns_1.8.4_linux_amd64</span><br><span class="line">tar zxvf coredns_1.8.4_linux_amd64.tgz -C coredns_1.8.4_linux_amd64</span><br></pre></td></tr></table></figure>
@@ -309,6 +266,28 @@
       <tags>
         <tag>DNS</tag>
         <tag>CoreDNS</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>安装EFK</title>
+    <url>/2021/08/18/%E5%AE%89%E8%A3%85EFK/</url>
+    <content><![CDATA[<h1 id="介绍"><a href="#介绍" class="headerlink" title="介绍"></a>介绍</h1><p>EFK有两种组合方式，各有优缺点</p>
+<p>elasticsearch + fluentd + kibana，是 kubernetes 官方推荐</p>
+<p>elasticsearch + filebeat + kibana，是 elastic 技术栈</p>
+<span id="more"></span>
+
+<h1 id="安装"><a href="#安装" class="headerlink" title="安装"></a>安装</h1><h2 id="EFK-fluentd"><a href="#EFK-fluentd" class="headerlink" title="EFK | fluentd"></a>EFK | fluentd</h2><h3 id="YAML-安装"><a href="#YAML-安装" class="headerlink" title="YAML 安装"></a>YAML 安装</h3><p>参考：<a href="https://github.com/kubernetes/kubernetes/tree/master/cluster/addons/fluentd-elasticsearch">https://github.com/kubernetes/kubernetes/tree/master/cluster/addons/fluentd-elasticsearch</a></p>
+<h3 id="HELM-安装"><a href="#HELM-安装" class="headerlink" title="HELM 安装"></a>HELM 安装</h3><figure class="highlight shell"><table><tr><td class="code"><pre><span class="line"><span class="meta">#</span><span class="bash"> 添加仓库</span></span><br><span class="line">helm repo add bitnami https://charts.bitnami.com/bitnami</span><br><span class="line"><span class="meta"></span></span><br><span class="line"><span class="meta">#</span><span class="bash"> 部署 7.9.2 版本</span></span><br><span class="line">helm search repo bitnami/elasticsearch --versions</span><br><span class="line">helm pull bitnami/elasticsearch --version 12.8.0</span><br><span class="line">tar zxvf elasticsearch-12.8.0.tgz </span><br><span class="line">cd elasticsearch</span><br><span class="line">cp values.yaml values-override.yaml</span><br><span class="line">vi values-override.yaml</span><br><span class="line"><span class="meta">#</span><span class="bash"><span class="comment">##</span></span></span><br><span class="line">master:</span><br><span class="line">  replicas: 1</span><br><span class="line">  heapSize: 256m</span><br><span class="line">coordinating:</span><br><span class="line">  replicas: 1</span><br><span class="line">  heapSize: 256m</span><br><span class="line">  service:</span><br><span class="line">    type: NodePort</span><br><span class="line">    nodePort: 30014</span><br><span class="line">data:</span><br><span class="line">  replicas: 1</span><br><span class="line">  heapSize: 256m</span><br><span class="line"><span class="meta">#</span><span class="bash"><span class="comment">##</span></span></span><br><span class="line">helm install --create-namespace --namespace cmp-efk elasticsearch -f values-override.yaml .</span><br><span class="line"><span class="meta"></span></span><br><span class="line"><span class="meta">#</span><span class="bash"> 部署 7.9.2 版本</span></span><br><span class="line">helm search repo bitnami/kibana --versions</span><br><span class="line">helm pull bitnami/kibana --version 5.3.14</span><br><span class="line">tar zxvf kibana-5.3.14.tgz </span><br><span class="line">cd kibana</span><br><span class="line">cp values.yaml values-override.yaml</span><br><span class="line">vi values-override.yaml</span><br><span class="line"><span class="meta">#</span><span class="bash"><span class="comment">##</span></span></span><br><span class="line">service:</span><br><span class="line">  type: NodePort</span><br><span class="line">  nodePort: 30016</span><br><span class="line">elasticsearch:</span><br><span class="line">  hosts:</span><br><span class="line">    - elasticsearch-elasticsearch-coordinating-only</span><br><span class="line">  port: 9200</span><br><span class="line"><span class="meta">#</span><span class="bash"><span class="comment">##</span></span></span><br><span class="line">helm install --create-namespace --namespace cmp-efk kibana -f values-override.yaml .</span><br><span class="line"><span class="meta"></span></span><br><span class="line"><span class="meta">#</span><span class="bash"> 部署 3.7.4 版本</span></span><br><span class="line">helm search repo bitnami/fluentd --versions</span><br><span class="line">helm pull bitnami/fluentd --version 3.7.4</span><br><span class="line">tar zxvf fluentd-3.7.4.tgz </span><br><span class="line">cd fluentd</span><br><span class="line">cp values.yaml values-override.yaml</span><br><span class="line">vi values-override.yaml</span><br><span class="line"><span class="meta">#</span><span class="bash"><span class="comment">##</span></span></span><br><span class="line">forwarder:</span><br><span class="line">  configMapFiles:</span><br><span class="line">    fluentd-inputs.conf: |</span><br><span class="line">      &lt;source&gt;</span><br><span class="line">        @type http</span><br><span class="line">        port 9880</span><br><span class="line">      &lt;/source&gt;</span><br><span class="line">      &lt;source&gt;</span><br><span class="line">        @id fluentd-containers.log</span><br><span class="line">        @type tail</span><br><span class="line">        path /var/log/containers/*.log</span><br><span class="line">        pos_file /opt/bitnami/fluentd/logs/buffers/fluentd-docker.pos</span><br><span class="line">        tag raw.kubernetes.*</span><br><span class="line">        read_from_head true</span><br><span class="line">        &lt;parse&gt;</span><br><span class="line">          @type multi_format</span><br><span class="line">          &lt;pattern&gt;</span><br><span class="line">            format json</span><br><span class="line">            time_key time</span><br><span class="line">            time_format %Y-%m-%dT%H:%M:%S.%NZ</span><br><span class="line">          &lt;/pattern&gt;</span><br><span class="line">          &lt;pattern&gt;</span><br><span class="line">            format /^(?&lt;time&gt;.+) (?&lt;stream&gt;stdout|stderr) [^ ]* (?&lt;log&gt;.*)$/</span><br><span class="line">            time_format %Y-%m-%dT%H:%M:%S.%N%:z</span><br><span class="line">          &lt;/pattern&gt;</span><br><span class="line">        &lt;/parse&gt;</span><br><span class="line">      &lt;/source&gt;</span><br><span class="line">      &lt;match raw.kubernetes.**&gt;</span><br><span class="line">        @id raw.kubernetes</span><br><span class="line">        @type detect_exceptions</span><br><span class="line">        remove_tag_prefix raw</span><br><span class="line">        message log</span><br><span class="line">        stream stream</span><br><span class="line">        multiline_flush_interval 5</span><br><span class="line">        max_bytes 500000</span><br><span class="line">        max_lines 1000</span><br><span class="line">      &lt;/match&gt;</span><br><span class="line">      &lt;filter **&gt;</span><br><span class="line">        @id filter_concat</span><br><span class="line">        @type concat</span><br><span class="line">        key message</span><br><span class="line">        multiline_end_regexp /\n$/</span><br><span class="line">        separator &quot;&quot;</span><br><span class="line">      &lt;/filter&gt;</span><br><span class="line">      &lt;filter kubernetes.**&gt;</span><br><span class="line">        @id filter_kubernetes_metadata</span><br><span class="line">        @type kubernetes_metadata</span><br><span class="line">      &lt;/filter&gt;</span><br><span class="line">      &lt;filter kubernetes.**&gt;</span><br><span class="line">        @id filter_parser</span><br><span class="line">        @type parser</span><br><span class="line">        key_name log</span><br><span class="line">        reserve_data true</span><br><span class="line">        remove_key_name_field true</span><br><span class="line">        &lt;parse&gt;</span><br><span class="line">          @type multi_format</span><br><span class="line">          &lt;pattern&gt;</span><br><span class="line">            format json</span><br><span class="line">          &lt;/pattern&gt;</span><br><span class="line">          &lt;pattern&gt;</span><br><span class="line">            format none</span><br><span class="line">          &lt;/pattern&gt;</span><br><span class="line">        &lt;/parse&gt;</span><br><span class="line">      &lt;/filter&gt;</span><br><span class="line">      &lt;filter kubernetes.**&gt;</span><br><span class="line">        @id filter_record_transformer_kubernetes</span><br><span class="line">        @type record_transformer</span><br><span class="line">        enable_ruby true</span><br><span class="line">        &lt;record&gt;</span><br><span class="line">          level INFO</span><br><span class="line">          _tmp1_ $&#123;record[&quot;kubernetes&quot;][&quot;namespace&quot;] = record[&quot;kubernetes&quot;][&quot;namespace_name&quot;]&#125;</span><br><span class="line">          _tmp2_ $&#123;record[&quot;kubernetes&quot;][&quot;pod&quot;] = &#123;&quot;name&quot;: record[&quot;kubernetes&quot;][&quot;pod_name&quot;]&#125;&#125;</span><br><span class="line">          _tmp3_ $&#123;record[&quot;kubernetes&quot;][&quot;container&quot;] = &#123;&quot;name&quot;: record[&quot;kubernetes&quot;][&quot;container_name&quot;]&#125;&#125;</span><br><span class="line">          _tmp4_ $&#123;record[&quot;kubernetes&quot;][&quot;node&quot;] = &#123;&quot;name&quot;: record[&quot;kubernetes&quot;][&quot;host&quot;]&#125;&#125;</span><br><span class="line">        &lt;/record&gt;</span><br><span class="line">        remove_keys _tmp1_,_tmp2_,_tmp3_,_tmp4_</span><br><span class="line">      &lt;/filter&gt;</span><br><span class="line">aggregator:</span><br><span class="line">  configMapFiles:</span><br><span class="line">    fluentd-output.conf: |</span><br><span class="line">      &lt;match fluentd.healthcheck&gt;</span><br><span class="line">        @type stdout</span><br><span class="line">      &lt;/match&gt;</span><br><span class="line">      &lt;match **&gt;</span><br><span class="line">        @id elasticsearch</span><br><span class="line">        @type elasticsearch</span><br><span class="line">        @log_level info</span><br><span class="line">        type_name _doc</span><br><span class="line">        include_tag_key true</span><br><span class="line">        host &quot;#&#123;ENV[&#x27;ELASTICSEARCH_HOST&#x27;]&#125;&quot;</span><br><span class="line">        port &quot;#&#123;ENV[&#x27;ELASTICSEARCH_PORT&#x27;]&#125;&quot;</span><br><span class="line">        logstash_format true</span><br><span class="line">        &lt;buffer&gt;</span><br><span class="line">          @type file</span><br><span class="line">          path /opt/bitnami/fluentd/logs/buffers/logs.buffer</span><br><span class="line">          flush_mode interval</span><br><span class="line">          retry_type exponential_backoff</span><br><span class="line">          flush_thread_count 2</span><br><span class="line">          flush_interval 5s</span><br><span class="line">          retry_forever</span><br><span class="line">          retry_max_interval 30</span><br><span class="line">          chunk_limit_size 2M</span><br><span class="line">          total_limit_size 500M</span><br><span class="line">          overflow_action block</span><br><span class="line">        &lt;/buffer&gt;</span><br><span class="line">      &lt;/match&gt;</span><br><span class="line">  extraEnv:</span><br><span class="line">    - name: ELASTICSEARCH_HOST</span><br><span class="line">      value: &quot;elasticsearch-elasticsearch-coordinating-only&quot;</span><br><span class="line">    - name: ELASTICSEARCH_PORT</span><br><span class="line">      value: &quot;9200&quot;</span><br><span class="line"><span class="meta">#</span><span class="bash"><span class="comment">##</span></span></span><br><span class="line">helm install --create-namespace --namespace cmp-efk fluentd -f values-override.yaml .</span><br></pre></td></tr></table></figure>
+
+<h2 id="EFK-filebeat"><a href="#EFK-filebeat" class="headerlink" title="EFK | filebeat"></a>EFK | filebeat</h2><h3 id="HELM-安装-1"><a href="#HELM-安装-1" class="headerlink" title="HELM 安装"></a>HELM 安装</h3><figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">helm repo add elastic https://helm.elastic.co</span><br><span class="line"></span><br><span class="line">helm pull elastic/elasticsearch --version 7.9.2</span><br><span class="line">helm pull elastic/kibana --version 7.9.2</span><br><span class="line">helm pull elastic/filebeat --version 7.9.2</span><br><span class="line"></span><br><span class="line">vi elasticsearch-values.yaml</span><br><span class="line"><span class="meta">#</span><span class="bash"><span class="comment">##</span></span></span><br><span class="line">fullnameOverride: elasticsearch</span><br><span class="line">replicas: 1</span><br><span class="line">minimumMasterNodes: 1</span><br><span class="line">service:</span><br><span class="line">  type: NodePort</span><br><span class="line">  nodePort: 30014</span><br><span class="line"><span class="meta">#</span><span class="bash"><span class="comment">##</span></span></span><br><span class="line">vi filebeat-values.yaml</span><br><span class="line"><span class="meta">#</span><span class="bash"><span class="comment">##</span></span></span><br><span class="line">fullnameOverride: filebeat</span><br><span class="line"><span class="meta">#</span><span class="bash"><span class="comment">##</span></span></span><br><span class="line">vi kibana-values.yaml</span><br><span class="line"><span class="meta">#</span><span class="bash"><span class="comment">##</span></span></span><br><span class="line">fullnameOverride: kibana</span><br><span class="line">service:</span><br><span class="line">  type: NodePort</span><br><span class="line">  nodePort: 30016</span><br><span class="line"><span class="meta">#</span><span class="bash"><span class="comment">##</span></span></span><br><span class="line"></span><br><span class="line">helm install --create-namespace --namespace cmp-efk elasticsearch -f elasticsearch-values.yaml ./elasticsearch</span><br><span class="line">helm install --create-namespace --namespace cmp-efk filebeat -f filebeat-values.yaml ./filebeat</span><br><span class="line">helm install --create-namespace --namespace cmp-efk kibana -f kibana-values.yaml ./kibana</span><br></pre></td></tr></table></figure>
+
+]]></content>
+      <categories>
+        <category>K8S</category>
+      </categories>
+      <tags>
+        <tag>K8S</tag>
+        <tag>EFK</tag>
       </tags>
   </entry>
   <entry>
@@ -342,50 +321,6 @@
       <tags>
         <tag>K8S</tag>
         <tag>MetalLB</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>安装Termux</title>
-    <url>/2021/07/25/%E5%AE%89%E8%A3%85Termux/</url>
-    <content><![CDATA[<h1 id="安装"><a href="#安装" class="headerlink" title="安装"></a>安装</h1><p>方法1：打开 <a href="https://f-droid.org/packages/com.termux">https://f-droid.org/packages/com.termux</a> ，下载 APK 安装，推荐</p>
-<p>方法2：打开 google play store 搜索 termux ，直接安装</p>
-<span id="more"></span>
-
-<h1 id="配置"><a href="#配置" class="headerlink" title="配置"></a>配置</h1><h2 id="修改-apt-软件源"><a href="#修改-apt-软件源" class="headerlink" title="修改 apt 软件源"></a>修改 apt 软件源</h2><figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">sed -i &#x27;s@^\(deb.*stable main\)$@#\1\ndeb https://mirrors.tuna.tsinghua.edu.cn/termux/termux-packages-24 stable main@&#x27; \</span><br><span class="line"><span class="meta">$</span><span class="bash">PREFIX/etc/apt/sources.list</span></span><br><span class="line">sed -i &#x27;s@^\(deb.*games stable\)$@#\1\ndeb https://mirrors.tuna.tsinghua.edu.cn/termux/game-packages-24 games stable@&#x27; \</span><br><span class="line"><span class="meta">$</span><span class="bash">PREFIX/etc/apt/sources.list.d/game.list</span></span><br><span class="line">sed -i &#x27;s@^\(deb.*science stable\)$@#\1\ndeb https://mirrors.tuna.tsinghua.edu.cn/termux/science-packages-24 science stable@&#x27; \</span><br><span class="line"><span class="meta">$</span><span class="bash">PREFIX/etc/apt/sources.list.d/science.list</span></span><br><span class="line">pkg update</span><br></pre></td></tr></table></figure>
-
-<h2 id="访问手机存储"><a href="#访问手机存储" class="headerlink" title="访问手机存储"></a>访问手机存储</h2><figure class="highlight shell"><table><tr><td class="code"><pre><span class="line"><span class="meta">#</span><span class="bash"> 获取权限，会在 home 下生成 storage 目录</span></span><br><span class="line">termux-setup-storage</span><br><span class="line"><span class="meta">#</span><span class="bash"> 查看 storage 目录结构</span></span><br><span class="line">tree storage</span><br><span class="line">storage</span><br><span class="line">├── dcim -&gt; /storage/emulated/0/DCIM</span><br><span class="line">├── downloads -&gt; /storage/emulated/0/Download</span><br><span class="line">├── movies -&gt; /storage/emulated/0/Movies</span><br><span class="line">├── music -&gt; /storage/emulated/0/Music</span><br><span class="line">├── pictures -&gt; /storage/emulated/0/Pictures</span><br><span class="line">└── shared -&gt; /storage/emulated/0</span><br><span class="line"></span><br><span class="line">6 directories, 0 files</span><br></pre></td></tr></table></figure>
-
-<h1 id="使用"><a href="#使用" class="headerlink" title="使用"></a>使用</h1><h2 id="安装-SSH-服务"><a href="#安装-SSH-服务" class="headerlink" title="安装 SSH 服务"></a>安装 SSH 服务</h2><p><strong>安装 OPENSSH</strong></p>
-<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">pkg install openssh</span><br><span class="line"><span class="meta">#</span><span class="bash"> 启动sshd</span></span><br><span class="line">sshd</span><br><span class="line"><span class="meta">#</span><span class="bash"> 停止sshd</span></span><br><span class="line">pkill sshd</span><br><span class="line"><span class="meta">#</span><span class="bash"> 修改密码</span></span><br><span class="line">passwd</span><br><span class="line"><span class="meta">#</span><span class="bash"> 获取用户</span></span><br><span class="line">id</span><br><span class="line">uid=10300(u0_a300) gid=10300(u0_a300) groups=10300(u0_a300),3003(inet),9997(everybody),20300(u0_a300_cache),50300(all_a300)</span><br></pre></td></tr></table></figure>
-
-<p><strong>配置远程登录</strong></p>
-<p>方法1：通过密码登录</p>
-<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line"><span class="meta">#</span><span class="bash"> 查看 termux 配置，默认 PasswordAuthentication yes</span></span><br><span class="line">cat $PREFIX/etc/ssh/sshd_config</span><br></pre></td></tr></table></figure>
-
-<p>方法2：在客户端生成秘钥对</p>
-<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line"><span class="meta">#</span><span class="bash"> 生成密钥对，复制 id_rsa.pub 内容到 termux：data\data\com.termux\files\home\.ssh\authorized_keys</span></span><br><span class="line">ssh-keygen</span><br></pre></td></tr></table></figure>
-
-<p>方法3：在 termux 生成秘钥对</p>
-<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line"><span class="meta">#</span><span class="bash"> 生成密钥对，复制 id_rsa 到客户端</span></span><br><span class="line">ssh-keygen</span><br><span class="line">cd .ssh</span><br><span class="line">cat id_rsa.pub &gt; authorized_keys</span><br></pre></td></tr></table></figure>
-
-<p>方法4：直接使用 openssh 安装的时候生成的密钥对</p>
-<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line"><span class="meta">#</span><span class="bash"> 复制 ssh_host_rsa_key.pub 到 authorized_keys</span></span><br><span class="line">cat ../usr/etc/ssh/ssh_host_rsa_key.pub &gt; .ssh/authorized_keys</span><br><span class="line"><span class="meta">#</span><span class="bash"> 复制 ssh_host_rsa_key 到 客户端</span></span><br><span class="line">cat ../usr/etc/ssh/ssh_host_rsa_key</span><br></pre></td></tr></table></figure>
-
-<p><strong>客户端登录</strong></p>
-<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line"><span class="meta">#</span><span class="bash"> 密码登录</span></span><br><span class="line">ssh u0_a300@192.168.137.2 -p 8022</span><br><span class="line"><span class="meta">#</span><span class="bash"> 密钥登录</span></span><br><span class="line">ssh -i ~/.ssh/id_rsa 192.168.137.2 -p 8022</span><br></pre></td></tr></table></figure>
-
-<h2 id="查看监听端口"><a href="#查看监听端口" class="headerlink" title="查看监听端口"></a>查看监听端口</h2><p>Andorid 10 版本以后的 Termux 无法正常使用 netstat -an 命令，可以通过 nmap 命令查看</p>
-<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line"><span class="meta">#</span><span class="bash"> 安装nmap</span></span><br><span class="line">pkg install nmap</span><br><span class="line"><span class="meta">#</span><span class="bash"> 扫描端口</span></span><br><span class="line">nmap 127.0.0.1</span><br></pre></td></tr></table></figure>
-
-<h1 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h1><p><a href="https://www.sqlsec.com/2018/05/termux.html">https://www.sqlsec.com/2018/05/termux.html</a></p>
-<p><a href="https://github.com/termux/termux-app">https://github.com/termux/termux-app</a></p>
-]]></content>
-      <categories>
-        <category>Termux</category>
-      </categories>
-      <tags>
-        <tag>Termux</tag>
-        <tag>手机</tag>
       </tags>
   </entry>
   <entry>
@@ -460,24 +395,6 @@
       </tags>
   </entry>
   <entry>
-    <title>安装dashboard</title>
-    <url>/2021/08/14/%E5%AE%89%E8%A3%85dashboard/</url>
-    <content><![CDATA[<h1 id="yaml安装"><a href="#yaml安装" class="headerlink" title="yaml安装"></a>yaml安装</h1><figure class="highlight shell"><table><tr><td class="code"><pre><span class="line"><span class="meta">#</span><span class="bash"> 下载</span></span><br><span class="line"><span class="meta">#</span><span class="bash"> wget https://raw.githubusercontent.com/kubernetes/dashboard/v2.2.0/aio/deploy/recommended.yaml -O dashboard.yaml</span></span><br><span class="line">wget https://ghproxy.com/https://raw.githubusercontent.com/kubernetes/dashboard/v2.2.0/aio/deploy/recommended.yaml \</span><br><span class="line">-O dashboard.yaml</span><br><span class="line"><span class="meta">#</span><span class="bash"> 修改配置</span></span><br><span class="line"><span class="meta">#</span><span class="bash"><span class="comment"># 修改 namespace</span></span></span><br><span class="line"><span class="meta">#</span><span class="bash"><span class="comment"># 启用 NodePort</span></span></span><br><span class="line"><span class="meta">#</span><span class="bash"><span class="comment"># 修改 ClusterRoleBinding 中 ClusterRole 为 cluster-admin</span></span></span><br><span class="line">vi dashboard.yaml</span><br><span class="line"><span class="meta">#</span><span class="bash"> 提交</span></span><br><span class="line">kubectl apply -f dashboard.yaml</span><br></pre></td></tr></table></figure>
-
-<span id="more"></span>
-
-<h1 id="helm安装"><a href="#helm安装" class="headerlink" title="helm安装"></a>helm安装</h1><figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">helm repo add kubernetes-dashboard https://kubernetes.github.io/dashboard</span><br><span class="line">helm pull kubernetes-dashboard/kubernetes-dashboard --version 4.2.0</span><br><span class="line">tar zxvf kubernetes-dashboard-4.2.0.tgz </span><br><span class="line">cd kubernetes-dashboard</span><br><span class="line">cp values.yaml values-override.yaml</span><br><span class="line">vi values-override.yaml</span><br><span class="line"><span class="meta">#</span><span class="bash"><span class="comment">##</span></span></span><br><span class="line">extraArgs:</span><br><span class="line">  - --token-ttl=0</span><br><span class="line">service:</span><br><span class="line">  type: NodePort</span><br><span class="line">  nodePort: 30000</span><br><span class="line">metricsScraper:</span><br><span class="line">  enabled: true</span><br><span class="line">metrics-server:</span><br><span class="line">  enabled: true</span><br><span class="line">  args:</span><br><span class="line">    - --kubelet-preferred-address-types=InternalIP</span><br><span class="line">    - --kubelet-insecure-tls</span><br><span class="line"><span class="meta">#</span><span class="bash"><span class="comment">##</span></span></span><br><span class="line">helm install --create-namespace --namespace cmp-dashboard dashboard -f values-override.yaml .</span><br><span class="line"><span class="meta"></span></span><br><span class="line"><span class="meta">#</span><span class="bash"> 获取 token</span></span><br><span class="line">kubectl -n cmp-dashboard get secrets \</span><br><span class="line"><span class="meta">$</span><span class="bash">(kubectl -n cmp-dashboard get secrets | grep kubernetes-dashboard-token | awk <span class="string">&#x27;&#123;print $1&#125;&#x27;</span>) \</span></span><br><span class="line"><span class="bash">-o jsonpath=<span class="string">&quot;&#123;[&#x27;data&#x27;][&#x27;token&#x27;]&#125;&quot;</span> | base64 --decode &amp;&amp; <span class="built_in">echo</span></span></span><br><span class="line"><span class="meta"></span></span><br><span class="line"><span class="meta">#</span><span class="bash"> 提升权限</span></span><br><span class="line">vi dashboard-rbac.yaml</span><br><span class="line"><span class="meta">#</span><span class="bash"><span class="comment">##</span></span></span><br><span class="line">apiVersion: rbac.authorization.k8s.io/v1</span><br><span class="line">kind: ClusterRoleBinding</span><br><span class="line">metadata:</span><br><span class="line">  name: dashboard-kubernetes-dashboard</span><br><span class="line">roleRef:</span><br><span class="line">  apiGroup: rbac.authorization.k8s.io</span><br><span class="line">  kind: ClusterRole</span><br><span class="line">  name: cluster-admin</span><br><span class="line">subjects:</span><br><span class="line">  - kind: ServiceAccount</span><br><span class="line">	name: dashboard-kubernetes-dashboard</span><br><span class="line">namespace: cmp-dashboard</span><br><span class="line"><span class="meta">#</span><span class="bash"><span class="comment">##</span></span></span><br><span class="line">kubectl apply -f dashboard-rbac.yaml</span><br><span class="line"><span class="meta"></span></span><br><span class="line"><span class="meta">#</span><span class="bash"> 获取 token</span></span><br><span class="line">kubectl -n cmp-dashboard get secrets \</span><br><span class="line"><span class="meta">$</span><span class="bash">(kubectl -n cmp-dashboard get secrets | grep kubernetes-dashboard-token | awk <span class="string">&#x27;&#123;print $1&#125;&#x27;</span>) \</span></span><br><span class="line"><span class="bash">-o go-template=<span class="string">&quot;&#123;&#123;.data.token | base64decode&#125;&#125;&quot;</span> &amp;&amp; <span class="built_in">echo</span></span></span><br></pre></td></tr></table></figure>
-
-]]></content>
-      <categories>
-        <category>K8S</category>
-      </categories>
-      <tags>
-        <tag>K8S</tag>
-        <tag>harbor</tag>
-      </tags>
-  </entry>
-  <entry>
     <title>安装etcd</title>
     <url>/2021/07/27/%E5%AE%89%E8%A3%85etcd/</url>
     <content><![CDATA[<h1 id="安装"><a href="#安装" class="headerlink" title="安装"></a>安装</h1><h2 id="二进制"><a href="#二进制" class="headerlink" title="二进制"></a>二进制</h2><h2 id="docker"><a href="#docker" class="headerlink" title="docker"></a>docker</h2><figure class="highlight shell"><table><tr><td class="code"><pre><span class="line"><span class="meta">#</span><span class="bash"> 配置 etcd 使用主机IP 地址</span></span><br><span class="line">export NODE1=172.17.0.1</span><br><span class="line"><span class="meta">#</span><span class="bash"> 配置一个 Docker 卷来存储 etcd 数据</span></span><br><span class="line">docker volume create --name etcd-data</span><br><span class="line">export DATA_DIR=etcd-data</span><br><span class="line"><span class="meta">#</span><span class="bash"> 配置 REGISTRY</span></span><br><span class="line"><span class="meta">#</span><span class="bash"> <span class="built_in">export</span> REGISTRY=quay.io/coreos/etcd</span></span><br><span class="line">export REGISTRY=quay.mirrors.ustc.edu.cn/coreos/etcd</span><br><span class="line"><span class="meta">#</span><span class="bash"> 配置 TAG</span></span><br><span class="line"><span class="meta">#</span><span class="bash"> TAG=latest</span></span><br><span class="line">export TAG=v3.4.16</span><br><span class="line"><span class="meta">#</span><span class="bash"> 启动</span></span><br><span class="line">docker run \</span><br><span class="line">-p 2379:2379 \</span><br><span class="line">-p 2380:2380 \</span><br><span class="line">--volume=$&#123;DATA_DIR&#125;:/etcd-data \</span><br><span class="line">--name etcd $&#123;REGISTRY&#125;:$&#123;TAG&#125; \</span><br><span class="line">/usr/local/bin/etcd \</span><br><span class="line">--data-dir=/etcd-data --name node1 \</span><br><span class="line">--initial-advertise-peer-urls http://$&#123;NODE1&#125;:2380 --listen-peer-urls http://0.0.0.0:2380 \</span><br><span class="line">--advertise-client-urls http://$&#123;NODE1&#125;:2379 --listen-client-urls http://0.0.0.0:2379 \</span><br><span class="line">--initial-cluster node1=http://$&#123;NODE1&#125;:2380</span><br></pre></td></tr></table></figure>
@@ -497,7 +414,7 @@
 
 <span id="more"></span>
 
-<h1 id="helm安装"><a href="#helm安装" class="headerlink" title="helm安装"></a>helm安装</h1><figure class="highlight shell"><table><tr><td class="code"><pre><span class="line"><span class="meta">#</span><span class="bash"> 添加仓库</span></span><br><span class="line">helm repo add ingress-nginx https://kubernetes.github.io/ingress-nginx</span><br><span class="line"><span class="meta">#</span><span class="bash"> 搜索版本</span></span><br><span class="line">helm search repo ingress-nginx</span><br><span class="line"><span class="meta">#</span><span class="bash"> 下载指定版本</span></span><br><span class="line">helm pull ingress-nginx/ingress-nginx --version 3.32.0</span><br><span class="line">tar zxvf ingress-nginx-3.32.0.tgz </span><br><span class="line">cd ingress-nginx</span><br><span class="line">cp values.yaml values-override.yaml</span><br><span class="line"><span class="meta">#</span><span class="bash"> 修改配置</span></span><br><span class="line">vi values-override.yaml</span><br><span class="line"><span class="meta">#</span><span class="bash"><span class="comment">##</span></span></span><br><span class="line">controller:</span><br><span class="line">  hostNetwork: true</span><br><span class="line">  kind: Deployment</span><br><span class="line">  nodeSelector:</span><br><span class="line">    kubernetes.io/hostname: k8s-01</span><br><span class="line"><span class="meta">#</span><span class="bash"><span class="comment">##</span></span></span><br><span class="line"><span class="meta">#</span><span class="bash"> 安装部署</span></span><br><span class="line">helm install --create-namespace --namespace cmp-ingress-nginx ingress-nginx -f values-override.yaml .</span><br><span class="line"><span class="meta">#</span><span class="bash"> 检测版本</span></span><br><span class="line">kubectl -n cmp-ingress-nginx exec -it \</span><br><span class="line"><span class="meta">$</span><span class="bash">(kubectl -n cmp-ingress-nginx get pods -l app.kubernetes.io/name=ingress-nginx -o jsonpath=<span class="string">&#x27;&#123;.items[0].metadata.name&#125;&#x27;</span>) \</span></span><br><span class="line"><span class="bash">-- /nginx-ingress-controller --version</span></span><br></pre></td></tr></table></figure>
+<h1 id="helm安装"><a href="#helm安装" class="headerlink" title="helm安装"></a>helm安装</h1><figure class="highlight shell"><table><tr><td class="code"><pre><span class="line"><span class="meta">#</span><span class="bash"> 添加仓库</span></span><br><span class="line">helm repo add ingress-nginx https://kubernetes.github.io/ingress-nginx</span><br><span class="line"><span class="meta">#</span><span class="bash"> 搜索版本</span></span><br><span class="line">helm search repo ingress-nginx</span><br><span class="line"><span class="meta">#</span><span class="bash"> 下载指定版本</span></span><br><span class="line">helm pull ingress-nginx/ingress-nginx --version 3.32.0</span><br><span class="line">tar zxvf ingress-nginx-3.32.0.tgz </span><br><span class="line">cd ingress-nginx</span><br><span class="line">cp values.yaml values-override.yaml</span><br><span class="line"><span class="meta">#</span><span class="bash"> 修改配置</span></span><br><span class="line">vi values-override.yaml</span><br><span class="line"><span class="meta">#</span><span class="bash"><span class="comment">##</span></span></span><br><span class="line">controller:</span><br><span class="line">  hostNetwork: true</span><br><span class="line">  nodeSelector:</span><br><span class="line">    kubernetes.io/hostname: k8s-01</span><br><span class="line"><span class="meta">#</span><span class="bash"><span class="comment">##</span></span></span><br><span class="line"><span class="meta">#</span><span class="bash"> 安装部署</span></span><br><span class="line">helm install --create-namespace --namespace cmp-ingress-nginx ingress-nginx -f values-override.yaml .</span><br><span class="line"><span class="meta">#</span><span class="bash"> 检测版本</span></span><br><span class="line">kubectl -n cmp-ingress-nginx exec -it \</span><br><span class="line"><span class="meta">$</span><span class="bash">(kubectl -n cmp-ingress-nginx get pods -l app.kubernetes.io/name=ingress-nginx -o jsonpath=<span class="string">&#x27;&#123;.items[0].metadata.name&#125;&#x27;</span>) \</span></span><br><span class="line"><span class="bash">-- /nginx-ingress-controller --version</span></span><br></pre></td></tr></table></figure>
 
 ]]></content>
       <categories>
@@ -527,6 +444,34 @@
       <tags>
         <tag>K8S</tag>
         <tag>harbor</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>安装k8s-使用kubespray</title>
+    <url>/2021/08/14/%E5%AE%89%E8%A3%85k8s-%E4%BD%BF%E7%94%A8kubespray/</url>
+    <content><![CDATA[<h1 id="环境"><a href="#环境" class="headerlink" title="环境"></a>环境</h1><p>k8s-01：4C+2G+10G<br>k8s-02：4C+2G+10G<br>k8s-03：4C+2G+10G</p>
+<h1 id="预配置"><a href="#预配置" class="headerlink" title="预配置"></a>预配置</h1><p>关闭selinux</p>
+<p>关闭firewalld</p>
+<p>开启ip_forward</p>
+<p>修改yum源</p>
+<p>修改pip源</p>
+<p>安装软件</p>
+<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">yum install git python-pip -y</span><br></pre></td></tr></table></figure>
+
+<p>免密登录：</p>
+<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">ssh-keygen</span><br><span class="line"><span class="meta">#</span><span class="bash"> ssh-copy-id root@ip</span></span><br><span class="line">ssh-copy-id root@192.168.128.201</span><br><span class="line">ssh-copy-id root@192.168.128.202</span><br><span class="line">ssh-copy-id root@192.168.128.203</span><br></pre></td></tr></table></figure>
+
+<span id="more"></span>
+
+<h1 id="安装"><a href="#安装" class="headerlink" title="安装"></a>安装</h1><figure class="highlight shell"><table><tr><td class="code"><pre><span class="line"><span class="meta">#</span><span class="bash"> 下载源码</span></span><br><span class="line"><span class="meta">#</span><span class="bash"> git <span class="built_in">clone</span> https://github.com/kubernetes-incubator/kubespray.git -b v2.14.2</span></span><br><span class="line">git clone https://ghproxy.com/https://github.com/kubernetes-incubator/kubespray.git -b v2.14.2</span><br><span class="line">cd kubespray</span><br><span class="line"><span class="meta"></span></span><br><span class="line"><span class="meta">#</span><span class="bash"> 添加依赖</span></span><br><span class="line">vi requirements.txt</span><br><span class="line"><span class="meta">#</span><span class="bash"><span class="comment">##</span></span></span><br><span class="line">ruamel.yaml.clib==0.2.2</span><br><span class="line">MarkupSafe==1.1.1</span><br><span class="line"><span class="meta">#</span><span class="bash"><span class="comment">##</span></span></span><br><span class="line"><span class="meta"></span></span><br><span class="line"><span class="meta">#</span><span class="bash"> 安装依赖</span></span><br><span class="line">pip install -r requirements.txt</span><br><span class="line"><span class="meta"></span></span><br><span class="line"><span class="meta">#</span><span class="bash"> 拷贝inventory</span></span><br><span class="line">cp -rfp inventory/sample inventory/mycluster</span><br><span class="line"><span class="meta"></span></span><br><span class="line"><span class="meta">#</span><span class="bash"> 配置代理（需要socks服务端开启允许局域网访问）</span></span><br><span class="line">vi inventory/mycluster/group_vars/all/all.yml</span><br><span class="line"><span class="meta">#</span><span class="bash"><span class="comment">##</span></span></span><br><span class="line">http_proxy: &quot;http://192.168.128.1:1081&quot;</span><br><span class="line">https_proxy: &quot;http://192.168.128.1:1081&quot;</span><br><span class="line">download_validate_certs: False</span><br><span class="line"><span class="meta">#</span><span class="bash"><span class="comment">##</span></span></span><br><span class="line"><span class="meta"></span></span><br><span class="line"><span class="meta">#</span><span class="bash"> 添加需要的组件</span></span><br><span class="line">vi inventory/mycluster/group_vars/k8s-cluster/addons.yml</span><br><span class="line"><span class="meta"></span></span><br><span class="line"><span class="meta">#</span><span class="bash"> 手动配置inventory部署</span></span><br><span class="line">vi inventory/mycluster/inventory.ini </span><br><span class="line">ansible-playbook -i inventory/mycluster/inventory.ini cluster.yml</span><br><span class="line"><span class="meta"></span></span><br><span class="line"><span class="meta">#</span><span class="bash"> 自动配置inventory部署</span></span><br><span class="line">yum -y install python3 python3-pip</span><br><span class="line">pip3 install -r contrib/inventory_builder/requirements.txt</span><br><span class="line">declare -a IPS=(192.168.128.201 192.168.128.202 192.168.128.203)</span><br><span class="line">CONFIG_FILE=inventory/mycluster/hosts.yml python3 contrib/inventory_builder/inventory.py $&#123;IPS[@]&#125;</span><br><span class="line"><span class="meta">#</span><span class="bash"> 修改主机名：node1 改为 k8s-01，node2 改为 k8s-02，node3 改为 k8s-03</span></span><br><span class="line">vi inventory/mycluster/hosts.yml</span><br><span class="line">ansible-playbook -i inventory/mycluster/hosts.yml cluster.yml</span><br><span class="line"><span class="meta"></span></span><br><span class="line"><span class="meta">#</span><span class="bash"> 部署失败，重试</span></span><br><span class="line">ansible-playbook -i inventory/mycluster/hosts.yml cluster.yml --limit @cluster.retry</span><br><span class="line"><span class="meta">#</span><span class="bash"> 部署失败，重置</span></span><br><span class="line">ansible-playbook -i inventory/mycluster/hosts.yml reset.yml</span><br><span class="line"><span class="meta"></span></span><br><span class="line"><span class="meta">#</span><span class="bash"> 添加节点（仅worker）</span></span><br><span class="line"><span class="meta">#</span><span class="bash"> 修改inventory</span></span><br><span class="line">ansible-playbook -i inventory/mycluster/hosts.yml scale.yml</span><br><span class="line"><span class="meta">#</span><span class="bash"> 删除节点（仅worker）</span></span><br><span class="line"><span class="meta">#</span><span class="bash"> 修改inventory</span></span><br><span class="line">ansible-playbook -i inventory/mycluster/hosts.yml remove-node.yml</span><br><span class="line"><span class="meta">#</span><span class="bash"> 添加和删除节点（包含master、worker、etcd）</span></span><br><span class="line"><span class="meta">#</span><span class="bash"> 修改inventory</span></span><br><span class="line">ansible-playbook -i inventory/mycluster/hosts.yml cluster.yml</span><br><span class="line"><span class="meta">#</span><span class="bash"> 更新集群（全量更新）</span></span><br><span class="line">ansible-playbook -i inventory/mycluster/hosts.yml cluster.yml -e kube_version=v1.24.4</span><br><span class="line"><span class="meta">#</span><span class="bash"> 更新集群（滚动更新，会先驱逐POD）</span></span><br><span class="line">ansible-playbook -i inventory/mycluster/hosts.yml upgrade-cluster.yml -e kube_version=v1.24.4</span><br></pre></td></tr></table></figure>
+
+]]></content>
+      <categories>
+        <category>K8S</category>
+      </categories>
+      <tags>
+        <tag>K8S</tag>
+        <tag>kubespray</tag>
       </tags>
   </entry>
   <entry>
@@ -595,6 +540,104 @@
       </tags>
   </entry>
   <entry>
+    <title>安装openstack-T版-使用kolla</title>
+    <url>/2021/08/22/%E5%AE%89%E8%A3%85openstack-T%E7%89%88-%E4%BD%BF%E7%94%A8kolla/</url>
+    <content><![CDATA[<h1 id="环境"><a href="#环境" class="headerlink" title="环境"></a>环境</h1><table>
+<thead>
+<tr>
+<th align="left">用途</th>
+<th>主机名</th>
+<th>操作系统</th>
+<th>CPU</th>
+<th>内存</th>
+<th>sda</th>
+<th>sdb</th>
+<th>nic1(ens192)</th>
+<th>nic2(ens224)</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="left">control<br/>compute<br/>network<br/>storage<br/>deploy</td>
+<td>openstack-01</td>
+<td>CentOS 1810</td>
+<td>8C</td>
+<td>16G</td>
+<td>200G</td>
+<td>200G</td>
+<td>192.168.3.101</td>
+<td>-</td>
+</tr>
+<tr>
+<td align="left">compute<br/>storage</td>
+<td>openstack-02</td>
+<td>CentOS 1810</td>
+<td>8C</td>
+<td>16G</td>
+<td>40G</td>
+<td>200G</td>
+<td>192.168.3.102</td>
+<td>-</td>
+</tr>
+<tr>
+<td align="left">compute<br/>storage</td>
+<td>openstack-03</td>
+<td>CentOS 1810</td>
+<td>8C</td>
+<td>16G</td>
+<td>40G</td>
+<td>200G</td>
+<td>192.168.3.103</td>
+<td>-</td>
+</tr>
+</tbody></table>
+<span id="more"></span>
+
+<h1 id="安装"><a href="#安装" class="headerlink" title="安装"></a>安装</h1><ol>
+<li><p>【所有节点】启用2个网卡，ens192需要配置IP，ens224无需配置IP</p>
+<p>略</p>
+</li>
+<li><p>【所有节点】关闭 selinux、firewalld、NetworkManager，开启 ip_forward</p>
+<p>略</p>
+</li>
+<li><p>【所有节点】修改 yum源、pip源</p>
+<p>略</p>
+</li>
+<li><p>【所有节点】修改 hostname、hosts</p>
+<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line"><span class="meta">#</span><span class="bash"> 在 openstack-01 主机上执行</span></span><br><span class="line"><span class="meta">#</span><span class="bash"> 修改 hostname</span></span><br><span class="line">hostnamectl set-hostname openstack-01</span><br><span class="line"><span class="meta">#</span><span class="bash"> 修改 hosts</span></span><br><span class="line">vi /etc/hosts</span><br><span class="line"><span class="meta">#</span><span class="bash"><span class="comment">##</span></span></span><br><span class="line">192.168.3.101 openstack-01</span><br><span class="line">192.168.3.102 openstack-02</span><br><span class="line">192.168.3.103 openstack-03</span><br><span class="line">192.168.3.101 registry</span><br><span class="line"><span class="meta">#</span><span class="bash"><span class="comment">##</span></span></span><br><span class="line"><span class="meta"></span></span><br><span class="line"><span class="meta">#</span><span class="bash"> 其他主机同理，略</span></span><br></pre></td></tr></table></figure></li>
+<li><p>【所有节点】安装 python 虚拟环境</p>
+<p>推荐，能少遇到很多 python 版本兼容的问题，结合 kolla-ansible 的 ansible_python_interpreter 一起使用</p>
+<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line"><span class="meta">#</span><span class="bash"> 安装</span></span><br><span class="line">yum install python-virtualenv</span><br><span class="line">virtualenv ~/virtualenv</span><br><span class="line"><span class="meta">#</span><span class="bash"> 激活，如需退出，输入 deactivate</span></span><br><span class="line">source virtualenv/bin/activate</span><br><span class="line"><span class="meta">#</span><span class="bash"> 更新 pip、setuptools、docker</span></span><br><span class="line">pip install -U pip</span><br><span class="line">pip install -U setuptools</span><br><span class="line">pip install -U docker</span><br></pre></td></tr></table></figure></li>
+<li><p>【所有节点】安装 docker</p>
+<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line"><span class="meta">#</span><span class="bash"> 安装</span></span><br><span class="line">curl -o /etc/yum.repos.d/docker-ce.repo https://mirrors.aliyun.com/docker-ce/linux/centos/docker-ce.repo </span><br><span class="line">yum install docker-ce-18.06.2.ce</span><br><span class="line">systemctl enable docker &amp;&amp; systemctl start docker</span><br><span class="line"><span class="meta">#</span><span class="bash"> 配置</span></span><br><span class="line">mkdir /etc/systemd/system/docker.service.d</span><br><span class="line">tee /etc/systemd/system/docker.service.d/kolla.conf &lt;&lt; &#x27;EOF&#x27;</span><br><span class="line">[Service]</span><br><span class="line">MountFlags=shared</span><br><span class="line">EOF</span><br><span class="line"><span class="meta">#</span><span class="bash"></span></span><br><span class="line"><span class="bash">mkdir -p /etc/docker</span></span><br><span class="line">tee /etc/docker/daemon.json &lt;&lt;-&#x27;EOF&#x27;</span><br><span class="line">&#123;</span><br><span class="line">  &quot;insecure-registries&quot;: [&quot;registry:4000&quot;]</span><br><span class="line">&#125;</span><br><span class="line">EOF</span><br><span class="line"><span class="meta">#</span><span class="bash"> 重启</span></span><br><span class="line">systemctl daemon-reload</span><br><span class="line">systemctl restart docker</span><br></pre></td></tr></table></figure></li>
+<li><p>【所有节点】给硬盘添加分区标签</p>
+<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">parted /dev/sdb -s -- mklabel gpt mkpart KOLLA_CEPH_OSD_BOOTSTRAP_BS 1 -1</span><br><span class="line">parted /dev/sdb print</span><br></pre></td></tr></table></figure></li>
+<li><p>【仅deploy节点】配置免密登录</p>
+<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">ssh-keygen</span><br><span class="line">ssh-copy-id root@openstack-01</span><br><span class="line">ssh-copy-id root@openstack-02</span><br><span class="line">ssh-copy-id root@openstack-03</span><br></pre></td></tr></table></figure></li>
+<li><p>【仅deploy节点】安装 ansible、kolla、kolla-ansible</p>
+<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line"><span class="meta">#</span><span class="bash"> 安装软件</span></span><br><span class="line">yum install python-devel libffi-devel gcc openssl-devel libselinux-python</span><br><span class="line"><span class="meta">#</span><span class="bash"> 安装 ansible</span></span><br><span class="line">pip install &#x27;ansible&lt;2.10&#x27;</span><br><span class="line"><span class="meta">#</span><span class="bash"> 配置 ansible</span></span><br><span class="line">mkdir /etc/ansible</span><br><span class="line">vi /etc/ansible/ansible.cfg</span><br><span class="line"><span class="meta">#</span><span class="bash"><span class="comment">##</span></span></span><br><span class="line">[defaults]</span><br><span class="line">host_key_checking=False</span><br><span class="line">pipelining=True</span><br><span class="line">forks=100</span><br><span class="line"><span class="meta">#</span><span class="bash"><span class="comment">##</span></span></span><br><span class="line"><span class="meta"></span></span><br><span class="line"><span class="meta">#</span><span class="bash"> 部署 registry</span></span><br><span class="line">docker run -d --name registry --restart=always -p 4000:5000 -v /opt/registry:/var/lib/registry registry:latest</span><br><span class="line"><span class="meta"></span></span><br><span class="line"><span class="meta">#</span><span class="bash"> 下载源码</span></span><br><span class="line">yum install git</span><br><span class="line"><span class="meta">#</span><span class="bash"> <span class="built_in">export</span> &#123;http,https,ftp&#125;_proxy=<span class="string">&quot;http://192.168.3.254:1081&quot;</span></span></span><br><span class="line">git clone https://github.com/openstack/kolla -b stable/train</span><br><span class="line">git clone https://github.com/openstack/kolla-ansible -b stable/train</span><br><span class="line"><span class="meta"></span></span><br><span class="line"><span class="meta">#</span><span class="bash"> 安装 kolla</span></span><br><span class="line">pip install ./kolla</span><br><span class="line"><span class="meta">#</span><span class="bash"> 解决报错 ERROR: No matching distribution found <span class="keyword">for</span> gitdb&gt;=4.0.1 (from gitdb2&gt;=2.0.0-&gt;GitPython&lt;2.1.12,&gt;=1.0.1-&gt;kolla==9.4.0)</span></span><br><span class="line">pip install gitdb2==2.0.6</span><br><span class="line">pip install GitPython==2.1.14</span><br><span class="line"><span class="meta">#</span><span class="bash"> 安装 kolla-ansible</span></span><br><span class="line">pip install ./kolla-ansible</span><br><span class="line"><span class="meta"></span></span><br><span class="line"><span class="meta">#</span><span class="bash"> 复制配置文件到 /etc/kolla 目录</span></span><br><span class="line">mkdir /etc/kolla</span><br><span class="line">cp -r kolla-ansible/etc/kolla/* /etc/kolla</span><br><span class="line"><span class="meta">#</span><span class="bash"> 复制 inventory 文件到当前目录</span></span><br><span class="line">cp kolla-ansible/ansible/inventory/* .</span><br></pre></td></tr></table></figure></li>
+<li><p>【仅deploy节点】准备初始配置</p>
+   <figure class="highlight shell"><table><tr><td class="code"><pre><span class="line"><span class="meta">#</span><span class="bash"> 配置 inventory</span></span><br><span class="line">vi multinode</span><br><span class="line"><span class="meta">#</span><span class="bash"><span class="comment">##</span></span></span><br><span class="line">[control]</span><br><span class="line">openstack-01</span><br><span class="line"></span><br><span class="line">[network]</span><br><span class="line">openstack-01</span><br><span class="line"></span><br><span class="line">[compute]</span><br><span class="line">openstack-01</span><br><span class="line">openstack-02</span><br><span class="line">openstack-03</span><br><span class="line"></span><br><span class="line">[monitoring]</span><br><span class="line">openstack-01</span><br><span class="line"></span><br><span class="line">[storage]</span><br><span class="line">openstack-01</span><br><span class="line">openstack-02</span><br><span class="line">openstack-03</span><br><span class="line"></span><br><span class="line">[deployment]</span><br><span class="line">openstack-01       ansible_connection=local</span><br><span class="line"><span class="meta">#</span><span class="bash"><span class="comment">##</span></span></span><br><span class="line"><span class="meta">#</span><span class="bash"> 测试</span></span><br><span class="line">ansible -i multinode all -m ping</span><br><span class="line"><span class="meta"></span></span><br><span class="line"><span class="meta">#</span><span class="bash"> 配置 password</span></span><br><span class="line">kolla-genpwd</span><br><span class="line"><span class="meta">#</span><span class="bash"> 修改 keystone_admin_password 密码</span></span><br><span class="line">vi /etc/kolla/passwords.yml</span><br><span class="line"><span class="meta">#</span><span class="bash"><span class="comment">##</span></span></span><br><span class="line">keystone_admin_password: xxxxxx</span><br><span class="line"><span class="meta">#</span><span class="bash"><span class="comment">##</span></span></span><br><span class="line"><span class="meta"></span></span><br><span class="line"><span class="meta">#</span><span class="bash"> 配置 globals.yml</span></span><br><span class="line">vi /etc/kolla/globals.yml</span><br><span class="line"><span class="meta">#</span><span class="bash"><span class="comment">##</span></span></span><br><span class="line">kolla_base_distro: &quot;centos&quot;</span><br><span class="line">kolla_install_type: &quot;source&quot;</span><br><span class="line">openstack_release: &quot;train&quot;</span><br><span class="line">kolla_internal_vip_address: &quot;192.168.3.100&quot;</span><br><span class="line">docker_registry: &quot;registry:4000&quot;</span><br><span class="line">network_interface: &quot;ens192&quot;</span><br><span class="line">neutron_external_interface: &quot;ens224&quot;</span><br><span class="line">enable_ceph: &quot;yes&quot;</span><br><span class="line">enable_cinder: &quot;yes&quot;</span><br><span class="line">enable_neutron_qos: &quot;yes&quot;</span><br><span class="line">glance_backend_ceph: &quot;yes&quot;</span><br><span class="line">glance_backend_file: &quot;no&quot;</span><br><span class="line">nova_compute_virt_type: &quot;qemu&quot;</span><br><span class="line"><span class="meta">#</span><span class="bash"><span class="comment">##</span></span></span><br></pre></td></tr></table></figure></li>
+<li><p>【仅deploy节点】构建镜像</p>
+<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line"><span class="meta">#</span><span class="bash"> 生成 kolla-build.conf</span></span><br><span class="line">cd kolla</span><br><span class="line">pip install tox</span><br><span class="line">tox -e genconfig</span><br><span class="line"><span class="meta"></span></span><br><span class="line"><span class="meta">#</span><span class="bash"> 构建镜像</span></span><br><span class="line">kolla-build --base centos --type source --tag=train --registry registry:4000 --push</span><br><span class="line"><span class="meta">#</span><span class="bash"> 构建指定模块镜像</span></span><br><span class="line">kolla-build keystone nova</span><br><span class="line"><span class="meta">#</span><span class="bash"> 通过正则表达式筛选</span></span><br><span class="line">kolla-build ^nova-</span><br><span class="line"><span class="meta"></span></span><br><span class="line"><span class="meta">#</span><span class="bash"> 查看镜像</span></span><br><span class="line">curl http://192.168.3.101:4000/v2/_catalog</span><br><span class="line"><span class="meta">#</span><span class="bash"> 查看镜像版本</span></span><br><span class="line">curl http://192.168.3.101:4000/v2/kolla/kolla/centos-source-base/tags/list</span><br></pre></td></tr></table></figure></li>
+<li><p>【仅deploy节点】安装</p>
+<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line"><span class="meta">#</span><span class="bash"> 安装依赖</span></span><br><span class="line">kolla-ansible -i multinode bootstrap-servers</span><br><span class="line"><span class="meta">#</span><span class="bash"> 部署前检查</span></span><br><span class="line">kolla-ansible -i multinode prechecks -e ansible_python_interpreter=/root/virtualenv/bin/python</span><br><span class="line"><span class="meta">#</span><span class="bash"> 部署</span></span><br><span class="line">kolla-ansible -i multinode deploy -e ansible_python_interpreter=/root/virtualenv/bin/python</span><br><span class="line"><span class="meta">#</span><span class="bash"> 创建环境变量文件</span></span><br><span class="line">kolla-ansible -i multinode post-deploy</span><br><span class="line"><span class="meta"></span></span><br><span class="line"><span class="meta">#</span><span class="bash"> 常用命令</span></span><br><span class="line"><span class="meta">#</span><span class="bash"> 用于从系统中删除已部署的容器</span></span><br><span class="line">tools/cleanup-containers</span><br><span class="line"><span class="meta">#</span><span class="bash"> 用于删除 neutron-agents 容器启动时在 Docker 主机上触发的网络更改的残余</span></span><br><span class="line">tools/cleanup-host</span><br><span class="line"><span class="meta">#</span><span class="bash"> 用于从本地 Docker 缓存中删除 Kolla 构建的所有 Docker 镜像</span></span><br><span class="line">tools/cleanup-images --all</span><br><span class="line"><span class="meta">#</span><span class="bash"><span class="comment">#  用于部署和启动所有 Kolla 容器</span></span></span><br><span class="line">kolla-ansible -i INVENTORY deploy</span><br><span class="line"><span class="meta">#</span><span class="bash"><span class="comment"># 用于清理集群中的容器和卷</span></span></span><br><span class="line">kolla-ansible -i INVENTORY destroy</span><br><span class="line"><span class="meta">#</span><span class="bash"><span class="comment"># 用于恢复完全停止的 mariadb 集群</span></span></span><br><span class="line">kolla-ansible -i INVENTORY mariadb_recovery</span><br><span class="line"><span class="meta">#</span><span class="bash"><span class="comment"># 用于在部署每个 OpenStack 服务之前检查是否满足所有要求</span></span></span><br><span class="line">kolla-ansible -i INVENTORY prechecks</span><br><span class="line"><span class="meta">#</span><span class="bash"><span class="comment"># 用于在部署节点上进行后期部署以获取管理 openrc 文件</span></span></span><br><span class="line">kolla-ansible -i INVENTORY post-deploy</span><br><span class="line"><span class="meta">#</span><span class="bash"><span class="comment"># 用于拉取容器的所有镜像</span></span></span><br><span class="line">kolla-ansible -i INVENTORY pull</span><br><span class="line"><span class="meta">#</span><span class="bash"><span class="comment"># 用于重新配置 OpenStack 服务</span></span></span><br><span class="line">kolla-ansible -i INVENTORY reconfigure </span><br><span class="line"><span class="meta">#</span><span class="bash"><span class="comment"># 用于升级现有的 OpenStack 环境</span></span></span><br><span class="line">kolla-ansible -i INVENTORY upgrade</span><br><span class="line"><span class="meta">#</span><span class="bash"><span class="comment"># 用于进行部署后烟雾测试</span></span></span><br><span class="line">kolla-ansible -i INVENTORY check</span><br><span class="line"><span class="meta">#</span><span class="bash"><span class="comment"># 用于停止运行容器</span></span></span><br><span class="line">kolla-ansible -i INVENTORY stop</span><br><span class="line"><span class="meta">#</span><span class="bash"><span class="comment"># 用于检查并在必要时更新容器，而无需生成配置</span></span></span><br><span class="line">kolla-ansible -i INVENTORY deploy-containers</span><br></pre></td></tr></table></figure></li>
+<li><p>【仅deploy节点】使用</p>
+<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line"><span class="meta">#</span><span class="bash"> 安装 OpenStack CLI 客户端</span></span><br><span class="line">pip install -U &#x27;pip&lt;21&#x27;</span><br><span class="line">pip install -U &#x27;setuptools&lt;45&#x27;</span><br><span class="line">pip install --ignore-installed ipaddress</span><br><span class="line">pip install --ignore-installed urllib3</span><br><span class="line">pip install --ignore-installed pbr</span><br><span class="line">pip install --ignore-installed python-openstackclient==4.0.0</span><br><span class="line">pip install --ignore-installed &quot;openstacksdk&lt;0.40&quot;</span><br><span class="line"><span class="meta">#</span><span class="bash"> 生成 openrc 文件</span></span><br><span class="line">kolla-ansible post-deploy</span><br><span class="line"><span class="meta">#</span><span class="bash"> 加载环境变量</span></span><br><span class="line">. /etc/kolla/admin-openrc.sh</span><br><span class="line"><span class="meta">#</span><span class="bash"> 修改测试脚本</span></span><br><span class="line">cp kolla-ansible/tools/init-runonce .</span><br><span class="line">vi init-runonce</span><br><span class="line"><span class="meta">#</span><span class="bash"><span class="comment">##</span></span></span><br><span class="line">EXT_NET_CIDR=$&#123;EXT_NET_CIDR:-&#x27;10.0.3.0/24&#x27;&#125;</span><br><span class="line">EXT_NET_RANGE=$&#123;EXT_NET_RANGE:-&#x27;start=10.0.3.31,end=10.0.3.60&#x27;&#125;</span><br><span class="line">EXT_NET_GATEWAY=$&#123;EXT_NET_GATEWAY:-&#x27;10.0.3.254&#x27;&#125;</span><br><span class="line"><span class="meta">#</span><span class="bash"><span class="comment">##</span></span></span><br><span class="line"><span class="meta">#</span><span class="bash"> 执行测试脚本</span></span><br><span class="line">./init-runonce</span><br></pre></td></tr></table></figure></li>
+</ol>
+<h1 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h1><p>kolla 与 openstack 版本对应关系</p>
+<p><a href="https://docs.openstack.org/releasenotes/kolla-ansible/index.html">https://docs.openstack.org/releasenotes/kolla-ansible/index.html</a></p>
+<p>用户指南</p>
+<p><a href="https://docs.openstack.org/kolla-ansible/train/user/index.html">https://docs.openstack.org/kolla-ansible/train/user/index.html</a></p>
+]]></content>
+      <categories>
+        <category>OpenStack</category>
+      </categories>
+      <tags>
+        <tag>OpenStack</tag>
+        <tag>kolla</tag>
+      </tags>
+  </entry>
+  <entry>
     <title>安装redsocks</title>
     <url>/2021/07/21/%E5%AE%89%E8%A3%85redsocks/</url>
     <content><![CDATA[<h1 id="安装"><a href="#安装" class="headerlink" title="安装"></a>安装</h1><figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">yum install libevent-devel git gcc</span><br><span class="line">git clone https://github.com/darkk/redsocks</span><br><span class="line">cd redsocks</span><br><span class="line">make</span><br><span class="line">cp redsocks /usr/bin</span><br></pre></td></tr></table></figure>
@@ -629,6 +672,29 @@
       </tags>
   </entry>
   <entry>
+    <title>安装rook-ceph</title>
+    <url>/2021/08/14/%E5%AE%89%E8%A3%85rook-ceph/</url>
+    <content><![CDATA[<h1 id="添加仓库"><a href="#添加仓库" class="headerlink" title="添加仓库"></a>添加仓库</h1><figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">helm repo add rook https://charts.rook.io/release</span><br></pre></td></tr></table></figure>
+
+<h1 id="下载指定版本，修改配置"><a href="#下载指定版本，修改配置" class="headerlink" title="下载指定版本，修改配置"></a>下载指定版本，修改配置</h1><figure class="highlight shell"><table><tr><td class="code"><pre><span class="line"><span class="meta">#</span><span class="bash"> rook-ceph</span></span><br><span class="line">helm fetch rook/rook-ceph --version 1.7.0</span><br><span class="line">tar zxvf rook-ceph-v1.7.0.tgz</span><br><span class="line">cd rook-ceph</span><br><span class="line">cp values.yaml values-override.yaml</span><br><span class="line">vi values-override.yaml</span><br><span class="line"><span class="meta">#</span><span class="bash"> rook-ceph-cluster</span></span><br><span class="line">helm fetch rook/rook-ceph-cluster --version 1.7.0</span><br><span class="line">tar zxvf rook-ceph-cluster-v1.7.0.tgz</span><br><span class="line">cd rook-ceph-cluster</span><br><span class="line">cp values.yaml values-override.yaml</span><br><span class="line">vi values-override.yaml</span><br></pre></td></tr></table></figure>
+
+<span id="more"></span>
+
+<h1 id="安装部署"><a href="#安装部署" class="headerlink" title="安装部署"></a>安装部署</h1><figure class="highlight shell"><table><tr><td class="code"><pre><span class="line"><span class="meta">#</span><span class="bash"> rook-ceph</span></span><br><span class="line">cd rook-ceph</span><br><span class="line">helm install --create-namespace --namespace rook-ceph rook-ceph -f values-override.yaml .</span><br><span class="line"><span class="meta">#</span><span class="bash"> rook-ceph-cluster</span></span><br><span class="line">cd rook-ceph-cluster</span><br><span class="line">helm install --create-namespace --namespace rook-ceph rook-ceph-cluster -f values-override.yaml .</span><br></pre></td></tr></table></figure>
+
+<h1 id="维护"><a href="#维护" class="headerlink" title="维护"></a>维护</h1><h2 id="通过-toolbox-维护"><a href="#通过-toolbox-维护" class="headerlink" title="通过 toolbox 维护"></a>通过 toolbox 维护</h2><figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">kubectl -n rook-ceph exec -it \</span><br><span class="line"><span class="meta">$</span><span class="bash">(kubectl -n rook-ceph get pod -l <span class="string">&quot;app=rook-ceph-tools&quot;</span> -o jsonpath=<span class="string">&#x27;&#123;.items[0].metadata.name&#125;&#x27;</span>) \</span></span><br><span class="line"><span class="bash">-- bash</span></span><br><span class="line">ceph status</span><br><span class="line">ceph df</span><br><span class="line">ceph osd status</span><br><span class="line">ceph osd df</span><br><span class="line">ceph osd tree</span><br><span class="line">ceph osd lspools</span><br></pre></td></tr></table></figure>
+
+<h2 id="通过-dashboard-维护"><a href="#通过-dashboard-维护" class="headerlink" title="通过 dashboard 维护"></a>通过 dashboard 维护</h2><figure class="highlight shell"><table><tr><td class="code"><pre><span class="line"><span class="meta">#</span><span class="bash"> 添加nodeport</span></span><br><span class="line">kubectl -n rook-ceph get svc rook-ceph-mgr-dashboard -o yaml &gt; rook-ceph-mgr-dashboard-nodeport.yaml</span><br><span class="line">vi rook-ceph-mgr-dashboard-nodeport.yaml</span><br><span class="line">kubectl apply -f rook-ceph-mgr-dashboard-nodeport.yaml</span><br><span class="line"><span class="meta">#</span><span class="bash"> 获取密码，账号：admin</span></span><br><span class="line">kubectl -n rook-ceph get secret rook-ceph-dashboard-password \</span><br><span class="line">-o jsonpath=&quot;&#123;[&#x27;data&#x27;][&#x27;password&#x27;]&#125;&quot; | base64 --decode &amp;&amp; echo</span><br></pre></td></tr></table></figure>
+]]></content>
+      <categories>
+        <category>K8S</category>
+      </categories>
+      <tags>
+        <tag>K8S</tag>
+        <tag>ceph</tag>
+      </tags>
+  </entry>
+  <entry>
     <title>安装sshuttle</title>
     <url>/2021/07/21/%E5%AE%89%E8%A3%85sshuttle/</url>
     <content><![CDATA[<h1 id="说明"><a href="#说明" class="headerlink" title="说明"></a>说明</h1><p>支持TCP、UDP，不支持ICMP</p>
@@ -652,29 +718,6 @@
       <tags>
         <tag>Proxy</tag>
         <tag>sshuttle</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>安装rook-ceph</title>
-    <url>/2021/08/14/%E5%AE%89%E8%A3%85rook-ceph/</url>
-    <content><![CDATA[<h1 id="添加仓库"><a href="#添加仓库" class="headerlink" title="添加仓库"></a>添加仓库</h1><figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">helm repo add rook https://charts.rook.io/release</span><br></pre></td></tr></table></figure>
-
-<h1 id="下载指定版本，修改配置"><a href="#下载指定版本，修改配置" class="headerlink" title="下载指定版本，修改配置"></a>下载指定版本，修改配置</h1><figure class="highlight shell"><table><tr><td class="code"><pre><span class="line"><span class="meta">#</span><span class="bash"> rook-ceph</span></span><br><span class="line">helm fetch rook/rook-ceph --version 1.7.0</span><br><span class="line">tar zxvf rook-ceph-v1.7.0.tgz</span><br><span class="line">cd rook-ceph</span><br><span class="line">cp values.yaml values-override.yaml</span><br><span class="line">vi values-override.yaml</span><br><span class="line"><span class="meta">#</span><span class="bash"> rook-ceph-cluster</span></span><br><span class="line">helm fetch rook/rook-ceph-cluster --version 1.7.0</span><br><span class="line">tar zxvf rook-ceph-cluster-v1.7.0.tgz</span><br><span class="line">cd rook-ceph-cluster</span><br><span class="line">cp values.yaml values-override.yaml</span><br><span class="line">vi values-override.yaml</span><br></pre></td></tr></table></figure>
-
-<span id="more"></span>
-
-<h1 id="安装部署"><a href="#安装部署" class="headerlink" title="安装部署"></a>安装部署</h1><figure class="highlight shell"><table><tr><td class="code"><pre><span class="line"><span class="meta">#</span><span class="bash"> rook-ceph</span></span><br><span class="line">cd rook-ceph</span><br><span class="line">helm install --create-namespace --namespace rook-ceph rook-ceph -f values-override.yaml .</span><br><span class="line"><span class="meta">#</span><span class="bash"> rook-ceph-cluster</span></span><br><span class="line">cd rook-ceph-cluster</span><br><span class="line">helm install --create-namespace --namespace rook-ceph rook-ceph-cluster -f values-override.yaml .</span><br></pre></td></tr></table></figure>
-
-<h1 id="维护"><a href="#维护" class="headerlink" title="维护"></a>维护</h1><h2 id="通过-toolbox-维护"><a href="#通过-toolbox-维护" class="headerlink" title="通过 toolbox 维护"></a>通过 toolbox 维护</h2><figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">kubectl -n rook-ceph exec -it \</span><br><span class="line"><span class="meta">$</span><span class="bash">(kubectl -n rook-ceph get pod -l <span class="string">&quot;app=rook-ceph-tools&quot;</span> -o jsonpath=<span class="string">&#x27;&#123;.items[0].metadata.name&#125;&#x27;</span>) \</span></span><br><span class="line"><span class="bash">-- bash</span></span><br><span class="line">ceph status</span><br><span class="line">ceph df</span><br><span class="line">ceph osd status</span><br><span class="line">ceph osd df</span><br><span class="line">ceph osd tree</span><br><span class="line">ceph osd lspools</span><br></pre></td></tr></table></figure>
-
-<h2 id="通过-dashboard-维护"><a href="#通过-dashboard-维护" class="headerlink" title="通过 dashboard 维护"></a>通过 dashboard 维护</h2><figure class="highlight shell"><table><tr><td class="code"><pre><span class="line"><span class="meta">#</span><span class="bash"> 添加nodeport</span></span><br><span class="line">kubectl -n rook-ceph get svc rook-ceph-mgr-dashboard -o yaml &gt; rook-ceph-mgr-dashboard-nodeport.yaml</span><br><span class="line">vi rook-ceph-mgr-dashboard-nodeport.yaml</span><br><span class="line">kubectl apply -f rook-ceph-mgr-dashboard-nodeport.yaml</span><br><span class="line"><span class="meta">#</span><span class="bash"> 获取密码，账号：admin</span></span><br><span class="line">kubectl -n rook-ceph get secret rook-ceph-dashboard-password \</span><br><span class="line">-o jsonpath=&quot;&#123;[&#x27;data&#x27;][&#x27;password&#x27;]&#125;&quot; | base64 --decode &amp;&amp; echo</span><br></pre></td></tr></table></figure>
-]]></content>
-      <categories>
-        <category>K8S</category>
-      </categories>
-      <tags>
-        <tag>K8S</tag>
-        <tag>ceph</tag>
       </tags>
   </entry>
   <entry>
@@ -714,45 +757,124 @@
       </tags>
   </entry>
   <entry>
-    <title>使用kubespray安装K8S</title>
-    <url>/2021/08/14/%E4%BD%BF%E7%94%A8kubespray%E5%AE%89%E8%A3%85K8S/</url>
-    <content><![CDATA[<h1 id="测试环境"><a href="#测试环境" class="headerlink" title="测试环境"></a>测试环境</h1><p>k8s-01：4C+2G+10G<br>k8s-02：4C+2G+10G<br>k8s-03：4C+2G+10G</p>
-<h1 id="预配置"><a href="#预配置" class="headerlink" title="预配置"></a>预配置</h1><p>关闭selinux</p>
-<p>关闭firewalld</p>
-<p>开启ip_forward</p>
-<p>修改yum源</p>
-<p>修改pip源</p>
-<p>安装软件</p>
-<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">yum install git python-pip -y</span><br></pre></td></tr></table></figure>
+    <title>在Termux中安装mitmproxy</title>
+    <url>/2021/07/26/%E5%9C%A8Termux%E4%B8%AD%E5%AE%89%E8%A3%85mitmproxy/</url>
+    <content><![CDATA[<h1 id="安装"><a href="#安装" class="headerlink" title="安装"></a>安装</h1><p>安装 termux ，可以参考 <a href="/2021/07/25/%E5%AE%89%E8%A3%85Termux/" title="这里">这里</a></p>
+<p>安装 mitmproxy</p>
+<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">pkg install libffi openssl python rust</span><br><span class="line">pip install mitmproxy</span><br><span class="line">mitmproxy --version</span><br></pre></td></tr></table></figure>
 
-<p>免密登录：</p>
-<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">ssh-keygen</span><br><span class="line"><span class="meta">#</span><span class="bash"> ssh-copy-id root@ip</span></span><br><span class="line">ssh-copy-id root@192.168.128.201</span><br><span class="line">ssh-copy-id root@192.168.128.202</span><br><span class="line">ssh-copy-id root@192.168.128.203</span><br></pre></td></tr></table></figure>
-
-<span id="more"></span>
-
-<h1 id="安装"><a href="#安装" class="headerlink" title="安装"></a>安装</h1><figure class="highlight shell"><table><tr><td class="code"><pre><span class="line"><span class="meta">#</span><span class="bash"> 下载源码</span></span><br><span class="line"><span class="meta">#</span><span class="bash"> git <span class="built_in">clone</span> https://github.com/kubernetes-incubator/kubespray.git -b v2.14.2</span></span><br><span class="line">git clone https://ghproxy.com/https://github.com/kubernetes-incubator/kubespray.git -b v2.14.2</span><br><span class="line">cd kubespray</span><br><span class="line"><span class="meta"></span></span><br><span class="line"><span class="meta">#</span><span class="bash"> 添加依赖</span></span><br><span class="line">vi requirements.txt</span><br><span class="line"><span class="meta">#</span><span class="bash"><span class="comment">##</span></span></span><br><span class="line">ruamel.yaml.clib==0.2.2</span><br><span class="line">MarkupSafe==1.1.1</span><br><span class="line"><span class="meta">#</span><span class="bash"><span class="comment">##</span></span></span><br><span class="line"><span class="meta"></span></span><br><span class="line"><span class="meta">#</span><span class="bash"> 安装依赖</span></span><br><span class="line">pip install -r requirements.txt</span><br><span class="line"><span class="meta"></span></span><br><span class="line"><span class="meta">#</span><span class="bash"> 拷贝inventory</span></span><br><span class="line">cp -rfp inventory/sample inventory/mycluster</span><br><span class="line"><span class="meta"></span></span><br><span class="line"><span class="meta">#</span><span class="bash"> 配置代理（需要socks服务端开启允许局域网访问）</span></span><br><span class="line">vi inventory/mycluster/group_vars/all/all.yml</span><br><span class="line"><span class="meta">#</span><span class="bash"><span class="comment">##</span></span></span><br><span class="line">http_proxy: &quot;http://192.168.128.1:1081&quot;</span><br><span class="line">https_proxy: &quot;http://192.168.128.1:1081&quot;</span><br><span class="line">download_validate_certs: False</span><br><span class="line"><span class="meta">#</span><span class="bash"><span class="comment">##</span></span></span><br><span class="line"><span class="meta"></span></span><br><span class="line"><span class="meta">#</span><span class="bash"> 添加需要的组件</span></span><br><span class="line">vi inventory/mycluster/group_vars/k8s-cluster/addons.yml</span><br><span class="line"><span class="meta"></span></span><br><span class="line"><span class="meta">#</span><span class="bash"> 手动配置inventory部署</span></span><br><span class="line">vi inventory/mycluster/inventory.ini </span><br><span class="line">ansible-playbook -i inventory/mycluster/inventory.ini cluster.yml</span><br><span class="line"><span class="meta"></span></span><br><span class="line"><span class="meta">#</span><span class="bash"> 自动配置inventory部署</span></span><br><span class="line">yum -y install python3 python3-pip</span><br><span class="line">pip3 install -r contrib/inventory_builder/requirements.txt</span><br><span class="line">declare -a IPS=(192.168.128.201 192.168.128.202 192.168.128.203)</span><br><span class="line">CONFIG_FILE=inventory/mycluster/hosts.yml python3 contrib/inventory_builder/inventory.py $&#123;IPS[@]&#125;</span><br><span class="line"><span class="meta">#</span><span class="bash"> 修改主机名：node1 改为 k8s-01，node2 改为 k8s-02，node3 改为 k8s-03</span></span><br><span class="line">vi inventory/mycluster/hosts.yml</span><br><span class="line">ansible-playbook -i inventory/mycluster/hosts.yml cluster.yml</span><br><span class="line"><span class="meta"></span></span><br><span class="line"><span class="meta">#</span><span class="bash"> 部署失败，重试</span></span><br><span class="line">ansible-playbook -i inventory/mycluster/hosts.yml cluster.yml --limit @cluster.retry</span><br><span class="line"><span class="meta">#</span><span class="bash"> 部署失败，重置</span></span><br><span class="line">ansible-playbook -i inventory/mycluster/hosts.yml reset.yml</span><br><span class="line"><span class="meta"></span></span><br><span class="line"><span class="meta">#</span><span class="bash"> 添加节点（仅worker）</span></span><br><span class="line"><span class="meta">#</span><span class="bash"> 修改inventory</span></span><br><span class="line">ansible-playbook -i inventory/mycluster/hosts.yml scale.yml</span><br><span class="line"><span class="meta">#</span><span class="bash"> 删除节点（仅worker）</span></span><br><span class="line"><span class="meta">#</span><span class="bash"> 修改inventory</span></span><br><span class="line">ansible-playbook -i inventory/mycluster/hosts.yml remove-node.yml</span><br><span class="line"><span class="meta">#</span><span class="bash"> 添加和删除节点（包含master、worker、etcd）</span></span><br><span class="line"><span class="meta">#</span><span class="bash"> 修改inventory</span></span><br><span class="line">ansible-playbook -i inventory/mycluster/hosts.yml cluster.yml</span><br><span class="line"><span class="meta">#</span><span class="bash"> 更新集群（全量更新）</span></span><br><span class="line">ansible-playbook -i inventory/mycluster/hosts.yml cluster.yml -e kube_version=v1.24.4</span><br><span class="line"><span class="meta">#</span><span class="bash"> 更新集群（滚动更新，会先驱逐POD）</span></span><br><span class="line">ansible-playbook -i inventory/mycluster/hosts.yml upgrade-cluster.yml -e kube_version=v1.24.4</span><br></pre></td></tr></table></figure>
-
+<h1 id="测试"><a href="#测试" class="headerlink" title="测试"></a>测试</h1><p>测试 mitmproxy ，可以参考 <a href="/2021/07/24/%E5%AE%89%E8%A3%85mitmproxy/" title="这里">这里</a></p>
 ]]></content>
       <categories>
-        <category>K8S</category>
+        <category>Termux</category>
       </categories>
       <tags>
-        <tag>K8S</tag>
-        <tag>kubespray</tag>
+        <tag>Termux</tag>
+        <tag>mitmproxy</tag>
       </tags>
   </entry>
   <entry>
-    <title>安装EFK</title>
-    <url>/2021/08/18/%E5%AE%89%E8%A3%85EFK/</url>
-    <content><![CDATA[<h1 id="介绍"><a href="#介绍" class="headerlink" title="介绍"></a>介绍</h1><p>EFK有两种组合方式，各有优缺点</p>
-<p>elasticsearch + fluentd + kibana，是 kubernetes 官方推荐</p>
-<p>elasticsearch + filebeat + kibana，是 elastic 技术栈</p>
+    <title>安装Termux</title>
+    <url>/2021/07/25/%E5%AE%89%E8%A3%85Termux/</url>
+    <content><![CDATA[<h1 id="安装"><a href="#安装" class="headerlink" title="安装"></a>安装</h1><p>方法1：打开 <a href="https://f-droid.org/packages/com.termux">https://f-droid.org/packages/com.termux</a> ，下载 APK 安装，推荐</p>
+<p>方法2：打开 google play store 搜索 termux ，直接安装</p>
 <span id="more"></span>
 
-<h1 id="安装"><a href="#安装" class="headerlink" title="安装"></a>安装</h1><h2 id="EFK-fluentd"><a href="#EFK-fluentd" class="headerlink" title="EFK | fluentd"></a>EFK | fluentd</h2><h3 id="YAML-安装"><a href="#YAML-安装" class="headerlink" title="YAML 安装"></a>YAML 安装</h3><p>参考：<a href="https://github.com/kubernetes/kubernetes/tree/master/cluster/addons/fluentd-elasticsearch">https://github.com/kubernetes/kubernetes/tree/master/cluster/addons/fluentd-elasticsearch</a></p>
-<h3 id="HELM-安装"><a href="#HELM-安装" class="headerlink" title="HELM 安装"></a>HELM 安装</h3><figure class="highlight shell"><table><tr><td class="code"><pre><span class="line"><span class="meta">#</span><span class="bash"> 添加仓库</span></span><br><span class="line">helm repo add bitnami https://charts.bitnami.com/bitnami</span><br><span class="line"><span class="meta"></span></span><br><span class="line"><span class="meta">#</span><span class="bash"> 部署 7.9.2 版本</span></span><br><span class="line">helm search repo bitnami/elasticsearch --versions</span><br><span class="line">helm pull bitnami/elasticsearch --version 12.8.0</span><br><span class="line">tar zxvf elasticsearch-12.8.0.tgz </span><br><span class="line">cd elasticsearch</span><br><span class="line">cp values.yaml values-override.yaml</span><br><span class="line">vi values-override.yaml</span><br><span class="line"><span class="meta">#</span><span class="bash"><span class="comment">##</span></span></span><br><span class="line">master:</span><br><span class="line">  replicas: 1</span><br><span class="line">  heapSize: 256m</span><br><span class="line">coordinating:</span><br><span class="line">  replicas: 1</span><br><span class="line">  heapSize: 256m</span><br><span class="line">  service:</span><br><span class="line">    type: NodePort</span><br><span class="line">    nodePort: 30014</span><br><span class="line">data:</span><br><span class="line">  replicas: 1</span><br><span class="line">  heapSize: 256m</span><br><span class="line"><span class="meta">#</span><span class="bash"><span class="comment">##</span></span></span><br><span class="line">helm install --create-namespace --namespace cmp-efk elasticsearch -f values-override.yaml .</span><br><span class="line"><span class="meta"></span></span><br><span class="line"><span class="meta">#</span><span class="bash"> 部署 7.9.2 版本</span></span><br><span class="line">helm search repo bitnami/kibana --versions</span><br><span class="line">helm pull bitnami/kibana --version 5.3.14</span><br><span class="line">tar zxvf kibana-5.3.14.tgz </span><br><span class="line">cd kibana</span><br><span class="line">cp values.yaml values-override.yaml</span><br><span class="line">vi values-override.yaml</span><br><span class="line"><span class="meta">#</span><span class="bash"><span class="comment">##</span></span></span><br><span class="line">service:</span><br><span class="line">  type: NodePort</span><br><span class="line">  nodePort: 30016</span><br><span class="line">elasticsearch:</span><br><span class="line">  hosts:</span><br><span class="line">    - elasticsearch-elasticsearch-coordinating-only</span><br><span class="line">  port: 9200</span><br><span class="line"><span class="meta">#</span><span class="bash"><span class="comment">##</span></span></span><br><span class="line">helm install --create-namespace --namespace cmp-efk kibana -f values-override.yaml .</span><br><span class="line"><span class="meta"></span></span><br><span class="line"><span class="meta">#</span><span class="bash"> 部署 3.7.4 版本</span></span><br><span class="line">helm search repo bitnami/fluentd --versions</span><br><span class="line">helm pull bitnami/fluentd --version 3.7.4</span><br><span class="line">tar zxvf fluentd-3.7.4.tgz </span><br><span class="line">cd fluentd</span><br><span class="line">cp values.yaml values-override.yaml</span><br><span class="line">vi values-override.yaml</span><br><span class="line"><span class="meta">#</span><span class="bash"><span class="comment">##</span></span></span><br><span class="line">forwarder:</span><br><span class="line">  configMapFiles:</span><br><span class="line">    fluentd-inputs.conf: |</span><br><span class="line">      &lt;source&gt;</span><br><span class="line">        @type http</span><br><span class="line">        port 9880</span><br><span class="line">      &lt;/source&gt;</span><br><span class="line">      &lt;source&gt;</span><br><span class="line">        @id fluentd-containers.log</span><br><span class="line">        @type tail</span><br><span class="line">        path /var/log/containers/*.log</span><br><span class="line">        pos_file /opt/bitnami/fluentd/logs/buffers/fluentd-docker.pos</span><br><span class="line">        tag raw.kubernetes.*</span><br><span class="line">        read_from_head true</span><br><span class="line">        &lt;parse&gt;</span><br><span class="line">          @type multi_format</span><br><span class="line">          &lt;pattern&gt;</span><br><span class="line">            format json</span><br><span class="line">            time_key time</span><br><span class="line">            time_format %Y-%m-%dT%H:%M:%S.%NZ</span><br><span class="line">          &lt;/pattern&gt;</span><br><span class="line">          &lt;pattern&gt;</span><br><span class="line">            format /^(?&lt;time&gt;.+) (?&lt;stream&gt;stdout|stderr) [^ ]* (?&lt;log&gt;.*)$/</span><br><span class="line">            time_format %Y-%m-%dT%H:%M:%S.%N%:z</span><br><span class="line">          &lt;/pattern&gt;</span><br><span class="line">        &lt;/parse&gt;</span><br><span class="line">      &lt;/source&gt;</span><br><span class="line">      &lt;match raw.kubernetes.**&gt;</span><br><span class="line">        @id raw.kubernetes</span><br><span class="line">        @type detect_exceptions</span><br><span class="line">        remove_tag_prefix raw</span><br><span class="line">        message log</span><br><span class="line">        stream stream</span><br><span class="line">        multiline_flush_interval 5</span><br><span class="line">        max_bytes 500000</span><br><span class="line">        max_lines 1000</span><br><span class="line">      &lt;/match&gt;</span><br><span class="line">      &lt;filter **&gt;</span><br><span class="line">        @id filter_concat</span><br><span class="line">        @type concat</span><br><span class="line">        key message</span><br><span class="line">        multiline_end_regexp /\n$/</span><br><span class="line">        separator &quot;&quot;</span><br><span class="line">      &lt;/filter&gt;</span><br><span class="line">      &lt;filter kubernetes.**&gt;</span><br><span class="line">        @id filter_kubernetes_metadata</span><br><span class="line">        @type kubernetes_metadata</span><br><span class="line">      &lt;/filter&gt;</span><br><span class="line">      &lt;filter kubernetes.**&gt;</span><br><span class="line">        @id filter_parser</span><br><span class="line">        @type parser</span><br><span class="line">        key_name log</span><br><span class="line">        reserve_data true</span><br><span class="line">        remove_key_name_field true</span><br><span class="line">        &lt;parse&gt;</span><br><span class="line">          @type multi_format</span><br><span class="line">          &lt;pattern&gt;</span><br><span class="line">            format json</span><br><span class="line">          &lt;/pattern&gt;</span><br><span class="line">          &lt;pattern&gt;</span><br><span class="line">            format none</span><br><span class="line">          &lt;/pattern&gt;</span><br><span class="line">        &lt;/parse&gt;</span><br><span class="line">      &lt;/filter&gt;</span><br><span class="line">aggregator:</span><br><span class="line">  configMapFiles:</span><br><span class="line">    fluentd-output.conf: |</span><br><span class="line">      &lt;match fluentd.healthcheck&gt;</span><br><span class="line">        @type stdout</span><br><span class="line">      &lt;/match&gt;</span><br><span class="line">      &lt;match **&gt;</span><br><span class="line">        @id elasticsearch</span><br><span class="line">        @type elasticsearch</span><br><span class="line">        @log_level info</span><br><span class="line">        type_name _doc</span><br><span class="line">        include_tag_key true</span><br><span class="line">        host &quot;#&#123;ENV[&#x27;ELASTICSEARCH_HOST&#x27;]&#125;&quot;</span><br><span class="line">        port &quot;#&#123;ENV[&#x27;ELASTICSEARCH_PORT&#x27;]&#125;&quot;</span><br><span class="line">        logstash_format true</span><br><span class="line">        &lt;buffer&gt;</span><br><span class="line">          @type file</span><br><span class="line">          path /opt/bitnami/fluentd/logs/buffers/logs.buffer</span><br><span class="line">          flush_mode interval</span><br><span class="line">          retry_type exponential_backoff</span><br><span class="line">          flush_thread_count 2</span><br><span class="line">          flush_interval 5s</span><br><span class="line">          retry_forever</span><br><span class="line">          retry_max_interval 30</span><br><span class="line">          chunk_limit_size 2M</span><br><span class="line">          total_limit_size 500M</span><br><span class="line">          overflow_action block</span><br><span class="line">        &lt;/buffer&gt;</span><br><span class="line">      &lt;/match&gt;</span><br><span class="line">  extraEnv:</span><br><span class="line">    - name: ELASTICSEARCH_HOST</span><br><span class="line">      value: &quot;elasticsearch-elasticsearch-coordinating-only&quot;</span><br><span class="line">    - name: ELASTICSEARCH_PORT</span><br><span class="line">      value: &quot;9200&quot;</span><br><span class="line"><span class="meta">#</span><span class="bash"><span class="comment">##</span></span></span><br><span class="line">helm install --create-namespace --namespace cmp-efk fluentd -f values-override.yaml .</span><br></pre></td></tr></table></figure>
+<h1 id="配置"><a href="#配置" class="headerlink" title="配置"></a>配置</h1><h2 id="修改-apt-软件源"><a href="#修改-apt-软件源" class="headerlink" title="修改 apt 软件源"></a>修改 apt 软件源</h2><figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">sed -i &#x27;s@^\(deb.*stable main\)$@#\1\ndeb https://mirrors.tuna.tsinghua.edu.cn/termux/termux-packages-24 stable main@&#x27; \</span><br><span class="line"><span class="meta">$</span><span class="bash">PREFIX/etc/apt/sources.list</span></span><br><span class="line">sed -i &#x27;s@^\(deb.*games stable\)$@#\1\ndeb https://mirrors.tuna.tsinghua.edu.cn/termux/game-packages-24 games stable@&#x27; \</span><br><span class="line"><span class="meta">$</span><span class="bash">PREFIX/etc/apt/sources.list.d/game.list</span></span><br><span class="line">sed -i &#x27;s@^\(deb.*science stable\)$@#\1\ndeb https://mirrors.tuna.tsinghua.edu.cn/termux/science-packages-24 science stable@&#x27; \</span><br><span class="line"><span class="meta">$</span><span class="bash">PREFIX/etc/apt/sources.list.d/science.list</span></span><br><span class="line">pkg update</span><br></pre></td></tr></table></figure>
 
-<h2 id="EFK-filebeat"><a href="#EFK-filebeat" class="headerlink" title="EFK | filebeat"></a>EFK | filebeat</h2><h3 id="HELM-安装-1"><a href="#HELM-安装-1" class="headerlink" title="HELM 安装"></a>HELM 安装</h3><figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">helm repo add elastic https://helm.elastic.co</span><br><span class="line"></span><br><span class="line">helm pull elastic/elasticsearch --version 7.9.2</span><br><span class="line">helm pull elastic/kibana --version 7.9.2</span><br><span class="line">helm pull elastic/filebeat --version 7.9.2</span><br><span class="line"></span><br><span class="line">vi elasticsearch-values.yaml</span><br><span class="line"><span class="meta">#</span><span class="bash"><span class="comment">##</span></span></span><br><span class="line">fullnameOverride: elasticsearch</span><br><span class="line">replicas: 1</span><br><span class="line">minimumMasterNodes: 1</span><br><span class="line">service:</span><br><span class="line">  type: NodePort</span><br><span class="line">  nodePort: 30014</span><br><span class="line"><span class="meta">#</span><span class="bash"><span class="comment">##</span></span></span><br><span class="line">vi filebeat-values.yaml</span><br><span class="line"><span class="meta">#</span><span class="bash"><span class="comment">##</span></span></span><br><span class="line">fullnameOverride: filebeat</span><br><span class="line"><span class="meta">#</span><span class="bash"><span class="comment">##</span></span></span><br><span class="line">vi kibana-values.yaml</span><br><span class="line"><span class="meta">#</span><span class="bash"><span class="comment">##</span></span></span><br><span class="line">fullnameOverride: kibana</span><br><span class="line">service:</span><br><span class="line">  type: NodePort</span><br><span class="line">  nodePort: 30016</span><br><span class="line"><span class="meta">#</span><span class="bash"><span class="comment">##</span></span></span><br><span class="line"></span><br><span class="line">helm install --create-namespace --namespace cmp-efk elasticsearch -f elasticsearch-values.yaml ./elasticsearch</span><br><span class="line">helm install --create-namespace --namespace cmp-efk filebeat -f filebeat-values.yaml ./filebeat</span><br><span class="line">helm install --create-namespace --namespace cmp-efk kibana -f kibana-values.yaml ./kibana</span><br></pre></td></tr></table></figure>
+<h2 id="访问手机存储"><a href="#访问手机存储" class="headerlink" title="访问手机存储"></a>访问手机存储</h2><figure class="highlight shell"><table><tr><td class="code"><pre><span class="line"><span class="meta">#</span><span class="bash"> 获取权限，会在 home 下生成 storage 目录</span></span><br><span class="line">termux-setup-storage</span><br><span class="line"><span class="meta">#</span><span class="bash"> 查看 storage 目录结构</span></span><br><span class="line">tree storage</span><br><span class="line">storage</span><br><span class="line">├── dcim -&gt; /storage/emulated/0/DCIM</span><br><span class="line">├── downloads -&gt; /storage/emulated/0/Download</span><br><span class="line">├── movies -&gt; /storage/emulated/0/Movies</span><br><span class="line">├── music -&gt; /storage/emulated/0/Music</span><br><span class="line">├── pictures -&gt; /storage/emulated/0/Pictures</span><br><span class="line">└── shared -&gt; /storage/emulated/0</span><br><span class="line"></span><br><span class="line">6 directories, 0 files</span><br></pre></td></tr></table></figure>
+
+<h1 id="使用"><a href="#使用" class="headerlink" title="使用"></a>使用</h1><h2 id="安装-SSH-服务"><a href="#安装-SSH-服务" class="headerlink" title="安装 SSH 服务"></a>安装 SSH 服务</h2><p><strong>安装 OPENSSH</strong></p>
+<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">pkg install openssh</span><br><span class="line"><span class="meta">#</span><span class="bash"> 启动sshd</span></span><br><span class="line">sshd</span><br><span class="line"><span class="meta">#</span><span class="bash"> 停止sshd</span></span><br><span class="line">pkill sshd</span><br><span class="line"><span class="meta">#</span><span class="bash"> 修改密码</span></span><br><span class="line">passwd</span><br><span class="line"><span class="meta">#</span><span class="bash"> 获取用户</span></span><br><span class="line">id</span><br><span class="line">uid=10300(u0_a300) gid=10300(u0_a300) groups=10300(u0_a300),3003(inet),9997(everybody),20300(u0_a300_cache),50300(all_a300)</span><br></pre></td></tr></table></figure>
+
+<p><strong>配置远程登录</strong></p>
+<p>方法1：通过密码登录</p>
+<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line"><span class="meta">#</span><span class="bash"> 查看 termux 配置，默认 PasswordAuthentication yes</span></span><br><span class="line">cat $PREFIX/etc/ssh/sshd_config</span><br></pre></td></tr></table></figure>
+
+<p>方法2：在客户端生成秘钥对</p>
+<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line"><span class="meta">#</span><span class="bash"> 生成密钥对，复制 id_rsa.pub 内容到 termux：data\data\com.termux\files\home\.ssh\authorized_keys</span></span><br><span class="line">ssh-keygen</span><br></pre></td></tr></table></figure>
+
+<p>方法3：在 termux 生成秘钥对</p>
+<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line"><span class="meta">#</span><span class="bash"> 生成密钥对，复制 id_rsa 到客户端</span></span><br><span class="line">ssh-keygen</span><br><span class="line">cd .ssh</span><br><span class="line">cat id_rsa.pub &gt; authorized_keys</span><br></pre></td></tr></table></figure>
+
+<p>方法4：直接使用 openssh 安装的时候生成的密钥对</p>
+<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line"><span class="meta">#</span><span class="bash"> 复制 ssh_host_rsa_key.pub 到 authorized_keys</span></span><br><span class="line">cat ../usr/etc/ssh/ssh_host_rsa_key.pub &gt; .ssh/authorized_keys</span><br><span class="line"><span class="meta">#</span><span class="bash"> 复制 ssh_host_rsa_key 到 客户端</span></span><br><span class="line">cat ../usr/etc/ssh/ssh_host_rsa_key</span><br></pre></td></tr></table></figure>
+
+<p><strong>客户端登录</strong></p>
+<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line"><span class="meta">#</span><span class="bash"> 密码登录</span></span><br><span class="line">ssh u0_a300@192.168.137.2 -p 8022</span><br><span class="line"><span class="meta">#</span><span class="bash"> 密钥登录</span></span><br><span class="line">ssh -i ~/.ssh/id_rsa 192.168.137.2 -p 8022</span><br></pre></td></tr></table></figure>
+
+<h2 id="查看监听端口"><a href="#查看监听端口" class="headerlink" title="查看监听端口"></a>查看监听端口</h2><p>Andorid 10 版本以后的 Termux 无法正常使用 netstat -an 命令，可以通过 nmap 命令查看</p>
+<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line"><span class="meta">#</span><span class="bash"> 安装nmap</span></span><br><span class="line">pkg install nmap</span><br><span class="line"><span class="meta">#</span><span class="bash"> 扫描端口</span></span><br><span class="line">nmap 127.0.0.1</span><br></pre></td></tr></table></figure>
+
+<h1 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h1><p><a href="https://www.sqlsec.com/2018/05/termux.html">https://www.sqlsec.com/2018/05/termux.html</a></p>
+<p><a href="https://github.com/termux/termux-app">https://github.com/termux/termux-app</a></p>
+]]></content>
+      <categories>
+        <category>Termux</category>
+      </categories>
+      <tags>
+        <tag>Termux</tag>
+        <tag>手机</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>升级jar包中单文件</title>
+    <url>/2020/10/01/%E5%8D%87%E7%BA%A7jar%E5%8C%85%E4%B8%AD%E5%8D%95%E6%96%87%E4%BB%B6/</url>
+    <content><![CDATA[<h1 id="发现问题"><a href="#发现问题" class="headerlink" title="发现问题"></a>发现问题</h1><p>开发springboot项目的时候，我们经常会以jar包的形式进行部署。这个时候，如果需要修改某一个文件，那么该怎么升级呢？</p>
+<ul>
+<li>本地重新打包，全包上传到服务器</li>
+<li>只上传单文件到服务器，在服务器上把单文件合并到原来的jar包中</li>
+</ul>
+<p>显然，第一种方案在网速较慢的时候，是影响工作效率的。</p>
+<span id="more"></span>
+
+<h1 id="解决问题"><a href="#解决问题" class="headerlink" title="解决问题"></a>解决问题</h1><h2 id="过程"><a href="#过程" class="headerlink" title="过程"></a>过程</h2><p>查看help：</p>
+<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">[security@localhost jars]$ jar</span><br><span class="line">用法: jar &#123;ctxui&#125;[vfm0Me] [jar-file] [manifest-file] [entry-point] [-C dir] files ...</span><br><span class="line">选项包括: </span><br><span class="line">    -c  创建新的归档文件</span><br><span class="line">    -t  列出归档目录</span><br><span class="line">    -x  从档案中提取指定的 (或所有) 文件</span><br><span class="line">    -u  更新现有的归档文件</span><br><span class="line">    -v  在标准输出中生成详细输出</span><br><span class="line">    -f  指定归档文件名</span><br><span class="line">    -m  包含指定清单文件中的清单信息</span><br><span class="line">    -e  为捆绑到可执行 jar 文件的独立应用程序</span><br><span class="line">        指定应用程序入口点</span><br><span class="line">    -0  仅存储; 不使用情况任何 ZIP 压缩</span><br><span class="line">    -M  不创建条目的清单文件</span><br><span class="line">    -i  为指定的 jar 文件生成索引信息</span><br><span class="line">    -C  更改为指定的目录并包含其中的文件</span><br><span class="line">如果有任何目录文件, 则对其进行递归处理。</span><br><span class="line">清单文件名, 归档文件名和入口点名称的指定顺序</span><br><span class="line">与 &#x27;m&#x27;, &#x27;f&#x27; 和 &#x27;e&#x27; 标记的指定顺序相同。</span><br><span class="line"></span><br><span class="line">示例 1: 将两个类文件归档到一个名为 classes.jar 的归档文件中: </span><br><span class="line">       jar cvf classes.jar Foo.class Bar.class </span><br><span class="line">示例 2: 使用现有的清单文件 &#x27;mymanifest&#x27; 并</span><br><span class="line">           将 foo/ 目录中的所有文件归档到 &#x27;classes.jar&#x27; 中: </span><br><span class="line">       jar cvfm classes.jar mymanifest -C foo/ .</span><br></pre></td></tr></table></figure>
+
+<h2 id="结论"><a href="#结论" class="headerlink" title="结论"></a>结论</h2><ul>
+<li>查看文件在jar包中的路径</li>
+</ul>
+<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">[security@localhost jars]$ jar tvf service.jar |grep todo</span><br><span class="line">  304 Fri Aug 23 12:00:00 CST 2019 BOOT-INF/classes/templates/todo.ftl</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>解压出文件</li>
+</ul>
+<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">[security@localhost jars]$ jar xvf service.jar BOOT-INF/classes/templates/todo.ftl</span><br><span class="line">  已解压: BOOT-INF/classes/templates/todo.ftl</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>覆盖解压出的文件</li>
+</ul>
+<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">mv todo.ftl BOOT-INF/classes/templates/todo.ftl</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>合并文件到jar包中</li>
+</ul>
+<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">[security@localhost jars]$ jar uvf service.jar BOOT-INF/classes/templates/todo.ftl</span><br><span class="line">  正在添加: BOOT-INF/classes/templates/todo.ftl(输入 = 304) (输出 = 195)(压缩了 35%)</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>删除解压出的文件</li>
+</ul>
+<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">[security@localhost jars]$ rm -rf BOOT-INF</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>重启服务</li>
+</ul>
+]]></content>
+      <categories>
+        <category>Java</category>
+      </categories>
+      <tags>
+        <tag>Java</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>安装dashboard</title>
+    <url>/2021/08/14/%E5%AE%89%E8%A3%85dashboard/</url>
+    <content><![CDATA[<h1 id="yaml安装"><a href="#yaml安装" class="headerlink" title="yaml安装"></a>yaml安装</h1><figure class="highlight shell"><table><tr><td class="code"><pre><span class="line"><span class="meta">#</span><span class="bash"> 下载</span></span><br><span class="line"><span class="meta">#</span><span class="bash"> wget https://raw.githubusercontent.com/kubernetes/dashboard/v2.2.0/aio/deploy/recommended.yaml -O dashboard.yaml</span></span><br><span class="line">wget https://ghproxy.com/https://raw.githubusercontent.com/kubernetes/dashboard/v2.2.0/aio/deploy/recommended.yaml \</span><br><span class="line">-O dashboard.yaml</span><br><span class="line"><span class="meta">#</span><span class="bash"> 修改配置</span></span><br><span class="line"><span class="meta">#</span><span class="bash"><span class="comment"># 修改 namespace</span></span></span><br><span class="line"><span class="meta">#</span><span class="bash"><span class="comment"># 启用 NodePort</span></span></span><br><span class="line"><span class="meta">#</span><span class="bash"><span class="comment"># 修改 ClusterRoleBinding 中 ClusterRole 为 cluster-admin</span></span></span><br><span class="line">vi dashboard.yaml</span><br><span class="line"><span class="meta">#</span><span class="bash"> 提交</span></span><br><span class="line">kubectl apply -f dashboard.yaml</span><br></pre></td></tr></table></figure>
+
+<span id="more"></span>
+
+<h1 id="helm安装"><a href="#helm安装" class="headerlink" title="helm安装"></a>helm安装</h1><figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">helm repo add kubernetes-dashboard https://kubernetes.github.io/dashboard</span><br><span class="line">helm pull kubernetes-dashboard/kubernetes-dashboard --version 4.2.0</span><br><span class="line">tar zxvf kubernetes-dashboard-4.2.0.tgz </span><br><span class="line">cd kubernetes-dashboard</span><br><span class="line">cp values.yaml values-override.yaml</span><br><span class="line">vi values-override.yaml</span><br><span class="line"><span class="meta">#</span><span class="bash"><span class="comment">##</span></span></span><br><span class="line">extraArgs:</span><br><span class="line">  - --token-ttl=0</span><br><span class="line">service:</span><br><span class="line">  type: NodePort</span><br><span class="line">  nodePort: 30000</span><br><span class="line">metricsScraper:</span><br><span class="line">  enabled: true</span><br><span class="line">metrics-server:</span><br><span class="line">  enabled: true</span><br><span class="line">  args:</span><br><span class="line">    - --kubelet-preferred-address-types=InternalIP</span><br><span class="line">    - --kubelet-insecure-tls</span><br><span class="line"><span class="meta">#</span><span class="bash"><span class="comment">##</span></span></span><br><span class="line">helm install --create-namespace --namespace cmp-dashboard dashboard -f values-override.yaml .</span><br><span class="line"><span class="meta"></span></span><br><span class="line"><span class="meta">#</span><span class="bash"> 获取 token</span></span><br><span class="line">kubectl -n cmp-dashboard get secrets \</span><br><span class="line"><span class="meta">$</span><span class="bash">(kubectl -n cmp-dashboard get secrets | grep kubernetes-dashboard-token | awk <span class="string">&#x27;&#123;print $1&#125;&#x27;</span>) \</span></span><br><span class="line"><span class="bash">-o jsonpath=<span class="string">&quot;&#123;[&#x27;data&#x27;][&#x27;token&#x27;]&#125;&quot;</span> | base64 --decode &amp;&amp; <span class="built_in">echo</span></span></span><br><span class="line"><span class="meta"></span></span><br><span class="line"><span class="meta">#</span><span class="bash"> 提升权限</span></span><br><span class="line">vi dashboard-rbac.yaml</span><br><span class="line"><span class="meta">#</span><span class="bash"><span class="comment">##</span></span></span><br><span class="line">apiVersion: rbac.authorization.k8s.io/v1</span><br><span class="line">kind: ClusterRoleBinding</span><br><span class="line">metadata:</span><br><span class="line">  name: dashboard-kubernetes-dashboard</span><br><span class="line">roleRef:</span><br><span class="line">  apiGroup: rbac.authorization.k8s.io</span><br><span class="line">  kind: ClusterRole</span><br><span class="line">  name: cluster-admin</span><br><span class="line">subjects:</span><br><span class="line">  - kind: ServiceAccount</span><br><span class="line">	name: dashboard-kubernetes-dashboard</span><br><span class="line">namespace: cmp-dashboard</span><br><span class="line"><span class="meta">#</span><span class="bash"><span class="comment">##</span></span></span><br><span class="line">kubectl apply -f dashboard-rbac.yaml</span><br><span class="line"><span class="meta"></span></span><br><span class="line"><span class="meta">#</span><span class="bash"> 获取 token</span></span><br><span class="line">kubectl -n cmp-dashboard get secrets \</span><br><span class="line"><span class="meta">$</span><span class="bash">(kubectl -n cmp-dashboard get secrets | grep kubernetes-dashboard-token | awk <span class="string">&#x27;&#123;print $1&#125;&#x27;</span>) \</span></span><br><span class="line"><span class="bash">-o go-template=<span class="string">&quot;&#123;&#123;.data.token | base64decode&#125;&#125;&quot;</span> &amp;&amp; <span class="built_in">echo</span></span></span><br></pre></td></tr></table></figure>
 
 ]]></content>
       <categories>
@@ -760,7 +882,7 @@
       </categories>
       <tags>
         <tag>K8S</tag>
-        <tag>EFK</tag>
+        <tag>harbor</tag>
       </tags>
   </entry>
 </search>

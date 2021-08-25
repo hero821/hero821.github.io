@@ -28,7 +28,7 @@
 <meta property="og:description" content="yaml安装1234567# 下载wget https:&#x2F;&#x2F;raw.githubusercontent.com&#x2F;kubernetes&#x2F;ingress-nginx&#x2F;controller-v0.46.0&#x2F;deploy&#x2F;static&#x2F;provider&#x2F;cloud&#x2F;deploy.yaml \-O ingress-nginx.yaml# 修改配置vi ingress-nginx.yaml# 提交kubect">
 <meta property="og:locale" content="zh_CN">
 <meta property="article:published_time" content="2021-08-15T03:00:00.000Z">
-<meta property="article:modified_time" content="2021-08-15T03:40:57.217Z">
+<meta property="article:modified_time" content="2021-08-23T16:26:27.720Z">
 <meta property="article:author" content="hero821">
 <meta property="article:tag" content="K8S">
 <meta property="article:tag" content="ingress-nginx">
@@ -90,9 +90,9 @@
   <ul class="main-menu menu">
         <li class="menu-item menu-item-home"><a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a></li>
         <li class="menu-item menu-item-about"><a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>关于</a></li>
-        <li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签<span class="badge">29</span></a></li>
-        <li class="menu-item menu-item-categories"><a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类<span class="badge">10</span></a></li>
-        <li class="menu-item menu-item-archives"><a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档<span class="badge">25</span></a></li>
+        <li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签<span class="badge">31</span></a></li>
+        <li class="menu-item menu-item-categories"><a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类<span class="badge">11</span></a></li>
+        <li class="menu-item menu-item-archives"><a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档<span class="badge">27</span></a></li>
       <li class="menu-item menu-item-search">
         <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
         </a>
@@ -165,20 +165,20 @@
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">25</span>
+          <span class="site-state-item-count">27</span>
           <span class="site-state-item-name">日志</span>
         </a>
       </div>
       <div class="site-state-item site-state-categories">
             <a href="/categories/">
           
-        <span class="site-state-item-count">10</span>
+        <span class="site-state-item-count">11</span>
         <span class="site-state-item-name">分类</span></a>
       </div>
       <div class="site-state-item site-state-tags">
             <a href="/tags/">
           
-        <span class="site-state-item-count">29</span>
+        <span class="site-state-item-count">31</span>
         <span class="site-state-item-name">标签</span></a>
       </div>
   </nav>
@@ -298,7 +298,7 @@
 
 <span id="more"></span>
 
-<h1 id="helm安装"><a href="#helm安装" class="headerlink" title="helm安装"></a>helm安装</h1><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#</span><span class="bash"> 添加仓库</span></span><br><span class="line">helm repo add ingress-nginx https://kubernetes.github.io/ingress-nginx</span><br><span class="line"><span class="meta">#</span><span class="bash"> 搜索版本</span></span><br><span class="line">helm search repo ingress-nginx</span><br><span class="line"><span class="meta">#</span><span class="bash"> 下载指定版本</span></span><br><span class="line">helm pull ingress-nginx/ingress-nginx --version 3.32.0</span><br><span class="line">tar zxvf ingress-nginx-3.32.0.tgz </span><br><span class="line">cd ingress-nginx</span><br><span class="line">cp values.yaml values-override.yaml</span><br><span class="line"><span class="meta">#</span><span class="bash"> 修改配置</span></span><br><span class="line">vi values-override.yaml</span><br><span class="line"><span class="meta">#</span><span class="bash"><span class="comment">##</span></span></span><br><span class="line">controller:</span><br><span class="line">  hostNetwork: true</span><br><span class="line">  kind: Deployment</span><br><span class="line">  nodeSelector:</span><br><span class="line">    kubernetes.io/hostname: k8s-01</span><br><span class="line"><span class="meta">#</span><span class="bash"><span class="comment">##</span></span></span><br><span class="line"><span class="meta">#</span><span class="bash"> 安装部署</span></span><br><span class="line">helm install --create-namespace --namespace cmp-ingress-nginx ingress-nginx -f values-override.yaml .</span><br><span class="line"><span class="meta">#</span><span class="bash"> 检测版本</span></span><br><span class="line">kubectl -n cmp-ingress-nginx exec -it \</span><br><span class="line"><span class="meta">$</span><span class="bash">(kubectl -n cmp-ingress-nginx get pods -l app.kubernetes.io/name=ingress-nginx -o jsonpath=<span class="string">&#x27;&#123;.items[0].metadata.name&#125;&#x27;</span>) \</span></span><br><span class="line"><span class="bash">-- /nginx-ingress-controller --version</span></span><br></pre></td></tr></table></figure>
+<h1 id="helm安装"><a href="#helm安装" class="headerlink" title="helm安装"></a>helm安装</h1><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#</span><span class="bash"> 添加仓库</span></span><br><span class="line">helm repo add ingress-nginx https://kubernetes.github.io/ingress-nginx</span><br><span class="line"><span class="meta">#</span><span class="bash"> 搜索版本</span></span><br><span class="line">helm search repo ingress-nginx</span><br><span class="line"><span class="meta">#</span><span class="bash"> 下载指定版本</span></span><br><span class="line">helm pull ingress-nginx/ingress-nginx --version 3.32.0</span><br><span class="line">tar zxvf ingress-nginx-3.32.0.tgz </span><br><span class="line">cd ingress-nginx</span><br><span class="line">cp values.yaml values-override.yaml</span><br><span class="line"><span class="meta">#</span><span class="bash"> 修改配置</span></span><br><span class="line">vi values-override.yaml</span><br><span class="line"><span class="meta">#</span><span class="bash"><span class="comment">##</span></span></span><br><span class="line">controller:</span><br><span class="line">  hostNetwork: true</span><br><span class="line">  nodeSelector:</span><br><span class="line">    kubernetes.io/hostname: k8s-01</span><br><span class="line"><span class="meta">#</span><span class="bash"><span class="comment">##</span></span></span><br><span class="line"><span class="meta">#</span><span class="bash"> 安装部署</span></span><br><span class="line">helm install --create-namespace --namespace cmp-ingress-nginx ingress-nginx -f values-override.yaml .</span><br><span class="line"><span class="meta">#</span><span class="bash"> 检测版本</span></span><br><span class="line">kubectl -n cmp-ingress-nginx exec -it \</span><br><span class="line"><span class="meta">$</span><span class="bash">(kubectl -n cmp-ingress-nginx get pods -l app.kubernetes.io/name=ingress-nginx -o jsonpath=<span class="string">&#x27;&#123;.items[0].metadata.name&#125;&#x27;</span>) \</span></span><br><span class="line"><span class="bash">-- /nginx-ingress-controller --version</span></span><br></pre></td></tr></table></figure>
 
 
     </div>
