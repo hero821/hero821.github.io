@@ -67,91 +67,6 @@
       </tags>
   </entry>
   <entry>
-    <title>Linux路由相关概念</title>
-    <url>/2021/07/25/Linux%E8%B7%AF%E7%94%B1%E7%9B%B8%E5%85%B3%E6%A6%82%E5%BF%B5/</url>
-    <content><![CDATA[<h1 id="路由规则-ip-rule"><a href="#路由规则-ip-rule" class="headerlink" title="路由规则 ip rule"></a>路由规则 ip rule</h1><p><strong>操作系统默认规则</strong></p>
-<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">ip rule list</span><br><span class="line">0:      from all lookup local </span><br><span class="line">32766:  from all lookup main </span><br><span class="line">32767:  from all lookup default </span><br></pre></td></tr></table></figure>
-
-<p><strong>每列的含义</strong></p>
-<ul>
-<li>Priority: 路由规则优先级，根据数字从小到大依次进行匹配，从0到32767</li>
-<li>Selector: 对IP数据包进行匹配的条件，如 from all 表示所有IP数据包</li>
-<li>Action: 对IP数据包执行的动作，如 lookup local 表示需要查找local路由表进行处理</li>
-</ul>
-<span id="more"></span>
-
-<p><strong>命令格式</strong></p>
-<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">ip rule help</span><br><span class="line">Usage: ip rule &#123; add | del &#125; SELECTOR ACTION</span><br><span class="line">       ip rule &#123; flush | save | restore &#125;</span><br><span class="line">       ip rule [ list [ SELECTOR ]]</span><br><span class="line">SELECTOR := [ not ] [ from PREFIX ] [ to PREFIX ] [ tos TOS ] [ fwmark FWMARK[/MASK] ]</span><br><span class="line">            [ iif STRING ] [ oif STRING ] [ pref NUMBER ] [ l3mdev ]</span><br><span class="line">            [ uidrange NUMBER-NUMBER ]</span><br><span class="line">ACTION := [ table TABLE_ID ]</span><br><span class="line">          [ nat ADDRESS ]</span><br><span class="line">          [ realms [SRCREALM/]DSTREALM ]</span><br><span class="line">          [ goto NUMBER ]</span><br><span class="line">          SUPPRESSOR</span><br><span class="line">SUPPRESSOR := [ suppress_prefixlength NUMBER ]</span><br><span class="line">              [ suppress_ifgroup DEVGROUP ]</span><br><span class="line">TABLE_ID := [ local | main | default | NUMBER ]</span><br></pre></td></tr></table></figure>
-
-<p><strong>SELECTOR</strong></p>
-<ul>
-<li><p>from PREFIX：选择要匹配的源前缀</p>
-</li>
-<li><p>to PREFIX：选择要匹配的目的前缀</p>
-</li>
-<li><p>tos TOS：选择要匹配的TOS值</p>
-</li>
-<li><p>fwmark MARK：选择要匹配的标记值</p>
-</li>
-<li><p>iif NAME：选择要匹配的传入接口设备，例如：可以为转发的数据包和本地数据包创建单独的路由表</p>
-</li>
-<li><p>oif NAME：选择要匹配的传出接口设备，仅适用于来自绑定到设备的本地套接字的数据包</p>
-</li>
-</ul>
-<p><strong>ACTION</strong></p>
-<ul>
-<li>table TABLEID：要查找的路由表标识符</li>
-<li>nat ADDRESS：要转换的IP地址（用于源地址）</li>
-</ul>
-<h1 id="路由表-ip-route"><a href="#路由表-ip-route" class="headerlink" title="路由表 ip route"></a>路由表 ip route</h1><p><strong>操作系统中有256个路由表</strong></p>
-<ul>
-<li><p>编号255：是 local 路由表，处理本地IP和广播地址路由，local路由表只由kernel维护，不能更改和删除</p>
-</li>
-<li><p>编号254：是 main 路由表，处理所有非策略常规路由，不指定路由表名时默认使用的路由表，ip route 命令默认操作的就是这个路由表</p>
-</li>
-<li><p>编号253：是 default 路由表，所有其他路由表都没有匹配到的情况下，根据该表中的条目进行处理</p>
-</li>
-<li><p>编号1-252：是 用户可以自定义的 路由表</p>
-</li>
-<li><p>编号0：是 系统保留 路由表</p>
-</li>
-</ul>
-<p><strong>操作系统内部使用数字编号来标识路由表，为了方便记忆，有时需要使用符号标识路由表，对应关系在 /etc/iproute2/rt_tables 中</strong></p>
-<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">cat /etc/iproute2/rt_tables </span><br><span class="line">255   local</span><br><span class="line">254   main</span><br><span class="line">253   default</span><br><span class="line">0     unspec</span><br></pre></td></tr></table></figure>
-
-<p><strong>查询路由表</strong></p>
-<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">ip route list</span><br><span class="line">default via 192.168.128.2 dev ens33 proto static metric 100 </span><br><span class="line">192.168.128.0/24 dev ens33 proto kernel scope link src 192.168.128.200 metric 100  </span><br></pre></td></tr></table></figure>
-
-<p><strong>每列的含义</strong></p>
-<ul>
-<li>PREFIX：目标地址前缀，可以是 default 代表所有地址 0.0.0.0/0，可以是 cidr</li>
-<li>proto RTPROTO：路由协议标识符，可以是数字编号或符号标识，对应关系在 /etc/iproute2/rt_protos 中<ul>
-<li>redirect：路由是由于ICMP重定向而安装的</li>
-<li>kernel：路由是在自动配置期间由内核安装的</li>
-<li>boot：路由是在启动过程中安装的</li>
-<li>static：路由是管理员安装的，以覆盖动态路由</li>
-<li>ra：路由是通过路由器发现协议安装的</li>
-</ul>
-</li>
-<li>scope SCOPE：路由前缀所覆盖的目标地址范围，可以是数字编号或符号标识，对应关系在 /etc/iproute2/rt_scopes 中</li>
-<li>metric METRIC：路由跳数，指该条路由记录的质量，一般情况下，如果有多条到达相同目的地的路由记录，路由器会采用metric值小的那条路由</li>
-<li>via ADDRESS：下一跳路由器的地址</li>
-<li>dev NAME：输出设备名称</li>
-<li>src ADDRESS：发送数据包时首选的源地址</li>
-</ul>
-<h1 id="样例"><a href="#样例" class="headerlink" title="样例"></a>样例</h1><p>双网卡：10.0.0.2/24 和 172.16.0.2/24<br>使来自 192.168.1.0/24 的数据包走 10.0.0.1 网关<br>是来自 192.168.2.0/24 的数据包走 172.16.0.1 网关</p>
-<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line"><span class="meta">#</span><span class="bash"> 定义路由表名称</span></span><br><span class="line">echo 100 t100 &gt;&gt; /etc/iproute2/rt_tables</span><br><span class="line">echo 200 t200 &gt;&gt; /etc/iproute2/rt_tables</span><br><span class="line"><span class="meta">#</span><span class="bash"> 新增规则</span></span><br><span class="line">ip rule add from 192.168.1.0/24 table t100</span><br><span class="line">ip rule add from 192.168.2.0/24 table t200</span><br><span class="line"><span class="meta">#</span><span class="bash"> 添加路由</span></span><br><span class="line">ip route add default via 10.0.0.1 table t100</span><br><span class="line">ip route add default via 172.16.0.1 table t200</span><br><span class="line"><span class="meta">#</span><span class="bash"> 刷新路由表</span></span><br><span class="line">ip route flush cache</span><br></pre></td></tr></table></figure>
-
-]]></content>
-      <categories>
-        <category>网络</category>
-      </categories>
-      <tags>
-        <tag>网络</tag>
-        <tag>路由</tag>
-      </tags>
-  </entry>
-  <entry>
     <title>Nginx实现流量拷贝</title>
     <url>/2021/07/26/Nginx%E5%AE%9E%E7%8E%B0%E6%B5%81%E9%87%8F%E6%8B%B7%E8%B4%9D/</url>
     <content><![CDATA[<h1 id="基于-Nginx-Mirror-模块"><a href="#基于-Nginx-Mirror-模块" class="headerlink" title="基于 Nginx Mirror 模块"></a>基于 Nginx Mirror 模块</h1><h2 id="配置"><a href="#配置" class="headerlink" title="配置"></a>配置</h2><figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">vi /etc/nginx/conf.d/default.conf</span><br><span class="line"><span class="meta">#</span><span class="bash"><span class="comment">##</span></span></span><br><span class="line">server &#123;</span><br><span class="line">  listen    8080;</span><br><span class="line">  server_name localhost;</span><br><span class="line">  location / &#123;</span><br><span class="line">    mirror /mirror;</span><br><span class="line">    proxy_pass http://192.168.0.2:30000;</span><br><span class="line">  &#125;</span><br><span class="line">  location /mirror &#123;</span><br><span class="line">    internal;</span><br><span class="line">    proxy_pass http://127.0.0.1:8888$request_uri;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br><span class="line"><span class="meta">#</span><span class="bash"><span class="comment">##</span></span></span><br><span class="line">nginx -s reload</span><br></pre></td></tr></table></figure>
@@ -200,6 +115,56 @@
       </tags>
   </entry>
   <entry>
+    <title>升级jar包中单文件</title>
+    <url>/2020/10/01/%E5%8D%87%E7%BA%A7jar%E5%8C%85%E4%B8%AD%E5%8D%95%E6%96%87%E4%BB%B6/</url>
+    <content><![CDATA[<h1 id="发现问题"><a href="#发现问题" class="headerlink" title="发现问题"></a>发现问题</h1><p>开发springboot项目的时候，我们经常会以jar包的形式进行部署。这个时候，如果需要修改某一个文件，那么该怎么升级呢？</p>
+<ul>
+<li>本地重新打包，全包上传到服务器</li>
+<li>只上传单文件到服务器，在服务器上把单文件合并到原来的jar包中</li>
+</ul>
+<p>显然，第一种方案在网速较慢的时候，是影响工作效率的。</p>
+<span id="more"></span>
+
+<h1 id="解决问题"><a href="#解决问题" class="headerlink" title="解决问题"></a>解决问题</h1><h2 id="过程"><a href="#过程" class="headerlink" title="过程"></a>过程</h2><p>查看help：</p>
+<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">[security@localhost jars]$ jar</span><br><span class="line">用法: jar &#123;ctxui&#125;[vfm0Me] [jar-file] [manifest-file] [entry-point] [-C dir] files ...</span><br><span class="line">选项包括: </span><br><span class="line">    -c  创建新的归档文件</span><br><span class="line">    -t  列出归档目录</span><br><span class="line">    -x  从档案中提取指定的 (或所有) 文件</span><br><span class="line">    -u  更新现有的归档文件</span><br><span class="line">    -v  在标准输出中生成详细输出</span><br><span class="line">    -f  指定归档文件名</span><br><span class="line">    -m  包含指定清单文件中的清单信息</span><br><span class="line">    -e  为捆绑到可执行 jar 文件的独立应用程序</span><br><span class="line">        指定应用程序入口点</span><br><span class="line">    -0  仅存储; 不使用情况任何 ZIP 压缩</span><br><span class="line">    -M  不创建条目的清单文件</span><br><span class="line">    -i  为指定的 jar 文件生成索引信息</span><br><span class="line">    -C  更改为指定的目录并包含其中的文件</span><br><span class="line">如果有任何目录文件, 则对其进行递归处理。</span><br><span class="line">清单文件名, 归档文件名和入口点名称的指定顺序</span><br><span class="line">与 &#x27;m&#x27;, &#x27;f&#x27; 和 &#x27;e&#x27; 标记的指定顺序相同。</span><br><span class="line"></span><br><span class="line">示例 1: 将两个类文件归档到一个名为 classes.jar 的归档文件中: </span><br><span class="line">       jar cvf classes.jar Foo.class Bar.class </span><br><span class="line">示例 2: 使用现有的清单文件 &#x27;mymanifest&#x27; 并</span><br><span class="line">           将 foo/ 目录中的所有文件归档到 &#x27;classes.jar&#x27; 中: </span><br><span class="line">       jar cvfm classes.jar mymanifest -C foo/ .</span><br></pre></td></tr></table></figure>
+
+<h2 id="结论"><a href="#结论" class="headerlink" title="结论"></a>结论</h2><ul>
+<li>查看文件在jar包中的路径</li>
+</ul>
+<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">[security@localhost jars]$ jar tvf service.jar |grep todo</span><br><span class="line">  304 Fri Aug 23 12:00:00 CST 2019 BOOT-INF/classes/templates/todo.ftl</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>解压出文件</li>
+</ul>
+<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">[security@localhost jars]$ jar xvf service.jar BOOT-INF/classes/templates/todo.ftl</span><br><span class="line">  已解压: BOOT-INF/classes/templates/todo.ftl</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>覆盖解压出的文件</li>
+</ul>
+<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">mv todo.ftl BOOT-INF/classes/templates/todo.ftl</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>合并文件到jar包中</li>
+</ul>
+<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">[security@localhost jars]$ jar uvf service.jar BOOT-INF/classes/templates/todo.ftl</span><br><span class="line">  正在添加: BOOT-INF/classes/templates/todo.ftl(输入 = 304) (输出 = 195)(压缩了 35%)</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>删除解压出的文件</li>
+</ul>
+<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">[security@localhost jars]$ rm -rf BOOT-INF</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>重启服务</li>
+</ul>
+]]></content>
+      <categories>
+        <category>Java</category>
+      </categories>
+      <tags>
+        <tag>Java</tag>
+      </tags>
+  </entry>
+  <entry>
     <title>在Termux中安装Linux</title>
     <url>/2021/07/25/%E5%9C%A8Termux%E4%B8%AD%E5%AE%89%E8%A3%85Linux/</url>
     <content><![CDATA[<h1 id="涉及软件"><a href="#涉及软件" class="headerlink" title="涉及软件"></a>涉及软件</h1><ul>
@@ -245,6 +210,23 @@
       </tags>
   </entry>
   <entry>
+    <title>在Termux中安装mitmproxy</title>
+    <url>/2021/07/26/%E5%9C%A8Termux%E4%B8%AD%E5%AE%89%E8%A3%85mitmproxy/</url>
+    <content><![CDATA[<h1 id="安装"><a href="#安装" class="headerlink" title="安装"></a>安装</h1><p>安装 termux ，可以参考 <a href="/2021/07/25/%E5%AE%89%E8%A3%85Termux/" title="这里">这里</a></p>
+<p>安装 mitmproxy</p>
+<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">pkg install libffi openssl python rust</span><br><span class="line">pip install mitmproxy</span><br><span class="line">mitmproxy --version</span><br></pre></td></tr></table></figure>
+
+<h1 id="测试"><a href="#测试" class="headerlink" title="测试"></a>测试</h1><p>测试 mitmproxy ，可以参考 <a href="/2021/07/24/%E5%AE%89%E8%A3%85mitmproxy/" title="这里">这里</a></p>
+]]></content>
+      <categories>
+        <category>Termux</category>
+      </categories>
+      <tags>
+        <tag>Termux</tag>
+        <tag>mitmproxy</tag>
+      </tags>
+  </entry>
+  <entry>
     <title>安装CoreDNS</title>
     <url>/2021/07/24/%E5%AE%89%E8%A3%85CoreDNS/</url>
     <content><![CDATA[<h1 id="安装"><a href="#安装" class="headerlink" title="安装"></a>安装</h1><h2 id="二进制"><a href="#二进制" class="headerlink" title="二进制"></a>二进制</h2><figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">wget https://github.com/coredns/coredns/releases/download/v1.8.4/coredns_1.8.4_linux_amd64.tgz</span><br><span class="line">mkdir coredns_1.8.4_linux_amd64</span><br><span class="line">tar zxvf coredns_1.8.4_linux_amd64.tgz -C coredns_1.8.4_linux_amd64</span><br></pre></td></tr></table></figure>
@@ -266,28 +248,6 @@
       <tags>
         <tag>DNS</tag>
         <tag>CoreDNS</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>安装EFK</title>
-    <url>/2021/08/18/%E5%AE%89%E8%A3%85EFK/</url>
-    <content><![CDATA[<h1 id="介绍"><a href="#介绍" class="headerlink" title="介绍"></a>介绍</h1><p>EFK有两种组合方式，各有优缺点</p>
-<p>elasticsearch + fluentd + kibana，是 kubernetes 官方推荐</p>
-<p>elasticsearch + filebeat + kibana，是 elastic 技术栈</p>
-<span id="more"></span>
-
-<h1 id="安装"><a href="#安装" class="headerlink" title="安装"></a>安装</h1><h2 id="EFK-fluentd"><a href="#EFK-fluentd" class="headerlink" title="EFK | fluentd"></a>EFK | fluentd</h2><h3 id="YAML-安装"><a href="#YAML-安装" class="headerlink" title="YAML 安装"></a>YAML 安装</h3><p>参考：<a href="https://github.com/kubernetes/kubernetes/tree/master/cluster/addons/fluentd-elasticsearch">https://github.com/kubernetes/kubernetes/tree/master/cluster/addons/fluentd-elasticsearch</a></p>
-<h3 id="HELM-安装"><a href="#HELM-安装" class="headerlink" title="HELM 安装"></a>HELM 安装</h3><figure class="highlight shell"><table><tr><td class="code"><pre><span class="line"><span class="meta">#</span><span class="bash"> 添加仓库</span></span><br><span class="line">helm repo add bitnami https://charts.bitnami.com/bitnami</span><br><span class="line"><span class="meta"></span></span><br><span class="line"><span class="meta">#</span><span class="bash"> 部署 7.9.2 版本</span></span><br><span class="line">helm search repo bitnami/elasticsearch --versions</span><br><span class="line">helm pull bitnami/elasticsearch --version 12.8.0</span><br><span class="line">tar zxvf elasticsearch-12.8.0.tgz </span><br><span class="line">cd elasticsearch</span><br><span class="line">cp values.yaml values-override.yaml</span><br><span class="line">vi values-override.yaml</span><br><span class="line"><span class="meta">#</span><span class="bash"><span class="comment">##</span></span></span><br><span class="line">master:</span><br><span class="line">  replicas: 1</span><br><span class="line">  heapSize: 256m</span><br><span class="line">coordinating:</span><br><span class="line">  replicas: 1</span><br><span class="line">  heapSize: 256m</span><br><span class="line">  service:</span><br><span class="line">    type: NodePort</span><br><span class="line">    nodePort: 30014</span><br><span class="line">data:</span><br><span class="line">  replicas: 1</span><br><span class="line">  heapSize: 256m</span><br><span class="line"><span class="meta">#</span><span class="bash"><span class="comment">##</span></span></span><br><span class="line">helm install --create-namespace --namespace cmp-efk elasticsearch -f values-override.yaml .</span><br><span class="line"><span class="meta"></span></span><br><span class="line"><span class="meta">#</span><span class="bash"> 部署 7.9.2 版本</span></span><br><span class="line">helm search repo bitnami/kibana --versions</span><br><span class="line">helm pull bitnami/kibana --version 5.3.14</span><br><span class="line">tar zxvf kibana-5.3.14.tgz </span><br><span class="line">cd kibana</span><br><span class="line">cp values.yaml values-override.yaml</span><br><span class="line">vi values-override.yaml</span><br><span class="line"><span class="meta">#</span><span class="bash"><span class="comment">##</span></span></span><br><span class="line">service:</span><br><span class="line">  type: NodePort</span><br><span class="line">  nodePort: 30016</span><br><span class="line">elasticsearch:</span><br><span class="line">  hosts:</span><br><span class="line">    - elasticsearch-elasticsearch-coordinating-only</span><br><span class="line">  port: 9200</span><br><span class="line"><span class="meta">#</span><span class="bash"><span class="comment">##</span></span></span><br><span class="line">helm install --create-namespace --namespace cmp-efk kibana -f values-override.yaml .</span><br><span class="line"><span class="meta"></span></span><br><span class="line"><span class="meta">#</span><span class="bash"> 部署 3.7.4 版本</span></span><br><span class="line">helm search repo bitnami/fluentd --versions</span><br><span class="line">helm pull bitnami/fluentd --version 3.7.4</span><br><span class="line">tar zxvf fluentd-3.7.4.tgz </span><br><span class="line">cd fluentd</span><br><span class="line">cp values.yaml values-override.yaml</span><br><span class="line">vi values-override.yaml</span><br><span class="line"><span class="meta">#</span><span class="bash"><span class="comment">##</span></span></span><br><span class="line">forwarder:</span><br><span class="line">  configMapFiles:</span><br><span class="line">    fluentd-inputs.conf: |</span><br><span class="line">      &lt;source&gt;</span><br><span class="line">        @type http</span><br><span class="line">        port 9880</span><br><span class="line">      &lt;/source&gt;</span><br><span class="line">      &lt;source&gt;</span><br><span class="line">        @id fluentd-containers.log</span><br><span class="line">        @type tail</span><br><span class="line">        path /var/log/containers/*.log</span><br><span class="line">        pos_file /opt/bitnami/fluentd/logs/buffers/fluentd-docker.pos</span><br><span class="line">        tag raw.kubernetes.*</span><br><span class="line">        read_from_head true</span><br><span class="line">        &lt;parse&gt;</span><br><span class="line">          @type multi_format</span><br><span class="line">          &lt;pattern&gt;</span><br><span class="line">            format json</span><br><span class="line">            time_key time</span><br><span class="line">            time_format %Y-%m-%dT%H:%M:%S.%NZ</span><br><span class="line">          &lt;/pattern&gt;</span><br><span class="line">          &lt;pattern&gt;</span><br><span class="line">            format /^(?&lt;time&gt;.+) (?&lt;stream&gt;stdout|stderr) [^ ]* (?&lt;log&gt;.*)$/</span><br><span class="line">            time_format %Y-%m-%dT%H:%M:%S.%N%:z</span><br><span class="line">          &lt;/pattern&gt;</span><br><span class="line">        &lt;/parse&gt;</span><br><span class="line">      &lt;/source&gt;</span><br><span class="line">      &lt;match raw.kubernetes.**&gt;</span><br><span class="line">        @id raw.kubernetes</span><br><span class="line">        @type detect_exceptions</span><br><span class="line">        remove_tag_prefix raw</span><br><span class="line">        message log</span><br><span class="line">        stream stream</span><br><span class="line">        multiline_flush_interval 5</span><br><span class="line">        max_bytes 500000</span><br><span class="line">        max_lines 1000</span><br><span class="line">      &lt;/match&gt;</span><br><span class="line">      &lt;filter **&gt;</span><br><span class="line">        @id filter_concat</span><br><span class="line">        @type concat</span><br><span class="line">        key message</span><br><span class="line">        multiline_end_regexp /\n$/</span><br><span class="line">        separator &quot;&quot;</span><br><span class="line">      &lt;/filter&gt;</span><br><span class="line">      &lt;filter kubernetes.**&gt;</span><br><span class="line">        @id filter_kubernetes_metadata</span><br><span class="line">        @type kubernetes_metadata</span><br><span class="line">      &lt;/filter&gt;</span><br><span class="line">      &lt;filter kubernetes.**&gt;</span><br><span class="line">        @id filter_parser</span><br><span class="line">        @type parser</span><br><span class="line">        key_name log</span><br><span class="line">        reserve_data true</span><br><span class="line">        remove_key_name_field true</span><br><span class="line">        &lt;parse&gt;</span><br><span class="line">          @type multi_format</span><br><span class="line">          &lt;pattern&gt;</span><br><span class="line">            format json</span><br><span class="line">          &lt;/pattern&gt;</span><br><span class="line">          &lt;pattern&gt;</span><br><span class="line">            format none</span><br><span class="line">          &lt;/pattern&gt;</span><br><span class="line">        &lt;/parse&gt;</span><br><span class="line">      &lt;/filter&gt;</span><br><span class="line">      &lt;filter kubernetes.**&gt;</span><br><span class="line">        @id filter_record_transformer_kubernetes</span><br><span class="line">        @type record_transformer</span><br><span class="line">        enable_ruby true</span><br><span class="line">        &lt;record&gt;</span><br><span class="line">          level INFO</span><br><span class="line">          _tmp1_ $&#123;record[&quot;kubernetes&quot;][&quot;namespace&quot;] = record[&quot;kubernetes&quot;][&quot;namespace_name&quot;]&#125;</span><br><span class="line">          _tmp2_ $&#123;record[&quot;kubernetes&quot;][&quot;pod&quot;] = &#123;&quot;name&quot;: record[&quot;kubernetes&quot;][&quot;pod_name&quot;]&#125;&#125;</span><br><span class="line">          _tmp3_ $&#123;record[&quot;kubernetes&quot;][&quot;container&quot;] = &#123;&quot;name&quot;: record[&quot;kubernetes&quot;][&quot;container_name&quot;]&#125;&#125;</span><br><span class="line">          _tmp4_ $&#123;record[&quot;kubernetes&quot;][&quot;node&quot;] = &#123;&quot;name&quot;: record[&quot;kubernetes&quot;][&quot;host&quot;]&#125;&#125;</span><br><span class="line">        &lt;/record&gt;</span><br><span class="line">        remove_keys _tmp1_,_tmp2_,_tmp3_,_tmp4_</span><br><span class="line">      &lt;/filter&gt;</span><br><span class="line">aggregator:</span><br><span class="line">  configMapFiles:</span><br><span class="line">    fluentd-output.conf: |</span><br><span class="line">      &lt;match fluentd.healthcheck&gt;</span><br><span class="line">        @type stdout</span><br><span class="line">      &lt;/match&gt;</span><br><span class="line">      &lt;match **&gt;</span><br><span class="line">        @id elasticsearch</span><br><span class="line">        @type elasticsearch</span><br><span class="line">        @log_level info</span><br><span class="line">        type_name _doc</span><br><span class="line">        include_tag_key true</span><br><span class="line">        host &quot;#&#123;ENV[&#x27;ELASTICSEARCH_HOST&#x27;]&#125;&quot;</span><br><span class="line">        port &quot;#&#123;ENV[&#x27;ELASTICSEARCH_PORT&#x27;]&#125;&quot;</span><br><span class="line">        logstash_format true</span><br><span class="line">        &lt;buffer&gt;</span><br><span class="line">          @type file</span><br><span class="line">          path /opt/bitnami/fluentd/logs/buffers/logs.buffer</span><br><span class="line">          flush_mode interval</span><br><span class="line">          retry_type exponential_backoff</span><br><span class="line">          flush_thread_count 2</span><br><span class="line">          flush_interval 5s</span><br><span class="line">          retry_forever</span><br><span class="line">          retry_max_interval 30</span><br><span class="line">          chunk_limit_size 2M</span><br><span class="line">          total_limit_size 500M</span><br><span class="line">          overflow_action block</span><br><span class="line">        &lt;/buffer&gt;</span><br><span class="line">      &lt;/match&gt;</span><br><span class="line">  extraEnv:</span><br><span class="line">    - name: ELASTICSEARCH_HOST</span><br><span class="line">      value: &quot;elasticsearch-elasticsearch-coordinating-only&quot;</span><br><span class="line">    - name: ELASTICSEARCH_PORT</span><br><span class="line">      value: &quot;9200&quot;</span><br><span class="line"><span class="meta">#</span><span class="bash"><span class="comment">##</span></span></span><br><span class="line">helm install --create-namespace --namespace cmp-efk fluentd -f values-override.yaml .</span><br></pre></td></tr></table></figure>
-
-<h2 id="EFK-filebeat"><a href="#EFK-filebeat" class="headerlink" title="EFK | filebeat"></a>EFK | filebeat</h2><h3 id="HELM-安装-1"><a href="#HELM-安装-1" class="headerlink" title="HELM 安装"></a>HELM 安装</h3><figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">helm repo add elastic https://helm.elastic.co</span><br><span class="line"></span><br><span class="line">helm pull elastic/elasticsearch --version 7.9.2</span><br><span class="line">helm pull elastic/kibana --version 7.9.2</span><br><span class="line">helm pull elastic/filebeat --version 7.9.2</span><br><span class="line"></span><br><span class="line">vi elasticsearch-values.yaml</span><br><span class="line"><span class="meta">#</span><span class="bash"><span class="comment">##</span></span></span><br><span class="line">fullnameOverride: elasticsearch</span><br><span class="line">replicas: 1</span><br><span class="line">minimumMasterNodes: 1</span><br><span class="line">service:</span><br><span class="line">  type: NodePort</span><br><span class="line">  nodePort: 30014</span><br><span class="line"><span class="meta">#</span><span class="bash"><span class="comment">##</span></span></span><br><span class="line">vi filebeat-values.yaml</span><br><span class="line"><span class="meta">#</span><span class="bash"><span class="comment">##</span></span></span><br><span class="line">fullnameOverride: filebeat</span><br><span class="line"><span class="meta">#</span><span class="bash"><span class="comment">##</span></span></span><br><span class="line">vi kibana-values.yaml</span><br><span class="line"><span class="meta">#</span><span class="bash"><span class="comment">##</span></span></span><br><span class="line">fullnameOverride: kibana</span><br><span class="line">service:</span><br><span class="line">  type: NodePort</span><br><span class="line">  nodePort: 30016</span><br><span class="line"><span class="meta">#</span><span class="bash"><span class="comment">##</span></span></span><br><span class="line"></span><br><span class="line">helm install --create-namespace --namespace cmp-efk elasticsearch -f elasticsearch-values.yaml ./elasticsearch</span><br><span class="line">helm install --create-namespace --namespace cmp-efk filebeat -f filebeat-values.yaml ./filebeat</span><br><span class="line">helm install --create-namespace --namespace cmp-efk kibana -f kibana-values.yaml ./kibana</span><br></pre></td></tr></table></figure>
-
-]]></content>
-      <categories>
-        <category>K8S</category>
-      </categories>
-      <tags>
-        <tag>K8S</tag>
-        <tag>EFK</tag>
       </tags>
   </entry>
   <entry>
@@ -408,6 +368,27 @@
       </tags>
   </entry>
   <entry>
+    <title>安装harbor</title>
+    <url>/2021/08/14/%E5%AE%89%E8%A3%85harbor/</url>
+    <content><![CDATA[<h1 id="添加仓库"><a href="#添加仓库" class="headerlink" title="添加仓库"></a>添加仓库</h1><figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">helm repo add harbor https://helm.goharbor.io</span><br></pre></td></tr></table></figure>
+
+<h1 id="下载指定版本，修改配置"><a href="#下载指定版本，修改配置" class="headerlink" title="下载指定版本，修改配置"></a>下载指定版本，修改配置</h1><figure class="highlight shell"><table><tr><td class="code"><pre><span class="line"><span class="meta">#</span><span class="bash"> 查找版本</span></span><br><span class="line">helm search repo harbor/harbor --versions</span><br><span class="line"><span class="meta">#</span><span class="bash"> 下载指定版本</span></span><br><span class="line">helm fetch harbor/harbor --version 1.6.2</span><br><span class="line"><span class="meta">#</span><span class="bash"> 修改配置</span></span><br><span class="line">tar zxvf harbor-1.6.2.tgz</span><br><span class="line">cd harbor</span><br><span class="line">cp values.yaml values-override.yaml</span><br><span class="line">vi values-override.yaml</span><br><span class="line"><span class="meta">#</span><span class="bash"><span class="comment">##</span></span></span><br><span class="line">expose:</span><br><span class="line">  type: nodePort</span><br><span class="line">  tls:</span><br><span class="line">    auto:</span><br><span class="line">      commonName: &quot;goharbor.io&quot;</span><br><span class="line">  nodePort:</span><br><span class="line">    ports:</span><br><span class="line">      http:</span><br><span class="line">        nodePort: 30003</span><br><span class="line">      https:</span><br><span class="line">        nodePort: 30002</span><br><span class="line">externalURL: https://192.168.3.201:30002</span><br><span class="line">trivy:</span><br><span class="line"><span class="meta">  #</span><span class="bash"> 第一种方法：填写 GitHub Token，自动下载 Trivy DB</span></span><br><span class="line">  gitHubToken: &quot;xxx&quot;</span><br><span class="line"><span class="meta">  #</span><span class="bash"> 第二种方法：跳过更新，手动下载 Trivy DB 到 /home/scanner/.cache/trivy/db/trivy.db</span></span><br><span class="line"><span class="meta">  #</span><span class="bash"> skipUpdate: <span class="literal">true</span></span></span><br><span class="line">notary:</span><br><span class="line">  enabled: false</span><br><span class="line"><span class="meta">#</span><span class="bash"><span class="comment">##</span></span></span><br></pre></td></tr></table></figure>
+
+<span id="more"></span>
+
+<h1 id="安装部署"><a href="#安装部署" class="headerlink" title="安装部署"></a>安装部署</h1><figure class="highlight shell"><table><tr><td class="code"><pre><span class="line"><span class="meta">#</span><span class="bash"> 安装</span></span><br><span class="line">helm install --create-namespace --namespace cmp-harbor harbor -f values-override.yaml .</span><br><span class="line"><span class="meta">#</span><span class="bash"> 升级</span></span><br><span class="line">helm -n cmp-harbor upgrade harbor -f values-override.yaml .</span><br></pre></td></tr></table></figure>
+
+<h1 id="配置"><a href="#配置" class="headerlink" title="配置"></a>配置</h1><figure class="highlight shell"><table><tr><td class="code"><pre><span class="line"><span class="meta">#</span><span class="bash"> 配置docker，允许自签名证书</span></span><br><span class="line">vi /etc/docker/daemon.json </span><br><span class="line"><span class="meta">#</span><span class="bash"><span class="comment">##</span></span></span><br><span class="line">&#123;</span><br><span class="line">  &quot;insecure-registries&quot;: [&quot;https://192.168.3.201:30002&quot;]</span><br><span class="line">&#125;</span><br><span class="line"><span class="meta">#</span><span class="bash"><span class="comment">##</span></span></span><br><span class="line">systemctl daemon-reload</span><br><span class="line">systemctl restart docker</span><br><span class="line"><span class="meta">#</span><span class="bash"> 登录</span></span><br><span class="line">docker login -u admin -p Harbor12345 192.168.3.201:30002</span><br><span class="line">cat ~/.docker/config.json</span><br><span class="line"><span class="meta">#</span><span class="bash"> 推送镜像</span></span><br><span class="line">docker push 192.168.3.201:30002/library/nginx:1.20-alpine</span><br></pre></td></tr></table></figure>
+]]></content>
+      <categories>
+        <category>K8S</category>
+      </categories>
+      <tags>
+        <tag>K8S</tag>
+        <tag>harbor</tag>
+      </tags>
+  </entry>
+  <entry>
     <title>安装ingress-nginx</title>
     <url>/2021/08/15/%E5%AE%89%E8%A3%85ingress-nginx/</url>
     <content><![CDATA[<h1 id="yaml安装"><a href="#yaml安装" class="headerlink" title="yaml安装"></a>yaml安装</h1><figure class="highlight shell"><table><tr><td class="code"><pre><span class="line"><span class="meta">#</span><span class="bash"> 下载</span></span><br><span class="line">wget https://raw.githubusercontent.com/kubernetes/ingress-nginx/controller-v0.46.0/deploy/static/provider/cloud/deploy.yaml \</span><br><span class="line">-O ingress-nginx.yaml</span><br><span class="line"><span class="meta">#</span><span class="bash"> 修改配置</span></span><br><span class="line">vi ingress-nginx.yaml</span><br><span class="line"><span class="meta">#</span><span class="bash"> 提交</span></span><br><span class="line">kubectl apply -f ingress-nginx.yaml</span><br></pre></td></tr></table></figure>
@@ -426,17 +407,14 @@
       </tags>
   </entry>
   <entry>
-    <title>安装harbor</title>
-    <url>/2021/08/14/%E5%AE%89%E8%A3%85harbor/</url>
-    <content><![CDATA[<h1 id="添加仓库"><a href="#添加仓库" class="headerlink" title="添加仓库"></a>添加仓库</h1><figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">helm repo add harbor https://helm.goharbor.io</span><br></pre></td></tr></table></figure>
-
-<h1 id="下载指定版本，修改配置"><a href="#下载指定版本，修改配置" class="headerlink" title="下载指定版本，修改配置"></a>下载指定版本，修改配置</h1><figure class="highlight shell"><table><tr><td class="code"><pre><span class="line"><span class="meta">#</span><span class="bash"> 查找版本</span></span><br><span class="line">helm search repo harbor/harbor --versions</span><br><span class="line"><span class="meta">#</span><span class="bash"> 下载指定版本</span></span><br><span class="line">helm fetch harbor/harbor --version 1.6.2</span><br><span class="line"><span class="meta">#</span><span class="bash"> 修改配置</span></span><br><span class="line">tar zxvf harbor-1.6.2.tgz</span><br><span class="line">cd harbor</span><br><span class="line">cp values.yaml values-override.yaml</span><br><span class="line">vi values-override.yaml</span><br><span class="line"><span class="meta">#</span><span class="bash"><span class="comment">##</span></span></span><br><span class="line">expose:</span><br><span class="line">  type: nodePort</span><br><span class="line">  tls:</span><br><span class="line">    auto:</span><br><span class="line">      commonName: &quot;goharbor.io&quot;</span><br><span class="line">  nodePort:</span><br><span class="line">    ports:</span><br><span class="line">      http:</span><br><span class="line">        nodePort: 30003</span><br><span class="line">      https:</span><br><span class="line">        nodePort: 30002</span><br><span class="line">externalURL: https://192.168.3.201:30002</span><br><span class="line">trivy:</span><br><span class="line"><span class="meta">  #</span><span class="bash"> 第一种方法：填写 GitHub Token，自动下载 Trivy DB</span></span><br><span class="line">  gitHubToken: &quot;xxx&quot;</span><br><span class="line"><span class="meta">  #</span><span class="bash"> 第二种方法：跳过更新，手动下载 Trivy DB 到 /home/scanner/.cache/trivy/db/trivy.db</span></span><br><span class="line"><span class="meta">  #</span><span class="bash"> skipUpdate: <span class="literal">true</span></span></span><br><span class="line">notary:</span><br><span class="line">  enabled: false</span><br><span class="line"><span class="meta">#</span><span class="bash"><span class="comment">##</span></span></span><br></pre></td></tr></table></figure>
+    <title>安装dashboard</title>
+    <url>/2021/08/14/%E5%AE%89%E8%A3%85dashboard/</url>
+    <content><![CDATA[<h1 id="yaml安装"><a href="#yaml安装" class="headerlink" title="yaml安装"></a>yaml安装</h1><figure class="highlight shell"><table><tr><td class="code"><pre><span class="line"><span class="meta">#</span><span class="bash"> 下载</span></span><br><span class="line"><span class="meta">#</span><span class="bash"> wget https://raw.githubusercontent.com/kubernetes/dashboard/v2.2.0/aio/deploy/recommended.yaml -O dashboard.yaml</span></span><br><span class="line">wget https://ghproxy.com/https://raw.githubusercontent.com/kubernetes/dashboard/v2.2.0/aio/deploy/recommended.yaml \</span><br><span class="line">-O dashboard.yaml</span><br><span class="line"><span class="meta">#</span><span class="bash"> 修改配置</span></span><br><span class="line"><span class="meta">#</span><span class="bash"><span class="comment"># 修改 namespace</span></span></span><br><span class="line"><span class="meta">#</span><span class="bash"><span class="comment"># 启用 NodePort</span></span></span><br><span class="line"><span class="meta">#</span><span class="bash"><span class="comment"># 修改 ClusterRoleBinding 中 ClusterRole 为 cluster-admin</span></span></span><br><span class="line">vi dashboard.yaml</span><br><span class="line"><span class="meta">#</span><span class="bash"> 提交</span></span><br><span class="line">kubectl apply -f dashboard.yaml</span><br></pre></td></tr></table></figure>
 
 <span id="more"></span>
 
-<h1 id="安装部署"><a href="#安装部署" class="headerlink" title="安装部署"></a>安装部署</h1><figure class="highlight shell"><table><tr><td class="code"><pre><span class="line"><span class="meta">#</span><span class="bash"> 安装</span></span><br><span class="line">helm install --create-namespace --namespace cmp-harbor harbor -f values-override.yaml .</span><br><span class="line"><span class="meta">#</span><span class="bash"> 升级</span></span><br><span class="line">helm -n cmp-harbor upgrade harbor -f values-override.yaml .</span><br></pre></td></tr></table></figure>
+<h1 id="helm安装"><a href="#helm安装" class="headerlink" title="helm安装"></a>helm安装</h1><figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">helm repo add kubernetes-dashboard https://kubernetes.github.io/dashboard</span><br><span class="line">helm pull kubernetes-dashboard/kubernetes-dashboard --version 4.2.0</span><br><span class="line">tar zxvf kubernetes-dashboard-4.2.0.tgz </span><br><span class="line">cd kubernetes-dashboard</span><br><span class="line">cp values.yaml values-override.yaml</span><br><span class="line">vi values-override.yaml</span><br><span class="line"><span class="meta">#</span><span class="bash"><span class="comment">##</span></span></span><br><span class="line">extraArgs:</span><br><span class="line">  - --token-ttl=0</span><br><span class="line">service:</span><br><span class="line">  type: NodePort</span><br><span class="line">  nodePort: 30000</span><br><span class="line">metricsScraper:</span><br><span class="line">  enabled: true</span><br><span class="line">metrics-server:</span><br><span class="line">  enabled: true</span><br><span class="line">  args:</span><br><span class="line">    - --kubelet-preferred-address-types=InternalIP</span><br><span class="line">    - --kubelet-insecure-tls</span><br><span class="line"><span class="meta">#</span><span class="bash"><span class="comment">##</span></span></span><br><span class="line">helm install --create-namespace --namespace cmp-dashboard dashboard -f values-override.yaml .</span><br><span class="line"><span class="meta"></span></span><br><span class="line"><span class="meta">#</span><span class="bash"> 获取 token</span></span><br><span class="line">kubectl -n cmp-dashboard get secrets \</span><br><span class="line"><span class="meta">$</span><span class="bash">(kubectl -n cmp-dashboard get secrets | grep kubernetes-dashboard-token | awk <span class="string">&#x27;&#123;print $1&#125;&#x27;</span>) \</span></span><br><span class="line"><span class="bash">-o jsonpath=<span class="string">&quot;&#123;[&#x27;data&#x27;][&#x27;token&#x27;]&#125;&quot;</span> | base64 --decode &amp;&amp; <span class="built_in">echo</span></span></span><br><span class="line"><span class="meta"></span></span><br><span class="line"><span class="meta">#</span><span class="bash"> 提升权限</span></span><br><span class="line">vi dashboard-rbac.yaml</span><br><span class="line"><span class="meta">#</span><span class="bash"><span class="comment">##</span></span></span><br><span class="line">apiVersion: rbac.authorization.k8s.io/v1</span><br><span class="line">kind: ClusterRoleBinding</span><br><span class="line">metadata:</span><br><span class="line">  name: dashboard-kubernetes-dashboard</span><br><span class="line">roleRef:</span><br><span class="line">  apiGroup: rbac.authorization.k8s.io</span><br><span class="line">  kind: ClusterRole</span><br><span class="line">  name: cluster-admin</span><br><span class="line">subjects:</span><br><span class="line">  - kind: ServiceAccount</span><br><span class="line">	name: dashboard-kubernetes-dashboard</span><br><span class="line">namespace: cmp-dashboard</span><br><span class="line"><span class="meta">#</span><span class="bash"><span class="comment">##</span></span></span><br><span class="line">kubectl apply -f dashboard-rbac.yaml</span><br><span class="line"><span class="meta"></span></span><br><span class="line"><span class="meta">#</span><span class="bash"> 获取 token</span></span><br><span class="line">kubectl -n cmp-dashboard get secrets \</span><br><span class="line"><span class="meta">$</span><span class="bash">(kubectl -n cmp-dashboard get secrets | grep kubernetes-dashboard-token | awk <span class="string">&#x27;&#123;print $1&#125;&#x27;</span>) \</span></span><br><span class="line"><span class="bash">-o go-template=<span class="string">&quot;&#123;&#123;.data.token | base64decode&#125;&#125;&quot;</span> &amp;&amp; <span class="built_in">echo</span></span></span><br></pre></td></tr></table></figure>
 
-<h1 id="配置"><a href="#配置" class="headerlink" title="配置"></a>配置</h1><figure class="highlight shell"><table><tr><td class="code"><pre><span class="line"><span class="meta">#</span><span class="bash"> 配置docker，允许自签名证书</span></span><br><span class="line">vi /etc/docker/daemon.json </span><br><span class="line"><span class="meta">#</span><span class="bash"><span class="comment">##</span></span></span><br><span class="line">&#123;</span><br><span class="line">  &quot;insecure-registries&quot;: [&quot;https://192.168.3.201:30002&quot;]</span><br><span class="line">&#125;</span><br><span class="line"><span class="meta">#</span><span class="bash"><span class="comment">##</span></span></span><br><span class="line">systemctl daemon-reload</span><br><span class="line">systemctl restart docker</span><br><span class="line"><span class="meta">#</span><span class="bash"> 登录</span></span><br><span class="line">docker login -u admin -p Harbor12345 192.168.3.201:30002</span><br><span class="line">cat ~/.docker/config.json</span><br><span class="line"><span class="meta">#</span><span class="bash"> 推送镜像</span></span><br><span class="line">docker push 192.168.3.201:30002/library/nginx:1.20-alpine</span><br></pre></td></tr></table></figure>
 ]]></content>
       <categories>
         <category>K8S</category>
@@ -757,23 +735,6 @@
       </tags>
   </entry>
   <entry>
-    <title>在Termux中安装mitmproxy</title>
-    <url>/2021/07/26/%E5%9C%A8Termux%E4%B8%AD%E5%AE%89%E8%A3%85mitmproxy/</url>
-    <content><![CDATA[<h1 id="安装"><a href="#安装" class="headerlink" title="安装"></a>安装</h1><p>安装 termux ，可以参考 <a href="/2021/07/25/%E5%AE%89%E8%A3%85Termux/" title="这里">这里</a></p>
-<p>安装 mitmproxy</p>
-<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">pkg install libffi openssl python rust</span><br><span class="line">pip install mitmproxy</span><br><span class="line">mitmproxy --version</span><br></pre></td></tr></table></figure>
-
-<h1 id="测试"><a href="#测试" class="headerlink" title="测试"></a>测试</h1><p>测试 mitmproxy ，可以参考 <a href="/2021/07/24/%E5%AE%89%E8%A3%85mitmproxy/" title="这里">这里</a></p>
-]]></content>
-      <categories>
-        <category>Termux</category>
-      </categories>
-      <tags>
-        <tag>Termux</tag>
-        <tag>mitmproxy</tag>
-      </tags>
-  </entry>
-  <entry>
     <title>安装Termux</title>
     <url>/2021/07/25/%E5%AE%89%E8%A3%85Termux/</url>
     <content><![CDATA[<h1 id="安装"><a href="#安装" class="headerlink" title="安装"></a>安装</h1><p>方法1：打开 <a href="https://f-droid.org/packages/com.termux">https://f-droid.org/packages/com.termux</a> ，下载 APK 安装，推荐</p>
@@ -818,63 +779,102 @@
       </tags>
   </entry>
   <entry>
-    <title>升级jar包中单文件</title>
-    <url>/2020/10/01/%E5%8D%87%E7%BA%A7jar%E5%8C%85%E4%B8%AD%E5%8D%95%E6%96%87%E4%BB%B6/</url>
-    <content><![CDATA[<h1 id="发现问题"><a href="#发现问题" class="headerlink" title="发现问题"></a>发现问题</h1><p>开发springboot项目的时候，我们经常会以jar包的形式进行部署。这个时候，如果需要修改某一个文件，那么该怎么升级呢？</p>
+    <title>Linux路由相关概念</title>
+    <url>/2021/07/25/Linux%E8%B7%AF%E7%94%B1%E7%9B%B8%E5%85%B3%E6%A6%82%E5%BF%B5/</url>
+    <content><![CDATA[<h1 id="路由规则-ip-rule"><a href="#路由规则-ip-rule" class="headerlink" title="路由规则 ip rule"></a>路由规则 ip rule</h1><p><strong>操作系统默认规则</strong></p>
+<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">ip rule list</span><br><span class="line">0:      from all lookup local </span><br><span class="line">32766:  from all lookup main </span><br><span class="line">32767:  from all lookup default </span><br></pre></td></tr></table></figure>
+
+<p><strong>每列的含义</strong></p>
 <ul>
-<li>本地重新打包，全包上传到服务器</li>
-<li>只上传单文件到服务器，在服务器上把单文件合并到原来的jar包中</li>
+<li>Priority: 路由规则优先级，根据数字从小到大依次进行匹配，从0到32767</li>
+<li>Selector: 对IP数据包进行匹配的条件，如 from all 表示所有IP数据包</li>
+<li>Action: 对IP数据包执行的动作，如 lookup local 表示需要查找local路由表进行处理</li>
 </ul>
-<p>显然，第一种方案在网速较慢的时候，是影响工作效率的。</p>
 <span id="more"></span>
 
-<h1 id="解决问题"><a href="#解决问题" class="headerlink" title="解决问题"></a>解决问题</h1><h2 id="过程"><a href="#过程" class="headerlink" title="过程"></a>过程</h2><p>查看help：</p>
-<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">[security@localhost jars]$ jar</span><br><span class="line">用法: jar &#123;ctxui&#125;[vfm0Me] [jar-file] [manifest-file] [entry-point] [-C dir] files ...</span><br><span class="line">选项包括: </span><br><span class="line">    -c  创建新的归档文件</span><br><span class="line">    -t  列出归档目录</span><br><span class="line">    -x  从档案中提取指定的 (或所有) 文件</span><br><span class="line">    -u  更新现有的归档文件</span><br><span class="line">    -v  在标准输出中生成详细输出</span><br><span class="line">    -f  指定归档文件名</span><br><span class="line">    -m  包含指定清单文件中的清单信息</span><br><span class="line">    -e  为捆绑到可执行 jar 文件的独立应用程序</span><br><span class="line">        指定应用程序入口点</span><br><span class="line">    -0  仅存储; 不使用情况任何 ZIP 压缩</span><br><span class="line">    -M  不创建条目的清单文件</span><br><span class="line">    -i  为指定的 jar 文件生成索引信息</span><br><span class="line">    -C  更改为指定的目录并包含其中的文件</span><br><span class="line">如果有任何目录文件, 则对其进行递归处理。</span><br><span class="line">清单文件名, 归档文件名和入口点名称的指定顺序</span><br><span class="line">与 &#x27;m&#x27;, &#x27;f&#x27; 和 &#x27;e&#x27; 标记的指定顺序相同。</span><br><span class="line"></span><br><span class="line">示例 1: 将两个类文件归档到一个名为 classes.jar 的归档文件中: </span><br><span class="line">       jar cvf classes.jar Foo.class Bar.class </span><br><span class="line">示例 2: 使用现有的清单文件 &#x27;mymanifest&#x27; 并</span><br><span class="line">           将 foo/ 目录中的所有文件归档到 &#x27;classes.jar&#x27; 中: </span><br><span class="line">       jar cvfm classes.jar mymanifest -C foo/ .</span><br></pre></td></tr></table></figure>
+<p><strong>命令格式</strong></p>
+<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">ip rule help</span><br><span class="line">Usage: ip rule &#123; add | del &#125; SELECTOR ACTION</span><br><span class="line">       ip rule &#123; flush | save | restore &#125;</span><br><span class="line">       ip rule [ list [ SELECTOR ]]</span><br><span class="line">SELECTOR := [ not ] [ from PREFIX ] [ to PREFIX ] [ tos TOS ] [ fwmark FWMARK[/MASK] ]</span><br><span class="line">            [ iif STRING ] [ oif STRING ] [ pref NUMBER ] [ l3mdev ]</span><br><span class="line">            [ uidrange NUMBER-NUMBER ]</span><br><span class="line">ACTION := [ table TABLE_ID ]</span><br><span class="line">          [ nat ADDRESS ]</span><br><span class="line">          [ realms [SRCREALM/]DSTREALM ]</span><br><span class="line">          [ goto NUMBER ]</span><br><span class="line">          SUPPRESSOR</span><br><span class="line">SUPPRESSOR := [ suppress_prefixlength NUMBER ]</span><br><span class="line">              [ suppress_ifgroup DEVGROUP ]</span><br><span class="line">TABLE_ID := [ local | main | default | NUMBER ]</span><br></pre></td></tr></table></figure>
 
-<h2 id="结论"><a href="#结论" class="headerlink" title="结论"></a>结论</h2><ul>
-<li>查看文件在jar包中的路径</li>
-</ul>
-<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">[security@localhost jars]$ jar tvf service.jar |grep todo</span><br><span class="line">  304 Fri Aug 23 12:00:00 CST 2019 BOOT-INF/classes/templates/todo.ftl</span><br></pre></td></tr></table></figure>
-
+<p><strong>SELECTOR</strong></p>
 <ul>
-<li>解压出文件</li>
+<li><p>from PREFIX：选择要匹配的源前缀</p>
+</li>
+<li><p>to PREFIX：选择要匹配的目的前缀</p>
+</li>
+<li><p>tos TOS：选择要匹配的TOS值</p>
+</li>
+<li><p>fwmark MARK：选择要匹配的标记值</p>
+</li>
+<li><p>iif NAME：选择要匹配的传入接口设备，例如：可以为转发的数据包和本地数据包创建单独的路由表</p>
+</li>
+<li><p>oif NAME：选择要匹配的传出接口设备，仅适用于来自绑定到设备的本地套接字的数据包</p>
+</li>
 </ul>
-<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">[security@localhost jars]$ jar xvf service.jar BOOT-INF/classes/templates/todo.ftl</span><br><span class="line">  已解压: BOOT-INF/classes/templates/todo.ftl</span><br></pre></td></tr></table></figure>
-
+<p><strong>ACTION</strong></p>
 <ul>
-<li>覆盖解压出的文件</li>
+<li>table TABLEID：要查找的路由表标识符</li>
+<li>nat ADDRESS：要转换的IP地址（用于源地址）</li>
 </ul>
-<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">mv todo.ftl BOOT-INF/classes/templates/todo.ftl</span><br></pre></td></tr></table></figure>
-
+<h1 id="路由表-ip-route"><a href="#路由表-ip-route" class="headerlink" title="路由表 ip route"></a>路由表 ip route</h1><p><strong>操作系统中有256个路由表</strong></p>
 <ul>
-<li>合并文件到jar包中</li>
+<li><p>编号255：是 local 路由表，处理本地IP和广播地址路由，local路由表只由kernel维护，不能更改和删除</p>
+</li>
+<li><p>编号254：是 main 路由表，处理所有非策略常规路由，不指定路由表名时默认使用的路由表，ip route 命令默认操作的就是这个路由表</p>
+</li>
+<li><p>编号253：是 default 路由表，所有其他路由表都没有匹配到的情况下，根据该表中的条目进行处理</p>
+</li>
+<li><p>编号1-252：是 用户可以自定义的 路由表</p>
+</li>
+<li><p>编号0：是 系统保留 路由表</p>
+</li>
 </ul>
-<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">[security@localhost jars]$ jar uvf service.jar BOOT-INF/classes/templates/todo.ftl</span><br><span class="line">  正在添加: BOOT-INF/classes/templates/todo.ftl(输入 = 304) (输出 = 195)(压缩了 35%)</span><br></pre></td></tr></table></figure>
+<p><strong>操作系统内部使用数字编号来标识路由表，为了方便记忆，有时需要使用符号标识路由表，对应关系在 /etc/iproute2/rt_tables 中</strong></p>
+<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">cat /etc/iproute2/rt_tables </span><br><span class="line">255   local</span><br><span class="line">254   main</span><br><span class="line">253   default</span><br><span class="line">0     unspec</span><br></pre></td></tr></table></figure>
 
-<ul>
-<li>删除解压出的文件</li>
-</ul>
-<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">[security@localhost jars]$ rm -rf BOOT-INF</span><br></pre></td></tr></table></figure>
+<p><strong>查询路由表</strong></p>
+<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">ip route list</span><br><span class="line">default via 192.168.128.2 dev ens33 proto static metric 100 </span><br><span class="line">192.168.128.0/24 dev ens33 proto kernel scope link src 192.168.128.200 metric 100  </span><br></pre></td></tr></table></figure>
 
+<p><strong>每列的含义</strong></p>
 <ul>
-<li>重启服务</li>
+<li>PREFIX：目标地址前缀，可以是 default 代表所有地址 0.0.0.0/0，可以是 cidr</li>
+<li>proto RTPROTO：路由协议标识符，可以是数字编号或符号标识，对应关系在 /etc/iproute2/rt_protos 中<ul>
+<li>redirect：路由是由于ICMP重定向而安装的</li>
+<li>kernel：路由是在自动配置期间由内核安装的</li>
+<li>boot：路由是在启动过程中安装的</li>
+<li>static：路由是管理员安装的，以覆盖动态路由</li>
+<li>ra：路由是通过路由器发现协议安装的</li>
 </ul>
+</li>
+<li>scope SCOPE：路由前缀所覆盖的目标地址范围，可以是数字编号或符号标识，对应关系在 /etc/iproute2/rt_scopes 中</li>
+<li>metric METRIC：路由跳数，指该条路由记录的质量，一般情况下，如果有多条到达相同目的地的路由记录，路由器会采用metric值小的那条路由</li>
+<li>via ADDRESS：下一跳路由器的地址</li>
+<li>dev NAME：输出设备名称</li>
+<li>src ADDRESS：发送数据包时首选的源地址</li>
+</ul>
+<h1 id="样例"><a href="#样例" class="headerlink" title="样例"></a>样例</h1><p>双网卡：10.0.0.2/24 和 172.16.0.2/24<br>使来自 192.168.1.0/24 的数据包走 10.0.0.1 网关<br>是来自 192.168.2.0/24 的数据包走 172.16.0.1 网关</p>
+<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line"><span class="meta">#</span><span class="bash"> 定义路由表名称</span></span><br><span class="line">echo 100 t100 &gt;&gt; /etc/iproute2/rt_tables</span><br><span class="line">echo 200 t200 &gt;&gt; /etc/iproute2/rt_tables</span><br><span class="line"><span class="meta">#</span><span class="bash"> 新增规则</span></span><br><span class="line">ip rule add from 192.168.1.0/24 table t100</span><br><span class="line">ip rule add from 192.168.2.0/24 table t200</span><br><span class="line"><span class="meta">#</span><span class="bash"> 添加路由</span></span><br><span class="line">ip route add default via 10.0.0.1 table t100</span><br><span class="line">ip route add default via 172.16.0.1 table t200</span><br><span class="line"><span class="meta">#</span><span class="bash"> 刷新路由表</span></span><br><span class="line">ip route flush cache</span><br></pre></td></tr></table></figure>
+
 ]]></content>
       <categories>
-        <category>Java</category>
+        <category>网络</category>
       </categories>
       <tags>
-        <tag>Java</tag>
+        <tag>网络</tag>
+        <tag>路由</tag>
       </tags>
   </entry>
   <entry>
-    <title>安装dashboard</title>
-    <url>/2021/08/14/%E5%AE%89%E8%A3%85dashboard/</url>
-    <content><![CDATA[<h1 id="yaml安装"><a href="#yaml安装" class="headerlink" title="yaml安装"></a>yaml安装</h1><figure class="highlight shell"><table><tr><td class="code"><pre><span class="line"><span class="meta">#</span><span class="bash"> 下载</span></span><br><span class="line"><span class="meta">#</span><span class="bash"> wget https://raw.githubusercontent.com/kubernetes/dashboard/v2.2.0/aio/deploy/recommended.yaml -O dashboard.yaml</span></span><br><span class="line">wget https://ghproxy.com/https://raw.githubusercontent.com/kubernetes/dashboard/v2.2.0/aio/deploy/recommended.yaml \</span><br><span class="line">-O dashboard.yaml</span><br><span class="line"><span class="meta">#</span><span class="bash"> 修改配置</span></span><br><span class="line"><span class="meta">#</span><span class="bash"><span class="comment"># 修改 namespace</span></span></span><br><span class="line"><span class="meta">#</span><span class="bash"><span class="comment"># 启用 NodePort</span></span></span><br><span class="line"><span class="meta">#</span><span class="bash"><span class="comment"># 修改 ClusterRoleBinding 中 ClusterRole 为 cluster-admin</span></span></span><br><span class="line">vi dashboard.yaml</span><br><span class="line"><span class="meta">#</span><span class="bash"> 提交</span></span><br><span class="line">kubectl apply -f dashboard.yaml</span><br></pre></td></tr></table></figure>
-
+    <title>安装EFK</title>
+    <url>/2021/08/18/%E5%AE%89%E8%A3%85EFK/</url>
+    <content><![CDATA[<h1 id="介绍"><a href="#介绍" class="headerlink" title="介绍"></a>介绍</h1><p>EFK有两种组合方式，各有优缺点</p>
+<p>elasticsearch + fluentd + kibana，是 kubernetes 官方推荐</p>
+<p>elasticsearch + filebeat + kibana，是 elastic 技术栈</p>
 <span id="more"></span>
 
-<h1 id="helm安装"><a href="#helm安装" class="headerlink" title="helm安装"></a>helm安装</h1><figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">helm repo add kubernetes-dashboard https://kubernetes.github.io/dashboard</span><br><span class="line">helm pull kubernetes-dashboard/kubernetes-dashboard --version 4.2.0</span><br><span class="line">tar zxvf kubernetes-dashboard-4.2.0.tgz </span><br><span class="line">cd kubernetes-dashboard</span><br><span class="line">cp values.yaml values-override.yaml</span><br><span class="line">vi values-override.yaml</span><br><span class="line"><span class="meta">#</span><span class="bash"><span class="comment">##</span></span></span><br><span class="line">extraArgs:</span><br><span class="line">  - --token-ttl=0</span><br><span class="line">service:</span><br><span class="line">  type: NodePort</span><br><span class="line">  nodePort: 30000</span><br><span class="line">metricsScraper:</span><br><span class="line">  enabled: true</span><br><span class="line">metrics-server:</span><br><span class="line">  enabled: true</span><br><span class="line">  args:</span><br><span class="line">    - --kubelet-preferred-address-types=InternalIP</span><br><span class="line">    - --kubelet-insecure-tls</span><br><span class="line"><span class="meta">#</span><span class="bash"><span class="comment">##</span></span></span><br><span class="line">helm install --create-namespace --namespace cmp-dashboard dashboard -f values-override.yaml .</span><br><span class="line"><span class="meta"></span></span><br><span class="line"><span class="meta">#</span><span class="bash"> 获取 token</span></span><br><span class="line">kubectl -n cmp-dashboard get secrets \</span><br><span class="line"><span class="meta">$</span><span class="bash">(kubectl -n cmp-dashboard get secrets | grep kubernetes-dashboard-token | awk <span class="string">&#x27;&#123;print $1&#125;&#x27;</span>) \</span></span><br><span class="line"><span class="bash">-o jsonpath=<span class="string">&quot;&#123;[&#x27;data&#x27;][&#x27;token&#x27;]&#125;&quot;</span> | base64 --decode &amp;&amp; <span class="built_in">echo</span></span></span><br><span class="line"><span class="meta"></span></span><br><span class="line"><span class="meta">#</span><span class="bash"> 提升权限</span></span><br><span class="line">vi dashboard-rbac.yaml</span><br><span class="line"><span class="meta">#</span><span class="bash"><span class="comment">##</span></span></span><br><span class="line">apiVersion: rbac.authorization.k8s.io/v1</span><br><span class="line">kind: ClusterRoleBinding</span><br><span class="line">metadata:</span><br><span class="line">  name: dashboard-kubernetes-dashboard</span><br><span class="line">roleRef:</span><br><span class="line">  apiGroup: rbac.authorization.k8s.io</span><br><span class="line">  kind: ClusterRole</span><br><span class="line">  name: cluster-admin</span><br><span class="line">subjects:</span><br><span class="line">  - kind: ServiceAccount</span><br><span class="line">	name: dashboard-kubernetes-dashboard</span><br><span class="line">namespace: cmp-dashboard</span><br><span class="line"><span class="meta">#</span><span class="bash"><span class="comment">##</span></span></span><br><span class="line">kubectl apply -f dashboard-rbac.yaml</span><br><span class="line"><span class="meta"></span></span><br><span class="line"><span class="meta">#</span><span class="bash"> 获取 token</span></span><br><span class="line">kubectl -n cmp-dashboard get secrets \</span><br><span class="line"><span class="meta">$</span><span class="bash">(kubectl -n cmp-dashboard get secrets | grep kubernetes-dashboard-token | awk <span class="string">&#x27;&#123;print $1&#125;&#x27;</span>) \</span></span><br><span class="line"><span class="bash">-o go-template=<span class="string">&quot;&#123;&#123;.data.token | base64decode&#125;&#125;&quot;</span> &amp;&amp; <span class="built_in">echo</span></span></span><br></pre></td></tr></table></figure>
+<h1 id="安装"><a href="#安装" class="headerlink" title="安装"></a>安装</h1><h2 id="EFK-fluentd"><a href="#EFK-fluentd" class="headerlink" title="EFK | fluentd"></a>EFK | fluentd</h2><h3 id="YAML-安装"><a href="#YAML-安装" class="headerlink" title="YAML 安装"></a>YAML 安装</h3><p>参考：<a href="https://github.com/kubernetes/kubernetes/tree/master/cluster/addons/fluentd-elasticsearch">https://github.com/kubernetes/kubernetes/tree/master/cluster/addons/fluentd-elasticsearch</a></p>
+<h3 id="HELM-安装"><a href="#HELM-安装" class="headerlink" title="HELM 安装"></a>HELM 安装</h3><figure class="highlight shell"><table><tr><td class="code"><pre><span class="line"><span class="meta">#</span><span class="bash"> 添加仓库</span></span><br><span class="line">helm repo add bitnami https://charts.bitnami.com/bitnami</span><br><span class="line"><span class="meta"></span></span><br><span class="line"><span class="meta">#</span><span class="bash"> 部署 7.9.2 版本</span></span><br><span class="line">helm search repo bitnami/elasticsearch --versions</span><br><span class="line">helm pull bitnami/elasticsearch --version 12.8.0</span><br><span class="line">tar zxvf elasticsearch-12.8.0.tgz </span><br><span class="line">cd elasticsearch</span><br><span class="line">cp values.yaml values-override.yaml</span><br><span class="line">vi values-override.yaml</span><br><span class="line"><span class="meta">#</span><span class="bash"><span class="comment">##</span></span></span><br><span class="line">master:</span><br><span class="line">  replicas: 1</span><br><span class="line">  heapSize: 256m</span><br><span class="line">coordinating:</span><br><span class="line">  replicas: 1</span><br><span class="line">  heapSize: 256m</span><br><span class="line">  service:</span><br><span class="line">    type: NodePort</span><br><span class="line">    nodePort: 30014</span><br><span class="line">data:</span><br><span class="line">  replicas: 1</span><br><span class="line">  heapSize: 256m</span><br><span class="line"><span class="meta">#</span><span class="bash"><span class="comment">##</span></span></span><br><span class="line">helm install --create-namespace --namespace cmp-efk elasticsearch -f values-override.yaml .</span><br><span class="line"><span class="meta"></span></span><br><span class="line"><span class="meta">#</span><span class="bash"> 部署 7.9.2 版本</span></span><br><span class="line">helm search repo bitnami/kibana --versions</span><br><span class="line">helm pull bitnami/kibana --version 5.3.14</span><br><span class="line">tar zxvf kibana-5.3.14.tgz </span><br><span class="line">cd kibana</span><br><span class="line">cp values.yaml values-override.yaml</span><br><span class="line">vi values-override.yaml</span><br><span class="line"><span class="meta">#</span><span class="bash"><span class="comment">##</span></span></span><br><span class="line">service:</span><br><span class="line">  type: NodePort</span><br><span class="line">  nodePort: 30016</span><br><span class="line">elasticsearch:</span><br><span class="line">  hosts:</span><br><span class="line">    - elasticsearch-elasticsearch-coordinating-only</span><br><span class="line">  port: 9200</span><br><span class="line"><span class="meta">#</span><span class="bash"><span class="comment">##</span></span></span><br><span class="line">helm install --create-namespace --namespace cmp-efk kibana -f values-override.yaml .</span><br><span class="line"><span class="meta"></span></span><br><span class="line"><span class="meta">#</span><span class="bash"> 部署 3.7.4 版本</span></span><br><span class="line">helm search repo bitnami/fluentd --versions</span><br><span class="line">helm pull bitnami/fluentd --version 3.7.4</span><br><span class="line">tar zxvf fluentd-3.7.4.tgz </span><br><span class="line">cd fluentd</span><br><span class="line">cp values.yaml values-override.yaml</span><br><span class="line">vi values-override.yaml</span><br><span class="line"><span class="meta">#</span><span class="bash"><span class="comment">##</span></span></span><br><span class="line">forwarder:</span><br><span class="line">  configMapFiles:</span><br><span class="line">    fluentd-inputs.conf: |</span><br><span class="line">      &lt;source&gt;</span><br><span class="line">        @type http</span><br><span class="line">        port 9880</span><br><span class="line">      &lt;/source&gt;</span><br><span class="line">      &lt;source&gt;</span><br><span class="line">        @id fluentd-containers.log</span><br><span class="line">        @type tail</span><br><span class="line">        path /var/log/containers/*.log</span><br><span class="line">        pos_file /opt/bitnami/fluentd/logs/buffers/fluentd-docker.pos</span><br><span class="line">        tag raw.kubernetes.*</span><br><span class="line">        read_from_head true</span><br><span class="line">        &lt;parse&gt;</span><br><span class="line">          @type multi_format</span><br><span class="line">          &lt;pattern&gt;</span><br><span class="line">            format json</span><br><span class="line">            time_key time</span><br><span class="line">            time_format %Y-%m-%dT%H:%M:%S.%NZ</span><br><span class="line">          &lt;/pattern&gt;</span><br><span class="line">          &lt;pattern&gt;</span><br><span class="line">            format /^(?&lt;time&gt;.+) (?&lt;stream&gt;stdout|stderr) [^ ]* (?&lt;log&gt;.*)$/</span><br><span class="line">            time_format %Y-%m-%dT%H:%M:%S.%N%:z</span><br><span class="line">          &lt;/pattern&gt;</span><br><span class="line">        &lt;/parse&gt;</span><br><span class="line">      &lt;/source&gt;</span><br><span class="line">      &lt;match raw.kubernetes.**&gt;</span><br><span class="line">        @id raw.kubernetes</span><br><span class="line">        @type detect_exceptions</span><br><span class="line">        remove_tag_prefix raw</span><br><span class="line">        message log</span><br><span class="line">        stream stream</span><br><span class="line">        multiline_flush_interval 5</span><br><span class="line">        max_bytes 500000</span><br><span class="line">        max_lines 1000</span><br><span class="line">      &lt;/match&gt;</span><br><span class="line">      &lt;filter **&gt;</span><br><span class="line">        @id filter_concat</span><br><span class="line">        @type concat</span><br><span class="line">        key message</span><br><span class="line">        multiline_end_regexp /\n$/</span><br><span class="line">        separator &quot;&quot;</span><br><span class="line">      &lt;/filter&gt;</span><br><span class="line">      &lt;filter kubernetes.**&gt;</span><br><span class="line">        @id filter_kubernetes_metadata</span><br><span class="line">        @type kubernetes_metadata</span><br><span class="line">      &lt;/filter&gt;</span><br><span class="line">      &lt;filter kubernetes.**&gt;</span><br><span class="line">        @id filter_parser</span><br><span class="line">        @type parser</span><br><span class="line">        key_name log</span><br><span class="line">        reserve_data true</span><br><span class="line">        remove_key_name_field true</span><br><span class="line">        &lt;parse&gt;</span><br><span class="line">          @type multi_format</span><br><span class="line">          &lt;pattern&gt;</span><br><span class="line">            format json</span><br><span class="line">          &lt;/pattern&gt;</span><br><span class="line">          &lt;pattern&gt;</span><br><span class="line">            format none</span><br><span class="line">          &lt;/pattern&gt;</span><br><span class="line">        &lt;/parse&gt;</span><br><span class="line">      &lt;/filter&gt;</span><br><span class="line">      &lt;filter kubernetes.**&gt;</span><br><span class="line">        @id filter_record_transformer_kubernetes</span><br><span class="line">        @type record_transformer</span><br><span class="line">        enable_ruby true</span><br><span class="line">        &lt;record&gt;</span><br><span class="line">          level INFO</span><br><span class="line">          _tmp1_ $&#123;record[&quot;kubernetes&quot;][&quot;namespace&quot;] = record[&quot;kubernetes&quot;][&quot;namespace_name&quot;]&#125;</span><br><span class="line">          _tmp2_ $&#123;record[&quot;kubernetes&quot;][&quot;pod&quot;] = &#123;&quot;name&quot;: record[&quot;kubernetes&quot;][&quot;pod_name&quot;]&#125;&#125;</span><br><span class="line">          _tmp3_ $&#123;record[&quot;kubernetes&quot;][&quot;container&quot;] = &#123;&quot;name&quot;: record[&quot;kubernetes&quot;][&quot;container_name&quot;]&#125;&#125;</span><br><span class="line">          _tmp4_ $&#123;record[&quot;kubernetes&quot;][&quot;node&quot;] = &#123;&quot;name&quot;: record[&quot;kubernetes&quot;][&quot;host&quot;]&#125;&#125;</span><br><span class="line">        &lt;/record&gt;</span><br><span class="line">        remove_keys _tmp1_,_tmp2_,_tmp3_,_tmp4_</span><br><span class="line">      &lt;/filter&gt;</span><br><span class="line">aggregator:</span><br><span class="line">  configMapFiles:</span><br><span class="line">    fluentd-output.conf: |</span><br><span class="line">      &lt;match fluentd.healthcheck&gt;</span><br><span class="line">        @type stdout</span><br><span class="line">      &lt;/match&gt;</span><br><span class="line">      &lt;match **&gt;</span><br><span class="line">        @id elasticsearch</span><br><span class="line">        @type elasticsearch</span><br><span class="line">        @log_level info</span><br><span class="line">        type_name _doc</span><br><span class="line">        include_tag_key true</span><br><span class="line">        host &quot;#&#123;ENV[&#x27;ELASTICSEARCH_HOST&#x27;]&#125;&quot;</span><br><span class="line">        port &quot;#&#123;ENV[&#x27;ELASTICSEARCH_PORT&#x27;]&#125;&quot;</span><br><span class="line">        logstash_format true</span><br><span class="line">        &lt;buffer&gt;</span><br><span class="line">          @type file</span><br><span class="line">          path /opt/bitnami/fluentd/logs/buffers/logs.buffer</span><br><span class="line">          flush_mode interval</span><br><span class="line">          retry_type exponential_backoff</span><br><span class="line">          flush_thread_count 2</span><br><span class="line">          flush_interval 5s</span><br><span class="line">          retry_forever</span><br><span class="line">          retry_max_interval 30</span><br><span class="line">          chunk_limit_size 2M</span><br><span class="line">          total_limit_size 500M</span><br><span class="line">          overflow_action block</span><br><span class="line">        &lt;/buffer&gt;</span><br><span class="line">      &lt;/match&gt;</span><br><span class="line">  extraEnv:</span><br><span class="line">    - name: ELASTICSEARCH_HOST</span><br><span class="line">      value: &quot;elasticsearch-elasticsearch-coordinating-only&quot;</span><br><span class="line">    - name: ELASTICSEARCH_PORT</span><br><span class="line">      value: &quot;9200&quot;</span><br><span class="line"><span class="meta">#</span><span class="bash"><span class="comment">##</span></span></span><br><span class="line">helm install --create-namespace --namespace cmp-efk fluentd -f values-override.yaml .</span><br></pre></td></tr></table></figure>
+
+<h2 id="EFK-filebeat"><a href="#EFK-filebeat" class="headerlink" title="EFK | filebeat"></a>EFK | filebeat</h2><h3 id="HELM-安装-1"><a href="#HELM-安装-1" class="headerlink" title="HELM 安装"></a>HELM 安装</h3><figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">helm repo add elastic https://helm.elastic.co</span><br><span class="line"></span><br><span class="line">helm pull elastic/elasticsearch --version 7.9.2</span><br><span class="line">helm pull elastic/kibana --version 7.9.2</span><br><span class="line">helm pull elastic/filebeat --version 7.9.2</span><br><span class="line"></span><br><span class="line">vi elasticsearch-values.yaml</span><br><span class="line"><span class="meta">#</span><span class="bash"><span class="comment">##</span></span></span><br><span class="line">fullnameOverride: elasticsearch</span><br><span class="line">replicas: 1</span><br><span class="line">minimumMasterNodes: 1</span><br><span class="line">service:</span><br><span class="line">  type: NodePort</span><br><span class="line">  nodePort: 30014</span><br><span class="line"><span class="meta">#</span><span class="bash"><span class="comment">##</span></span></span><br><span class="line">vi filebeat-values.yaml</span><br><span class="line"><span class="meta">#</span><span class="bash"><span class="comment">##</span></span></span><br><span class="line">fullnameOverride: filebeat</span><br><span class="line"><span class="meta">#</span><span class="bash"><span class="comment">##</span></span></span><br><span class="line">vi kibana-values.yaml</span><br><span class="line"><span class="meta">#</span><span class="bash"><span class="comment">##</span></span></span><br><span class="line">fullnameOverride: kibana</span><br><span class="line">service:</span><br><span class="line">  type: NodePort</span><br><span class="line">  nodePort: 30016</span><br><span class="line"><span class="meta">#</span><span class="bash"><span class="comment">##</span></span></span><br><span class="line"></span><br><span class="line">helm install --create-namespace --namespace cmp-efk elasticsearch -f elasticsearch-values.yaml ./elasticsearch</span><br><span class="line">helm install --create-namespace --namespace cmp-efk filebeat -f filebeat-values.yaml ./filebeat</span><br><span class="line">helm install --create-namespace --namespace cmp-efk kibana -f kibana-values.yaml ./kibana</span><br></pre></td></tr></table></figure>
 
 ]]></content>
       <categories>
@@ -882,7 +882,7 @@
       </categories>
       <tags>
         <tag>K8S</tag>
-        <tag>harbor</tag>
+        <tag>EFK</tag>
       </tags>
   </entry>
 </search>
